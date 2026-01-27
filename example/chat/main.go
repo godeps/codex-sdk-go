@@ -17,6 +17,7 @@ func main() {
 	timeout := flag.Duration("timeout", 5*time.Minute, "Timeout per turn")
 	apiKey := flag.String("api-key", "", "CODEX_API_KEY override")
 	baseURL := flag.String("base-url", "", "OPENAI_BASE_URL override")
+	model := flag.String("model", "", "Model to use (e.g., claude-sonnet-4, gpt-4)")
 	flag.Parse()
 
 	options := codex.CodexOptions{}
@@ -28,12 +29,16 @@ func main() {
 	}
 	client := codex.NewCodex(options)
 
-	thread := client.StartThread(codex.ThreadOptions{
+	threadOptions := codex.ThreadOptions{
 		WorkingDirectory: ".",
 		SkipGitRepoCheck: true,
 		SandboxMode:      codex.SandboxDangerFullAccess,
 		ApprovalPolicy:   codex.ApprovalNever,
-	})
+	}
+	if *model != "" {
+		threadOptions.Model = *model
+	}
+	thread := client.StartThread(threadOptions)
 
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Enter message (type 'exit' to quit):")

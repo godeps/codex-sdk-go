@@ -200,12 +200,25 @@ jobs:
           git tag "${TAG}" "${TARGET_COMMIT}"
           git push origin "refs/tags/${TAG}"
 
-      - name: Download runtime release bundle and release evidence
+      - name: Download runtime release bundle
         uses: actions/download-artifact@v4
         with:
-          pattern: "release-evidence|runtime-release-bundle-imported"
-          path: artifacts/release-downloads
-          merge-multiple: false
+          name: runtime-release-bundle-imported
+          path: artifacts/release-downloads/runtime-release-bundle-imported
+
+      - name: Download release evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: release-evidence
+          path: artifacts/release-downloads/release-evidence
+
+      - name: Verify publish inputs
+        shell: bash
+        run: |
+          test -f artifacts/release-downloads/release-evidence/release-bundle.json
+          test -f artifacts/release-downloads/runtime-release-bundle-imported/release/codex-sdk-go-runtime-manifest.json
+          test -f artifacts/release-downloads/runtime-release-bundle-imported/release/codex-sdk-go-runtime-manifest.json.sig
+          test "$(find artifacts/release-downloads/runtime-release-bundle-imported/runtime-targets -name 'codex-sdk-go-runtime_*.tar.gz' | wc -l | tr -d ' ')" = "6"
 
       - name: Publish GitHub release
         env:

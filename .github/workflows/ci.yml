@@ -70,13 +70,35 @@ jobs:
       - name: Run protocol fuzz smoke
         shell: bash
         run: |
-          GOWORK=off go test -run '^$' -fuzz FuzzClientRequestUnmarshal -fuzztime=10s ./protocol
-          GOWORK=off go test -run '^$' -fuzz FuzzServerRequestUnmarshal -fuzztime=10s ./protocol
-          GOWORK=off go test -run '^$' -fuzz FuzzThreadItemUnmarshal -fuzztime=10s ./protocol
-          GOWORK=off go test -run '^$' -fuzz FuzzServerNotificationUnmarshal -fuzztime=10s ./protocol
-          GOWORK=off go test -run '^$' -fuzz FuzzRequestIDUnmarshal -fuzztime=10s ./protocol
-          GOWORK=off go test -run '^$' -fuzz FuzzThreadListCwdFilterUnmarshal -fuzztime=10s ./protocol
-          GOWORK=off go test -run '^$' -fuzz FuzzAuthModeUnmarshal -fuzztime=10s ./protocol
+          set -euo pipefail
+          fuzz_dir="$(mktemp -d "${RUNNER_TEMP}/codex-protocol-fuzz-smoke.XXXXXX")"
+          cleanup() {
+            find "$fuzz_dir" -type f -delete
+            find "$fuzz_dir" -depth -type d -empty -delete
+          }
+          trap cleanup EXIT
+          GOWORK=off go test -c -fuzz '^FuzzClientRequestUnmarshal$' -o "$fuzz_dir/protocol.test" ./protocol
+          # Leave the internal deadline in reserve and use SIGINT for clean
+          # worker teardown after the smoke budget plus startup grace.
+          fuzz_smoke() {
+            local target=$1
+            local cache="$fuzz_dir/cache-$target"
+            mkdir -p "$cache"
+            timeout --preserve-status --signal=INT --kill-after=30s 15s \
+              "$fuzz_dir/protocol.test" \
+                -test.timeout=2m \
+                -test.run='^$' \
+                -test.fuzz="^${target}$" \
+                -test.fuzzcachedir="$cache" \
+                -test.fuzztime=1m
+          }
+          fuzz_smoke FuzzClientRequestUnmarshal
+          fuzz_smoke FuzzServerRequestUnmarshal
+          fuzz_smoke FuzzThreadItemUnmarshal
+          fuzz_smoke FuzzServerNotificationUnmarshal
+          fuzz_smoke FuzzRequestIDUnmarshal
+          fuzz_smoke FuzzThreadListCwdFilterUnmarshal
+          fuzz_smoke FuzzAuthModeUnmarshal
 
       - name: Repeat race on concurrency and lifecycle suites
         shell: bash

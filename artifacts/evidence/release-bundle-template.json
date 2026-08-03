@@ -1,0 +1,46 @@
+{
+  "commit": "",
+  "tag": "",
+  "goVersion": "",
+  "runtimeVersion": "",
+  "schemaSha256": "",
+  "generatorSha256": "",
+  "ci": {
+    "workflow": {
+      "runId": "",
+      "runUrl": ""
+    },
+    "commands": [],
+    "analyzer": ""
+  },
+  "coverage": {
+    "packages": []
+  },
+  "stress": {
+    "workflow": {
+      "runId": "",
+      "runUrl": ""
+    },
+    "summaries": []
+  },
+  "runtimeNative": {
+    "workflow": {
+      "runId": "",
+      "runUrl": ""
+    },
+    "targetJobs": []
+  },
+  "runtimeTests": {
+    "runId": "",
+    "runUrl": ""
+  },
+  "artifacts": [],
+  "provenance": [],
+  "knownLimitations": [],
+  "completedMatrix": [],
+  "manifestSignature": {
+    "keyId": "",
+    "algorithm": "ed25519"
+  },
+  "releaseWorkflowUrl": ""
+}

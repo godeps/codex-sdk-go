@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"thread-success-1"}
+{"type":"item.completed","item":{"id":"reasoning-1","type":"reasoning","text":"thinking"}}
+{"type":"item.completed","item":{"id":"message-1","type":"agent_message","text":"final answer"}}
+{"type":"turn.completed","usage":{"input_tokens":3,"cached_input_tokens":1,"output_tokens":5}}

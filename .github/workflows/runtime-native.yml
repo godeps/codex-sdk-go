@@ -1,0 +1,148 @@
+name: runtime-native
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/runtime-native.yml"
+      - "cmd/codex-sdk-runtime/**"
+      - "internal/runtimebin/**"
+      - "runtime/**"
+      - "go.mod"
+  pull_request:
+    paths:
+      - ".github/workflows/runtime-native.yml"
+      - "cmd/codex-sdk-runtime/**"
+      - "internal/runtimebin/**"
+      - "runtime/**"
+      - "go.mod"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  darwin_amd64:
+    uses: ./.github/workflows/runtime-native-target.yml
+    with:
+      runner: ${{ vars.CODEX_RUNTIME_RUNNER_DARWIN_AMD64 != '' && vars.CODEX_RUNTIME_RUNNER_DARWIN_AMD64 || 'macos-15-intel' }}
+      target_triple: x86_64-apple-darwin
+      runtime_bin: bin/codex
+      expect_goos: darwin
+      expect_goarch: amd64
+  darwin_arm64:
+    uses: ./.github/workflows/runtime-native-target.yml
+    with:
+      runner: ${{ vars.CODEX_RUNTIME_RUNNER_DARWIN_ARM64 != '' && vars.CODEX_RUNTIME_RUNNER_DARWIN_ARM64 || 'macos-15' }}
+      target_triple: aarch64-apple-darwin
+      runtime_bin: bin/codex
+      expect_goos: darwin
+      expect_goarch: arm64
+  linux_amd64:
+    uses: ./.github/workflows/runtime-native-target.yml
+    with:
+      runner: ${{ vars.CODEX_RUNTIME_RUNNER_LINUX_AMD64 != '' && vars.CODEX_RUNTIME_RUNNER_LINUX_AMD64 || 'ubuntu-24.04' }}
+      target_triple: x86_64-unknown-linux-musl
+      runtime_bin: bin/codex
+      expect_goos: linux
+      expect_goarch: amd64
+  linux_arm64:
+    uses: ./.github/workflows/runtime-native-target.yml
+    with:
+      runner: ${{ vars.CODEX_RUNTIME_RUNNER_LINUX_ARM64 != '' && vars.CODEX_RUNTIME_RUNNER_LINUX_ARM64 || 'ubuntu-24.04-arm' }}
+      target_triple: aarch64-unknown-linux-musl
+      runtime_bin: bin/codex
+      expect_goos: linux
+      expect_goarch: arm64
+  windows_amd64:
+    uses: ./.github/workflows/runtime-native-target.yml
+    with:
+      runner: ${{ vars.CODEX_RUNTIME_RUNNER_WINDOWS_AMD64 != '' && vars.CODEX_RUNTIME_RUNNER_WINDOWS_AMD64 || 'windows-2025' }}
+      target_triple: x86_64-pc-windows-msvc
+      runtime_bin: bin/codex.exe
+      expect_goos: windows
+      expect_goarch: amd64
+  windows_arm64:
+    uses: ./.github/workflows/runtime-native-target.yml
+    with:
+      runner: ${{ vars.CODEX_RUNTIME_RUNNER_WINDOWS_ARM64 != '' && vars.CODEX_RUNTIME_RUNNER_WINDOWS_ARM64 || 'windows-11-arm' }}
+      target_triple: aarch64-pc-windows-msvc
+      runtime_bin: bin/codex.exe
+      expect_goos: windows
+      expect_goarch: arm64
+
+  aggregate:
+    needs:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: runtime-target-*
+          path: artifacts/runtime-targets
+          merge-multiple: false
+
+      - name: Build combined manifest
+        shell: bash
+        run: |
+          mkdir -p artifacts/release/runtime
+          records=()
+          while IFS= read -r -d '' path; do
+            records+=(--record "$path")
+          done < <(find artifacts/runtime-targets -name record.json -print0 | sort -z)
+          test "${#records[@]}" -eq 6
+          go run ./cmd/codex-sdk-runtime manifest \
+            --sdk-version v0.2.0 \
+            --runtime-version 0.144.4 \
+            --output artifacts/release/runtime/manifest.json \
+            "${records[@]}"
+          cp artifacts/release/runtime/manifest.json artifacts/release/codex-sdk-go-runtime-manifest.json
+          cmp artifacts/release/runtime/manifest.json artifacts/release/codex-sdk-go-runtime-manifest.json
+
+      - name: Sign combined manifest
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          CODEX_RUNTIME_MANIFEST_PRIVATE_KEY_BASE64: ${{ secrets.CODEX_RUNTIME_MANIFEST_PRIVATE_KEY_BASE64 }}
+        run: |
+          test -n "$CODEX_RUNTIME_MANIFEST_PRIVATE_KEY_BASE64"
+          go run ./cmd/codex-sdk-runtime sign \
+            --manifest artifacts/release/codex-sdk-go-runtime-manifest.json \
+            --output artifacts/release/codex-sdk-go-runtime-manifest.json.sig \
+            --key-id runtime-manifest-v3
+
+      - name: Enrich target evidence with manifest hash
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          manifest = Path("artifacts/release/codex-sdk-go-runtime-manifest.json").read_bytes()
+          manifest_sha = hashlib.sha256(manifest).hexdigest()
+          evidence_paths = sorted(Path("artifacts/runtime-targets").glob("**/evidence/*.json"))
+          if len(evidence_paths) != 6:
+              raise SystemExit(f"expected 6 evidence files, found {len(evidence_paths)}")
+          for evidence_path in evidence_paths:
+              data = json.loads(evidence_path.read_text())
+              data["manifestSha256"] = manifest_sha
+              evidence_path.write_text(json.dumps(data, indent=2) + "\n")
+          PY
+
+      - name: Upload release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-release-bundle
+          path: |
+            artifacts/runtime-targets
+            artifacts/release

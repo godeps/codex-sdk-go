@@ -1,0 +1,98 @@
+name: stress
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stress:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run 30 minute stress suite
+        shell: bash
+        run: scripts/ci/run_stress.sh artifacts/evidence/stress/stress-summary.json
+
+      - name: Upload stress summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-summary
+          path: artifacts/evidence/stress/stress-summary.json
+
+  protocol-fuzz:
+    name: protocol-fuzz-${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - FuzzClientRequestUnmarshal
+          - FuzzServerRequestUnmarshal
+          - FuzzServerNotificationUnmarshal
+          - FuzzThreadItemUnmarshal
+          - FuzzRequestIDUnmarshal
+          - FuzzThreadListCwdFilterUnmarshal
+          - FuzzAuthModeUnmarshal
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Fuzz generated protocol family for ten minutes
+        shell: bash
+        run: |
+          mkdir -p artifacts/evidence/stress
+          GOWORK=off go test -run '^$' -fuzz '^${{ matrix.target }}$' -fuzztime=10m ./protocol
+          cat > "artifacts/evidence/stress/${{ matrix.target }}.json" <<JSON
+          {
+            "fuzzTarget": "${{ matrix.target }}",
+            "fuzzTime": "10m",
+            "package": "./protocol"
+          }
+          JSON
+
+      - name: Upload fuzz summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: protocol-fuzz-${{ matrix.target }}
+          path: artifacts/evidence/stress/${{ matrix.target }}.json
+
+  aggregate-evidence:
+    runs-on: ubuntu-24.04
+    needs:
+      - stress
+      - protocol-fuzz
+    permissions:
+      contents: read
+    steps:
+      - name: Download stress summaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "stress-summary|protocol-fuzz-*"
+          path: artifacts/evidence/stress
+          merge-multiple: true
+
+      - name: Verify combined stress evidence shape
+        shell: bash
+        run: |
+          test -f artifacts/evidence/stress/stress-summary.json
+          test "$(find artifacts/evidence/stress -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')" = "8"
+
+      - name: Upload stress evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-evidence
+          path: artifacts/evidence/stress

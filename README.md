@@ -1,231 +1,234 @@
 # Codex SDK (Go)
 
-Embed the Codex agent in Go workflows and apps.
+The Go SDK exposes the Codex app-server in two layers:
 
-This SDK wraps the `codex` CLI and exchanges JSONL events over stdin/stdout.
+- `Client`, the preferred context-first API for long-lived, concurrent use.
+- `Codex`, the legacy v0.1 compatibility facade for existing callers.
 
-## Features
+Use `Client` for new code. Keep `Codex` only while migrating older call sites.
 
-- Start or resume Codex threads from Go.
-- Stream JSONL events or wait for final responses.
-- Provide JSON schema for structured responses.
-- Attach local images alongside text prompts.
-- Configure sandboxing, web search, and model settings.
-- Pass through additional Codex CLI `--config` overrides.
-- Tolerate unknown streamed item types from newer Codex CLIs.
-
-## Requirements
-
-- Go 1.25+ (module declares `go 1.25.5`).
-- A `codex` CLI available on `PATH` or bundled alongside the module (see "Codex CLI resolution").
-
-## Installation
-
-```bash
-go get github.com/godeps/codex-sdk-go
-```
-
-## Quickstart
+## Getting Started
 
 ```go
 package main
 
 import (
+	"context"
 	"fmt"
+	"time"
 
-	"github.com/godeps/codex-sdk-go"
+	codex "github.com/godeps/codex-sdk-go"
 )
 
 func main() {
-	client := codex.NewCodex(codex.CodexOptions{})
-	thread := client.StartThread(codex.ThreadOptions{})
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
 
-	turn, err := thread.Run(codex.TextInput("Diagnose the test failure and propose a fix"), codex.TurnOptions{})
+	client, err := codex.NewClient(ctx)
+	if err != nil {
+		panic(err)
+	}
+	defer client.Close()
+
+	thread, err := client.StartThread(ctx, codex.ThreadOptions{
+		WorkingDirectory: ".",
+		SandboxMode:      codex.SandboxDangerFullAccess,
+		ApprovalPolicy:   codex.ApprovalNever,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	turn, err := thread.RunContext(ctx, codex.TextInput("Summarize this repository"), codex.TurnOptions{})
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println(turn.FinalResponse)
-	fmt.Println(turn.Items)
 }
 ```
 
-Call `Run()` repeatedly on the same `Thread` instance to continue the conversation.
+`NewClient` starts the app-server immediately. Add options such as `codex.WithCodexPath`,
+`codex.WithRuntimeCacheRoot`, `codex.WithRuntimeVersion`, `codex.WithAllowPATH`,
+`codex.WithBaseURL`, or `codex.WithAPIKey` when you need to pin runtime resolution or override
+auth/config settings.
 
-```go
-nextTurn, err := thread.Run(codex.TextInput("Implement the fix"), codex.TurnOptions{})
-```
+## API Overview
 
-## Streaming responses
+### Root client
 
-`Run()` buffers events until the turn finishes. To react to intermediate progress, use `RunStreamed()`.
+- `NewClient(ctx, opts...)` starts and initializes the app-server immediately.
+- `Client.Metadata`, `Close`, `CloseContext`, `Wait`, and `WaitContext` expose lifecycle state.
+- `Client.ListModels`, `StartThread`, `ResumeThread`, `ReadThread`, `ListThreads`, `ForkThread`,
+  `ArchiveThread`, `UnarchiveThread`, `SetThreadName`, and `CompactThread` use
+  `context.Context`.
+- `Client.LoginAPIKey`, `LoginChatGPT`, `LoginDeviceCode`, `Account`, `Logout`, `GetGoal`,
+  `SetGoal`, `ClearGoal`, `PauseGoal`, and `StartGoal` use the same context-first style.
 
-```go
-streamed, err := thread.RunStreamed(
-	codex.TextInput("Diagnose the test failure and propose a fix"),
-	codex.TurnOptions{},
-)
-if err != nil {
-	panic(err)
-}
+### Threads, turns, and goals
 
-for event := range streamed.Events {
-	switch event.Type {
-	case "item.completed":
-		fmt.Println("item", event.Item)
-	case "turn.completed":
-		fmt.Println("usage", event.Usage)
-	}
-}
+- `Thread.RunContext` is the direct "start and collect" path for one turn.
+- `Thread.StartTurnContext` returns a live `TurnHandle`.
+- `TurnHandle.Stream`, `RunContext`, `Steer`, and `Interrupt` control one in-flight turn.
+- `Thread.StartGoalContext` returns a `GoalHandle`.
+- `GoalHandle.StreamContext`, `RunContext`, `CancelContext`, and `Close` control one logical goal.
 
-if err := <-streamed.Done; err != nil {
-	panic(err)
-}
-```
+`TurnResult` carries the collected result for the context-first API: turn ID, status, error,
+timestamps, duration, final response, items, and usage.
 
-## Structured output
+### Inputs
 
-Codex can produce a JSON response that conforms to a specified schema. The schema must be a JSON object.
+Use `TextInput` for plain prompts or `ItemsInput` for structured input. The helper constructors
+map to the current app-server wire format:
 
-```go
-schema := map[string]any{
-	"type": "object",
-	"properties": map[string]any{
-		"summary": map[string]any{"type": "string"},
-		"status":  map[string]any{"type": "string", "enum": []any{"ok", "action_required"}},
-	},
-	"required":             []any{"summary", "status"},
-	"additionalProperties": false,
-}
+- `DataURLImageInput(url string)`
+- `LocalImageInput(path string)`
+- `SkillInput(name, path string)`
+- `MentionInput(name, path string)`
 
-turn, err := thread.Run(
-	codex.TextInput("Summarize repository status"),
-	codex.TurnOptions{OutputSchema: schema},
-)
-if err != nil {
-	panic(err)
-}
-fmt.Println(turn.FinalResponse)
-```
+`ItemsInput` preserves order. Invalid, empty, or unsupported entries return an error instead of
+being dropped.
 
-## Attaching images
+### Options
 
-Provide structured input entries when you need to include images alongside text.
+`NewClient` accepts either a `CodexOptions` value directly or helper `Option` values. The current
+options include:
 
-```go
-turn, err := thread.Run(
-	codex.ItemsInput(
-		codex.UserInput{Type: codex.UserInputText, Text: "Describe these screenshots"},
-		codex.UserInput{Type: codex.UserInputLocalImage, Path: "./ui.png"},
-		codex.UserInput{Type: codex.UserInputLocalImage, Path: "./diagram.jpg"},
-	),
-	codex.TurnOptions{},
-)
-```
+- `WithCodexPath`
+- `WithBaseURL`
+- `WithAPIKey`
+- `WithConfig`
+- `WithEnv`
+- `WithRuntimeCacheRoot`
+- `WithRuntimeVersion`
+- `WithAllowPATH`
 
-## Thread management
+`ThreadOptions` and `TurnOptions` keep the current app-server fields visible in Go.
 
-Threads are persisted in `~/.codex/sessions`. Reconstruct them with `ResumeThread()` when needed.
+Common enum values:
 
-```go
-threadID := os.Getenv("CODEX_THREAD_ID")
-thread := codex.ResumeThread(threadID, codex.ThreadOptions{})
-_, err := thread.Run(codex.TextInput("Implement the fix"), codex.TurnOptions{})
-```
-
-You can access the current thread ID after the first turn starts:
-
-```go
-id := thread.ID()
-```
-
-## Configuration
-
-### CodexOptions
-
-```go
-client := codex.NewCodex(codex.CodexOptions{
-	CodexPathOverride: "/path/to/codex",
-	BaseURL:           "https://api.openai.com",
-	APIKey:            "your-api-key",
-	Config: map[string]any{
-		"show_raw_agent_reasoning": true,
-		"sandbox_workspace_write": map[string]any{
-			"network_access": true,
-		},
-	},
-	Env: map[string]string{
-		"PATH": "/usr/local/bin",
-	},
-})
-```
-
-Notes:
-
-- `Config` accepts a nested object. The SDK flattens it into repeated `--config dotted.path=TOML-value` flags for each CLI invocation.
-- `ThreadOptions` explicit settings are appended after `Config`, so thread-scoped options override global defaults when they target the same setting.
-- `Env` fully overrides the environment passed to the CLI (the SDK will not inherit the parent process env).
-- `BaseURL` and `APIKey` are mapped to `OPENAI_BASE_URL` and `CODEX_API_KEY` for the CLI process.
-
-### API key configuration
-
-You can provide the API key either via `CodexOptions` or environment variables.
-
-```go
-// Option 1: pass explicitly
-client := codex.NewCodex(codex.CodexOptions{
-	APIKey: "your-api-key",
-})
-
-// Option 2: use environment variable
-// export CODEX_API_KEY=your-api-key
-```
-
-If you need a custom base URL, set `BaseURL` or export `OPENAI_BASE_URL`.
-
-### ThreadOptions
-
-```go
-networkAccess := true
-thread := client.StartThread(codex.ThreadOptions{
-	Model:                 "your-model",
-	SandboxMode:           codex.SandboxWorkspaceWrite,
-	WorkingDirectory:      "/path/to/project",
-	SkipGitRepoCheck:      true,
-	ModelReasoningEffort:  codex.ReasoningMedium,
-	NetworkAccessEnabled:  &networkAccess,
-	WebSearchMode:         codex.WebSearchLive,
-	ApprovalPolicy:        codex.ApprovalOnRequest,
-	AdditionalDirectories: []string{"/path/to/extra"},
-})
-```
-
-Supported values:
-
+- `ApprovalMode`: `never`, `on-request`, `on-failure`, `untrusted`
+- `ApprovalPreset`: `deny_all`, `auto_review`
 - `SandboxMode`: `read-only`, `workspace-write`, `danger-full-access`
 - `ModelReasoningEffort`: `minimal`, `low`, `medium`, `high`, `xhigh`
 - `WebSearchMode`: `disabled`, `cached`, `live`
-- `ApprovalPolicy`: `never`, `on-request`, `on-failure`, `untrusted`
+- `ReasoningSummary`: `none`, `auto`, `brief`, `detailed`
 
-If you prefer a boolean toggle for web search, set `WebSearchEnabled` instead of `WebSearchMode`.
+`ApprovalPresetDenyAll` maps to `ApprovalNever`. `ApprovalPresetAutoReview` maps to
+`ApprovalOnRequest` with the `auto_review` reviewer.
 
-## Forward compatibility
+## Streaming, Steering, And Interrupting
 
-When a newer Codex CLI emits an item type this SDK does not model yet, the stream continues and exposes the payload as `*codex.UnknownItem`. Its `Type` field preserves the item type string and `Raw` retains the original item JSON for custom handling.
+`TurnHandle.Stream()` returns a pull-based `TurnStream`. Each `Next(ctx)` call yields one routed
+`ThreadEvent`. `Close()` is idempotent and unregisters the route. After `Close`, future `Next`
+calls return `ErrStreamClosed`.
 
-## Error handling and usage
+Use `TurnHandle.Steer` to inject more input into the active turn and `TurnHandle.Interrupt` to
+stop it.
 
-- `Run()` returns an error when the turn fails or the CLI exits with an error.
-- `Turn.Usage` includes `input_tokens`, `cached_input_tokens`, and `output_tokens` when available.
+## Login, Account, And Goal
 
-## Codex CLI resolution
+The context-first login and account APIs are:
 
-The SDK resolves the CLI in this order:
+- `Client.LoginAPIKey(ctx, apiKey)`
+- `Client.LoginChatGPT(ctx)`
+- `Client.LoginDeviceCode(ctx)`
+- `Client.Account(ctx, refreshToken)`
+- `Client.Logout(ctx)`
 
-1. `CodexPathOverride` if provided.
-2. `codex` in `PATH`.
-3. A bundled binary under `vendor/<target-triple>/codex/` within the module.
+The interactive login handles expose `WaitContext` and `CancelContext`. The legacy facade keeps
+the older `Wait` and `Cancel` helpers for compatibility.
+
+Goal APIs operate on persisted threads:
+
+- `Thread.GetGoalContext(ctx)`
+- `Thread.SetGoalContext(ctx, update)`
+- `Thread.ClearGoalContext(ctx)`
+- `Thread.PauseGoalContext(ctx)`
+- `Thread.StartGoalContext(ctx, objective)`
+
+`GoalHandle` is the logical goal stream. Use `RunContext` to collect the final goal result or
+`CancelContext` for best-effort pause and interrupt cleanup.
+
+## Runtime Installation And Resolution
+
+The SDK and the runtime installer solve different problems:
+
+- `NewClient` resolves a Codex executable from `WithCodexPath` first, then from the
+  `CODEX_RUNTIME_PATH` environment variable, then from a verified managed runtime cache, and then
+  from `PATH` only when `WithAllowPATH(true)` is set.
+- `WithEnv` replaces the environment passed to the Codex CLI process. If you do not set it, the
+  SDK inherits the current process environment.
+- `codex-sdk-runtime` manages pinned runtime archives in a cache. Its resolution order is explicit
+  binary path, `CODEX_RUNTIME_PATH`, verified managed cache, and then `PATH` only when allowed by
+  policy.
+
+Supported runtime targets:
+
+| GOOS | GOARCH | target triple | executable |
+|---|---|---|---|
+| darwin | amd64 | x86_64-apple-darwin | codex |
+| darwin | arm64 | aarch64-apple-darwin | codex |
+| linux | amd64 | x86_64-unknown-linux-musl | codex |
+| linux | arm64 | aarch64-unknown-linux-musl | codex |
+| windows | amd64 | x86_64-pc-windows-msvc | codex.exe |
+| windows | arm64 | aarch64-pc-windows-msvc | codex.exe |
+
+The checked-in runtime artifacts under `runtime/testdata/release/` make the installer runnable
+offline on the matching platform. For the current platform, this command installs from the
+versioned local archive and manifest:
+
+```bash
+archive="runtime/testdata/release/codex-sdk-go-runtime_0.144.4_$(go env GOOS)_$(go env GOARCH).tar.gz"
+cache="$(mktemp -d)"
+GOWORK=off go run ./cmd/codex-sdk-runtime install \
+  --cache-root "$cache" \
+  --manifest runtime/manifest.json \
+  --manifest-signature runtime/manifest.json.sig \
+  --archive "$archive"
+GOWORK=off go run ./cmd/codex-sdk-runtime path \
+  --cache-root "$cache" \
+  --runtime-version 0.144.4
+```
+
+`version` converts an SDK/runtime version to the upstream release tag:
+
+```bash
+GOWORK=off go run ./cmd/codex-sdk-runtime version 0.144.4
+```
+
+## Protocol Generation And Locking
+
+`reference.lock.json` pins the upstream Codex checkout, Python root, runtime package/version,
+aggregate schema path, schema SHA-256, and the six supported target triples. The generator refuses
+to silently switch to another checkout.
+
+- `GOWORK=off go run ./cmd/codex-sdk-gen verify` checks the checked-in schema and
+  `protocol/manifest.json` against the lock.
+- `GOWORK=off go run ./cmd/codex-sdk-gen refresh` refreshes the snapshot from the pinned reference
+  checkout when the lock changes.
+
+If the pinned reference repository is not available, the generator fails with a diagnostic instead
+of guessing.
+
+## Migration And Examples
+
+The legacy facade remains in the module so callers can migrate gradually. See
+[docs/migration-v0.1-to-v0.2.md](docs/migration-v0.1-to-v0.2.md) for the compatibility map and
+[docs/api-reference.md](docs/api-reference.md) for the current context-first surface.
+
+Executable examples live under:
+
+- `example/common`
+- `example/stream`
+- `example/steer`
+- `example/image`
+- `example/structured-output`
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-See `LICENSE`.
+MIT. See [LICENSE](LICENSE).

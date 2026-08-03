@@ -1,0 +1,1707 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "upstreamRepo": "https://github.com/openai/codex",
+    "commit": "bb5054fe47",
+    "pythonRoot": "sdk/python",
+    "runtimePackage": "openai-codex-cli-bin",
+    "runtimeVersion": "0.144.4",
+    "schemaFile": "codex_app_server_protocol.v2.schemas.json",
+    "schemaSHA256": "7d79fe309dd7520843459070f3884ecf0e39cee2620c1c49aad6efb4eca76ecb"
+  },
+  "counts": {
+    "aggregateDefinitions": 557,
+    "supplementalDefinitions": 417,
+    "requests": 95,
+    "notifications": 70,
+    "serverRequests": 10
+  },
+  "definitions": [
+    "AbsolutePathBuf",
+    "Account",
+    "AccountLoginCompletedNotification",
+    "AccountRateLimitsUpdatedNotification",
+    "AccountTokenUsageDailyBucket",
+    "AccountTokenUsageSummary",
+    "AccountUpdatedNotification",
+    "ActivePermissionProfile",
+    "AddCreditsNudgeCreditType",
+    "AddCreditsNudgeEmailStatus",
+    "AdditionalContextEntry",
+    "AdditionalContextKind",
+    "AdditionalFileSystemPermissions",
+    "AdditionalNetworkPermissions",
+    "AgentMessageDeltaNotification",
+    "AgentMessageInputContent",
+    "AgentPath",
+    "AnalyticsConfig",
+    "AppBranding",
+    "AppConfig",
+    "AppInfo",
+    "AppListUpdatedNotification",
+    "AppMetadata",
+    "AppReview",
+    "AppScreenshot",
+    "AppSummary",
+    "AppTemplateSummary",
+    "AppTemplateUnavailableReason",
+    "AppToolApproval",
+    "AppToolConfig",
+    "AppToolSummary",
+    "AppToolsConfig",
+    "ApprovalsReviewer",
+    "AppsConfig",
+    "AppsDefaultConfig",
+    "AppsInstalledParams",
+    "AppsInstalledResponse",
+    "AppsListParams",
+    "AppsListResponse",
+    "AppsReadParams",
+    "AppsReadResponse",
+    "AskForApproval",
+    "AuthMode",
+    "AutoCompactTokenLimitScope",
+    "AutoReviewDecisionSource",
+    "BrowserUseRequirements",
+    "ByteRange",
+    "CancelLoginAccountParams",
+    "CancelLoginAccountResponse",
+    "CancelLoginAccountStatus",
+    "CapabilityRootLocation",
+    "ClientInfo",
+    "ClientRequest",
+    "CodexErrorInfo",
+    "CodexResponseHandoffMode",
+    "CollabAgentState",
+    "CollabAgentStatus",
+    "CollabAgentTool",
+    "CollabAgentToolCallStatus",
+    "CollaborationMode",
+    "CollaborationModeMask",
+    "CommandAction",
+    "CommandExecOutputDeltaNotification",
+    "CommandExecOutputStream",
+    "CommandExecParams",
+    "CommandExecResizeParams",
+    "CommandExecResizeResponse",
+    "CommandExecResponse",
+    "CommandExecTerminalSize",
+    "CommandExecTerminateParams",
+    "CommandExecTerminateResponse",
+    "CommandExecWriteParams",
+    "CommandExecWriteResponse",
+    "CommandExecutionOutputDeltaNotification",
+    "CommandExecutionSource",
+    "CommandExecutionStatus",
+    "CommandMigration",
+    "ComputerUseRequirements",
+    "Config",
+    "ConfigBatchWriteParams",
+    "ConfigEdit",
+    "ConfigLayer",
+    "ConfigLayerMetadata",
+    "ConfigLayerSource",
+    "ConfigReadParams",
+    "ConfigReadResponse",
+    "ConfigRequirements",
+    "ConfigRequirementsReadResponse",
+    "ConfigValueWriteParams",
+    "ConfigWarningNotification",
+    "ConfigWriteResponse",
+    "ConfiguredHookHandler",
+    "ConfiguredHookMatcherGroup",
+    "ConnectorMetadata",
+    "ConsumeAccountRateLimitResetCreditOutcome",
+    "ConsumeAccountRateLimitResetCreditParams",
+    "ConsumeAccountRateLimitResetCreditResponse",
+    "ContentItem",
+    "ContextCompactedNotification",
+    "ConversationTextRole",
+    "CreditsSnapshot",
+    "DeprecationNoticeNotification",
+    "DesktopOnboardingEntrypoint",
+    "DynamicToolCallOutputContentItem",
+    "DynamicToolCallStatus",
+    "DynamicToolNamespaceTool",
+    "DynamicToolSpec",
+    "EnvironmentConnectionNotification",
+    "ErrorNotification",
+    "ExperimentalFeature",
+    "ExperimentalFeatureEnablementSetParams",
+    "ExperimentalFeatureEnablementSetResponse",
+    "ExperimentalFeatureListParams",
+    "ExperimentalFeatureListResponse",
+    "ExperimentalFeatureStage",
+    "ExternalAgentConfigDetectParams",
+    "ExternalAgentConfigDetectResponse",
+    "ExternalAgentConfigImportCompletedNotification",
+    "ExternalAgentConfigImportHistoriesReadResponse",
+    "ExternalAgentConfigImportHistory",
+    "ExternalAgentConfigImportHistoryRecordParams",
+    "ExternalAgentConfigImportHistoryRecordResponse",
+    "ExternalAgentConfigImportHistoryRecordSuccessParams",
+    "ExternalAgentConfigImportHistoryRecordTypeResultParams",
+    "ExternalAgentConfigImportItemTypeFailure",
+    "ExternalAgentConfigImportItemTypeSuccess",
+    "ExternalAgentConfigImportParams",
+    "ExternalAgentConfigImportProgressNotification",
+    "ExternalAgentConfigImportResponse",
+    "ExternalAgentConfigImportTypeResult",
+    "ExternalAgentConfigMigrationItem",
+    "ExternalAgentConfigMigrationItemType",
+    "ExternalAgentDetectedConnectorCandidate",
+    "ExternalAgentDetectedConnectorSource",
+    "ExternalAgentImportedConnectorCandidate",
+    "ExternalAgentImportedConnectorSource",
+    "FeedbackRequirements",
+    "FeedbackUploadParams",
+    "FeedbackUploadResponse",
+    "FileChangeOutputDeltaNotification",
+    "FileChangePatchUpdatedNotification",
+    "FileSystemAccessMode",
+    "FileSystemPath",
+    "FileSystemSandboxEntry",
+    "FileSystemSpecialPath",
+    "FileUpdateChange",
+    "ForcedChatgptWorkspaceIds",
+    "ForcedLoginMethod",
+    "FsChangedNotification",
+    "FsCopyParams",
+    "FsCopyResponse",
+    "FsCreateDirectoryParams",
+    "FsCreateDirectoryResponse",
+    "FsGetMetadataParams",
+    "FsGetMetadataResponse",
+    "FsReadDirectoryEntry",
+    "FsReadDirectoryParams",
+    "FsReadDirectoryResponse",
+    "FsReadFileParams",
+    "FsReadFileResponse",
+    "FsRemoveParams",
+    "FsRemoveResponse",
+    "FsUnwatchParams",
+    "FsUnwatchResponse",
+    "FsWatchParams",
+    "FsWatchResponse",
+    "FsWriteFileParams",
+    "FsWriteFileResponse",
+    "FunctionCallOutputBody",
+    "FunctionCallOutputContentItem",
+    "FuzzyFileSearchMatchType",
+    "FuzzyFileSearchParams",
+    "FuzzyFileSearchResult",
+    "FuzzyFileSearchSessionCompletedNotification",
+    "FuzzyFileSearchSessionUpdatedNotification",
+    "GetAccountParams",
+    "GetAccountRateLimitsResponse",
+    "GetAccountResponse",
+    "GetAccountTokenUsageResponse",
+    "GetWorkspaceMessagesResponse",
+    "GitInfo",
+    "GuardianApprovalReview",
+    "GuardianApprovalReviewAction",
+    "GuardianApprovalReviewStatus",
+    "GuardianCommandSource",
+    "GuardianRiskLevel",
+    "GuardianUserAuthorization",
+    "GuardianWarningNotification",
+    "HookCompletedNotification",
+    "HookErrorInfo",
+    "HookEventName",
+    "HookExecutionMode",
+    "HookHandlerType",
+    "HookMetadata",
+    "HookMigration",
+    "HookOutputEntry",
+    "HookOutputEntryKind",
+    "HookPromptFragment",
+    "HookRunStatus",
+    "HookRunSummary",
+    "HookScope",
+    "HookSource",
+    "HookStartedNotification",
+    "HookTrustStatus",
+    "HooksListEntry",
+    "HooksListParams",
+    "HooksListResponse",
+    "ImageDetail",
+    "InitializeCapabilities",
+    "InitializeParams",
+    "InputModality",
+    "InstalledApp",
+    "InternalChatMessageMetadataPassthrough",
+    "ItemCompletedNotification",
+    "ItemGuardianApprovalReviewCompletedNotification",
+    "ItemGuardianApprovalReviewStartedNotification",
+    "ItemStartedNotification",
+    "LegacyAppPathString",
+    "ListMcpServerStatusParams",
+    "ListMcpServerStatusResponse",
+    "LocalShellAction",
+    "LocalShellStatus",
+    "LoginAccountParams",
+    "LoginAccountResponse",
+    "LoginAppBrand",
+    "LogoutAccountResponse",
+    "ManagedHooksRequirements",
+    "MarketplaceAddParams",
+    "MarketplaceAddResponse",
+    "MarketplaceInterface",
+    "MarketplaceLoadErrorInfo",
+    "MarketplaceRemoveParams",
+    "MarketplaceRemoveResponse",
+    "MarketplaceUpgradeErrorInfo",
+    "MarketplaceUpgradeParams",
+    "MarketplaceUpgradeResponse",
+    "McpAuthStatus",
+    "McpResourceReadParams",
+    "McpResourceReadResponse",
+    "McpServerInfo",
+    "McpServerMigration",
+    "McpServerOauthLoginCompletedNotification",
+    "McpServerOauthLoginParams",
+    "McpServerOauthLoginResponse",
+    "McpServerRefreshResponse",
+    "McpServerStartupFailureReason",
+    "McpServerStartupState",
+    "McpServerStatus",
+    "McpServerStatusDetail",
+    "McpServerStatusUpdatedNotification",
+    "McpServerToolCallParams",
+    "McpServerToolCallResponse",
+    "McpToolCallAppContext",
+    "McpToolCallError",
+    "McpToolCallProgressNotification",
+    "McpToolCallResult",
+    "McpToolCallStatus",
+    "MemoryCitation",
+    "MemoryCitationEntry",
+    "MergeStrategy",
+    "MessagePhase",
+    "MigrationDetails",
+    "ModeKind",
+    "Model",
+    "ModelAvailabilityNux",
+    "ModelListParams",
+    "ModelListResponse",
+    "ModelProviderCapabilitiesReadParams",
+    "ModelProviderCapabilitiesReadResponse",
+    "ModelRerouteReason",
+    "ModelReroutedNotification",
+    "ModelSafetyBufferingUpdatedNotification",
+    "ModelServiceTier",
+    "ModelUpgradeInfo",
+    "ModelVerification",
+    "ModelVerificationNotification",
+    "ModelsRequirements",
+    "MultiAgentMode",
+    "NetworkAccess",
+    "NetworkApprovalProtocol",
+    "NetworkDomainPermission",
+    "NetworkRequirements",
+    "NetworkUnixSocketPermission",
+    "NewThreadModelDefaults",
+    "NonSteerableTurnKind",
+    "OverriddenMetadata",
+    "PatchApplyStatus",
+    "PatchChangeKind",
+    "PathUri",
+    "PermissionProfileListParams",
+    "PermissionProfileListResponse",
+    "PermissionProfileSummary",
+    "Personality",
+    "PlanDeltaNotification",
+    "PlanType",
+    "PluginAuthPolicy",
+    "PluginAvailability",
+    "PluginDetail",
+    "PluginDisabledReason",
+    "PluginHookSummary",
+    "PluginInstallParams",
+    "PluginInstallPolicy",
+    "PluginInstallPolicySource",
+    "PluginInstallResponse",
+    "PluginInstalledParams",
+    "PluginInstalledResponse",
+    "PluginInterface",
+    "PluginListMarketplaceKind",
+    "PluginListParams",
+    "PluginListResponse",
+    "PluginMarketplaceEntry",
+    "PluginReadParams",
+    "PluginReadResponse",
+    "PluginSearchResult",
+    "PluginSearchScope",
+    "PluginShareCheckoutParams",
+    "PluginShareCheckoutResponse",
+    "PluginShareContext",
+    "PluginShareDeleteParams",
+    "PluginShareDeleteResponse",
+    "PluginShareDiscoverability",
+    "PluginShareListItem",
+    "PluginShareListParams",
+    "PluginShareListResponse",
+    "PluginSharePrincipal",
+    "PluginSharePrincipalRole",
+    "PluginSharePrincipalType",
+    "PluginShareSaveParams",
+    "PluginShareSaveResponse",
+    "PluginShareTarget",
+    "PluginShareTargetRole",
+    "PluginShareUpdateDiscoverability",
+    "PluginShareUpdateTargetsParams",
+    "PluginShareUpdateTargetsResponse",
+    "PluginSkillReadParams",
+    "PluginSkillReadResponse",
+    "PluginSource",
+    "PluginSummary",
+    "PluginUninstallParams",
+    "PluginUninstallResponse",
+    "PluginsMigration",
+    "ProcessExitedNotification",
+    "ProcessOutputDeltaNotification",
+    "ProcessOutputStream",
+    "ProcessTerminalSize",
+    "RateLimitReachedType",
+    "RateLimitResetCredit",
+    "RateLimitResetCreditStatus",
+    "RateLimitResetCreditsSummary",
+    "RateLimitResetType",
+    "RateLimitSnapshot",
+    "RateLimitWindow",
+    "RawResponseCompletedNotification",
+    "RawResponseItemCompletedNotification",
+    "RealtimeConversationVersion",
+    "RealtimeOutputModality",
+    "RealtimeVoice",
+    "RealtimeVoicesList",
+    "ReasoningEffort",
+    "ReasoningEffortOption",
+    "ReasoningItemContent",
+    "ReasoningItemReasoningSummary",
+    "ReasoningSummary",
+    "ReasoningSummaryPartAddedNotification",
+    "ReasoningSummaryTextDeltaNotification",
+    "ReasoningTextDeltaNotification",
+    "RemoteControlConnectionStatus",
+    "RemoteControlDisableParams",
+    "RemoteControlEnableParams",
+    "RemoteControlStatusChangedNotification",
+    "RequestId",
+    "RequestPermissionProfile",
+    "ResidencyRequirement",
+    "Resource",
+    "ResourceContent",
+    "ResourceTemplate",
+    "ResponseItem",
+    "ResponsesApiWebSearchAction",
+    "ReviewDelivery",
+    "ReviewStartParams",
+    "ReviewStartResponse",
+    "ReviewTarget",
+    "SandboxMode",
+    "SandboxPolicy",
+    "SandboxWorkspaceWrite",
+    "ScheduledTaskSchedule",
+    "ScheduledTaskSummary",
+    "ScheduledTaskWeekday",
+    "SelectedCapabilityRoot",
+    "SendAddCreditsNudgeEmailParams",
+    "SendAddCreditsNudgeEmailResponse",
+    "ServerNotification",
+    "ServerRequestResolvedNotification",
+    "SessionMigration",
+    "SessionSource",
+    "Settings",
+    "SkillDependencies",
+    "SkillErrorInfo",
+    "SkillInterface",
+    "SkillMetadata",
+    "SkillMigration",
+    "SkillScope",
+    "SkillSummary",
+    "SkillToolDependency",
+    "SkillsChangedNotification",
+    "SkillsConfigWriteParams",
+    "SkillsConfigWriteResponse",
+    "SkillsExtraRootsSetParams",
+    "SkillsExtraRootsSetResponse",
+    "SkillsListEntry",
+    "SkillsListParams",
+    "SkillsListResponse",
+    "SortDirection",
+    "SpendControlLimitSnapshot",
+    "SubAgentActivityKind",
+    "SubAgentSource",
+    "SubagentMigration",
+    "TerminalInteractionNotification",
+    "TextElement",
+    "TextPosition",
+    "TextRange",
+    "Thread",
+    "ThreadActiveFlag",
+    "ThreadApproveGuardianDeniedActionParams",
+    "ThreadApproveGuardianDeniedActionResponse",
+    "ThreadArchiveParams",
+    "ThreadArchiveResponse",
+    "ThreadArchivedNotification",
+    "ThreadClosedNotification",
+    "ThreadCompactStartParams",
+    "ThreadCompactStartResponse",
+    "ThreadDeleteParams",
+    "ThreadDeleteResponse",
+    "ThreadDeletedNotification",
+    "ThreadExtra",
+    "ThreadForkParams",
+    "ThreadForkResponse",
+    "ThreadGoal",
+    "ThreadGoalClearParams",
+    "ThreadGoalClearResponse",
+    "ThreadGoalClearedNotification",
+    "ThreadGoalGetParams",
+    "ThreadGoalGetResponse",
+    "ThreadGoalSetParams",
+    "ThreadGoalSetResponse",
+    "ThreadGoalStatus",
+    "ThreadGoalUpdatedNotification",
+    "ThreadHistoryMode",
+    "ThreadId",
+    "ThreadInjectItemsParams",
+    "ThreadInjectItemsResponse",
+    "ThreadItem",
+    "ThreadItemEntry",
+    "ThreadListCwdFilter",
+    "ThreadListParams",
+    "ThreadListResponse",
+    "ThreadLoadedListParams",
+    "ThreadLoadedListResponse",
+    "ThreadMemoryMode",
+    "ThreadMetadataGitInfoUpdateParams",
+    "ThreadMetadataUpdateParams",
+    "ThreadMetadataUpdateResponse",
+    "ThreadNameUpdatedNotification",
+    "ThreadReadParams",
+    "ThreadReadResponse",
+    "ThreadRealtimeAudioChunk",
+    "ThreadRealtimeClosedNotification",
+    "ThreadRealtimeErrorNotification",
+    "ThreadRealtimeInitialItem",
+    "ThreadRealtimeItemAddedNotification",
+    "ThreadRealtimeOutputAudioDeltaNotification",
+    "ThreadRealtimeSdpNotification",
+    "ThreadRealtimeStartTransport",
+    "ThreadRealtimeStartedNotification",
+    "ThreadRealtimeTranscriptDeltaNotification",
+    "ThreadRealtimeTranscriptDoneNotification",
+    "ThreadResumeInitialTurnsPageParams",
+    "ThreadResumeParams",
+    "ThreadResumeResponse",
+    "ThreadRollbackParams",
+    "ThreadRollbackResponse",
+    "ThreadSearchResult",
+    "ThreadSearchSortKey",
+    "ThreadSection",
+    "ThreadSectionCreateParams",
+    "ThreadSectionCreateResponse",
+    "ThreadSectionDeleteParams",
+    "ThreadSectionDeleteResponse",
+    "ThreadSectionListParams",
+    "ThreadSectionListResponse",
+    "ThreadSectionMoveParams",
+    "ThreadSectionMoveResponse",
+    "ThreadSectionUpdateParams",
+    "ThreadSectionUpdateResponse",
+    "ThreadSetNameParams",
+    "ThreadSetNameResponse",
+    "ThreadSettings",
+    "ThreadSettingsUpdatedNotification",
+    "ThreadShellCommandParams",
+    "ThreadShellCommandResponse",
+    "ThreadSortKey",
+    "ThreadSource",
+    "ThreadSourceKind",
+    "ThreadStartParams",
+    "ThreadStartResponse",
+    "ThreadStartSource",
+    "ThreadStartedNotification",
+    "ThreadStatus",
+    "ThreadStatusChangedNotification",
+    "ThreadTokenUsage",
+    "ThreadTokenUsageUpdatedNotification",
+    "ThreadUnarchiveParams",
+    "ThreadUnarchiveResponse",
+    "ThreadUnarchivedNotification",
+    "ThreadUnsubscribeParams",
+    "ThreadUnsubscribeResponse",
+    "ThreadUnsubscribeStatus",
+    "TokenUsageBreakdown",
+    "Tool",
+    "ToolsV2",
+    "Turn",
+    "TurnCompletedNotification",
+    "TurnDiffUpdatedNotification",
+    "TurnEnvironmentParams",
+    "TurnError",
+    "TurnInterruptParams",
+    "TurnInterruptResponse",
+    "TurnItemsView",
+    "TurnModerationMetadataNotification",
+    "TurnPlanStep",
+    "TurnPlanStepStatus",
+    "TurnPlanUpdatedNotification",
+    "TurnStartParams",
+    "TurnStartResponse",
+    "TurnStartedNotification",
+    "TurnStatus",
+    "TurnSteerParams",
+    "TurnSteerResponse",
+    "TurnsPage",
+    "UserInput",
+    "Verbosity",
+    "WarningNotification",
+    "WebSearchAction",
+    "WebSearchContextSize",
+    "WebSearchLocation",
+    "WebSearchMode",
+    "WebSearchToolConfig",
+    "WindowsSandboxReadiness",
+    "WindowsSandboxReadinessResponse",
+    "WindowsSandboxSetupCompletedNotification",
+    "WindowsSandboxSetupMode",
+    "WindowsSandboxSetupStartParams",
+    "WindowsSandboxSetupStartResponse",
+    "WindowsWorldWritableWarningNotification",
+    "WorkspaceMessage",
+    "WorkspaceMessageType",
+    "WriteStatus"
+  ],
+  "supplementalDefinitions": [
+    "AbsolutePathBuf",
+    "AccountLoginCompletedNotification",
+    "AccountRateLimitsUpdatedNotification",
+    "AccountUpdatedNotification",
+    "ActivePermissionProfile",
+    "AddCreditsNudgeCreditType",
+    "AdditionalContextEntry",
+    "AdditionalContextKind",
+    "AdditionalFileSystemPermissions",
+    "AdditionalNetworkPermissions",
+    "AdditionalPermissionProfile",
+    "AgentMessageDeltaNotification",
+    "AgentMessageInputContent",
+    "AgentPath",
+    "AppBranding",
+    "AppInfo",
+    "AppListUpdatedNotification",
+    "AppMetadata",
+    "AppReview",
+    "AppScreenshot",
+    "ApplyPatchApprovalParams",
+    "ApplyPatchApprovalResponse",
+    "ApprovalsReviewer",
+    "AppsInstalledParams",
+    "AppsListParams",
+    "AppsReadParams",
+    "AskForApproval",
+    "AttestationGenerateParams",
+    "AttestationGenerateResponse",
+    "AuthMode",
+    "AutoReviewDecisionSource",
+    "ByteRange",
+    "CancelLoginAccountParams",
+    "CapabilityRootLocation",
+    "ChatgptAuthTokensRefreshParams",
+    "ChatgptAuthTokensRefreshReason",
+    "ChatgptAuthTokensRefreshResponse",
+    "ClientInfo",
+    "ClientNotification",
+    "ClientRequest",
+    "CodexErrorInfo",
+    "CodexResponseHandoffMode",
+    "CollabAgentState",
+    "CollabAgentStatus",
+    "CollabAgentTool",
+    "CollabAgentToolCallStatus",
+    "CollaborationMode",
+    "CommandAction",
+    "CommandExecOutputDeltaNotification",
+    "CommandExecOutputStream",
+    "CommandExecParams",
+    "CommandExecResizeParams",
+    "CommandExecTerminalSize",
+    "CommandExecTerminateParams",
+    "CommandExecWriteParams",
+    "CommandExecutionApprovalDecision",
+    "CommandExecutionOutputDeltaNotification",
+    "CommandExecutionRequestApprovalParams",
+    "CommandExecutionRequestApprovalResponse",
+    "CommandExecutionSource",
+    "CommandExecutionStatus",
+    "CommandMigration",
+    "ConfigBatchWriteParams",
+    "ConfigEdit",
+    "ConfigReadParams",
+    "ConfigValueWriteParams",
+    "ConfigWarningNotification",
+    "ConsumeAccountRateLimitResetCreditParams",
+    "ContentItem",
+    "ContextCompactedNotification",
+    "ConversationTextRole",
+    "CreditsSnapshot",
+    "DeprecationNoticeNotification",
+    "DesktopOnboardingEntrypoint",
+    "DynamicToolCallOutputContentItem",
+    "DynamicToolCallParams",
+    "DynamicToolCallResponse",
+    "DynamicToolCallStatus",
+    "DynamicToolNamespaceTool",
+    "DynamicToolSpec",
+    "EnvironmentConnectionNotification",
+    "ErrorNotification",
+    "ExecCommandApprovalParams",
+    "ExecCommandApprovalResponse",
+    "ExperimentalFeatureEnablementSetParams",
+    "ExperimentalFeatureListParams",
+    "ExternalAgentConfigDetectParams",
+    "ExternalAgentConfigImportCompletedNotification",
+    "ExternalAgentConfigImportHistoryRecordParams",
+    "ExternalAgentConfigImportHistoryRecordSuccessParams",
+    "ExternalAgentConfigImportHistoryRecordTypeResultParams",
+    "ExternalAgentConfigImportItemTypeFailure",
+    "ExternalAgentConfigImportItemTypeSuccess",
+    "ExternalAgentConfigImportParams",
+    "ExternalAgentConfigImportProgressNotification",
+    "ExternalAgentConfigImportTypeResult",
+    "ExternalAgentConfigMigrationItem",
+    "ExternalAgentConfigMigrationItemType",
+    "FeedbackUploadParams",
+    "FileChange",
+    "FileChangeApprovalDecision",
+    "FileChangeOutputDeltaNotification",
+    "FileChangePatchUpdatedNotification",
+    "FileChangeRequestApprovalParams",
+    "FileChangeRequestApprovalResponse",
+    "FileSystemAccessMode",
+    "FileSystemPath",
+    "FileSystemSandboxEntry",
+    "FileSystemSpecialPath",
+    "FileUpdateChange",
+    "FsChangedNotification",
+    "FsCopyParams",
+    "FsCreateDirectoryParams",
+    "FsGetMetadataParams",
+    "FsReadDirectoryParams",
+    "FsReadFileParams",
+    "FsRemoveParams",
+    "FsUnwatchParams",
+    "FsWatchParams",
+    "FsWriteFileParams",
+    "FunctionCallOutputBody",
+    "FunctionCallOutputContentItem",
+    "FuzzyFileSearchMatchType",
+    "FuzzyFileSearchParams",
+    "FuzzyFileSearchResponse",
+    "FuzzyFileSearchResult",
+    "FuzzyFileSearchSessionCompletedNotification",
+    "FuzzyFileSearchSessionUpdatedNotification",
+    "GetAccountParams",
+    "GitInfo",
+    "GrantedPermissionProfile",
+    "GuardianApprovalReview",
+    "GuardianApprovalReviewAction",
+    "GuardianApprovalReviewStatus",
+    "GuardianCommandSource",
+    "GuardianRiskLevel",
+    "GuardianUserAuthorization",
+    "GuardianWarningNotification",
+    "HookCompletedNotification",
+    "HookEventName",
+    "HookExecutionMode",
+    "HookHandlerType",
+    "HookMigration",
+    "HookOutputEntry",
+    "HookOutputEntryKind",
+    "HookPromptFragment",
+    "HookRunStatus",
+    "HookRunSummary",
+    "HookScope",
+    "HookSource",
+    "HookStartedNotification",
+    "HooksListParams",
+    "ImageDetail",
+    "InitializeCapabilities",
+    "InitializeParams",
+    "InitializeResponse",
+    "InternalChatMessageMetadataPassthrough",
+    "ItemCompletedNotification",
+    "ItemGuardianApprovalReviewCompletedNotification",
+    "ItemGuardianApprovalReviewStartedNotification",
+    "ItemStartedNotification",
+    "JSONRPCError",
+    "JSONRPCErrorError",
+    "JSONRPCMessage",
+    "JSONRPCNotification",
+    "JSONRPCRequest",
+    "JSONRPCResponse",
+    "LegacyAppPathString",
+    "ListMcpServerStatusParams",
+    "LocalShellAction",
+    "LocalShellStatus",
+    "LoginAccountParams",
+    "LoginAppBrand",
+    "MarketplaceAddParams",
+    "MarketplaceRemoveParams",
+    "MarketplaceUpgradeParams",
+    "McpElicitationArrayType",
+    "McpElicitationBooleanSchema",
+    "McpElicitationBooleanType",
+    "McpElicitationConstOption",
+    "McpElicitationEnumSchema",
+    "McpElicitationLegacyTitledEnumSchema",
+    "McpElicitationMultiSelectEnumSchema",
+    "McpElicitationNumberSchema",
+    "McpElicitationNumberType",
+    "McpElicitationObjectType",
+    "McpElicitationPrimitiveSchema",
+    "McpElicitationSchema",
+    "McpElicitationSingleSelectEnumSchema",
+    "McpElicitationStringFormat",
+    "McpElicitationStringSchema",
+    "McpElicitationStringType",
+    "McpElicitationTitledEnumItems",
+    "McpElicitationTitledMultiSelectEnumSchema",
+    "McpElicitationTitledSingleSelectEnumSchema",
+    "McpElicitationUntitledEnumItems",
+    "McpElicitationUntitledMultiSelectEnumSchema",
+    "McpElicitationUntitledSingleSelectEnumSchema",
+    "McpResourceReadParams",
+    "McpServerElicitationAction",
+    "McpServerElicitationRequestParams",
+    "McpServerElicitationRequestResponse",
+    "McpServerMigration",
+    "McpServerOauthLoginCompletedNotification",
+    "McpServerOauthLoginParams",
+    "McpServerStartupFailureReason",
+    "McpServerStartupState",
+    "McpServerStatusDetail",
+    "McpServerStatusUpdatedNotification",
+    "McpServerToolCallParams",
+    "McpToolCallAppContext",
+    "McpToolCallError",
+    "McpToolCallProgressNotification",
+    "McpToolCallResult",
+    "McpToolCallStatus",
+    "MemoryCitation",
+    "MemoryCitationEntry",
+    "MergeStrategy",
+    "MessagePhase",
+    "MigrationDetails",
+    "ModeKind",
+    "ModelListParams",
+    "ModelProviderCapabilitiesReadParams",
+    "ModelRerouteReason",
+    "ModelReroutedNotification",
+    "ModelSafetyBufferingUpdatedNotification",
+    "ModelVerification",
+    "ModelVerificationNotification",
+    "MultiAgentMode",
+    "NetworkAccess",
+    "NetworkApprovalContext",
+    "NetworkApprovalProtocol",
+    "NetworkPolicyAmendment",
+    "NetworkPolicyRuleAction",
+    "NonSteerableTurnKind",
+    "ParsedCommand",
+    "PatchApplyStatus",
+    "PatchChangeKind",
+    "PermissionGrantScope",
+    "PermissionProfileListParams",
+    "PermissionsRequestApprovalParams",
+    "PermissionsRequestApprovalResponse",
+    "Personality",
+    "PlanDeltaNotification",
+    "PlanType",
+    "PluginInstallParams",
+    "PluginInstalledParams",
+    "PluginListMarketplaceKind",
+    "PluginListParams",
+    "PluginReadParams",
+    "PluginSearchScope",
+    "PluginShareCheckoutParams",
+    "PluginShareDeleteParams",
+    "PluginShareDiscoverability",
+    "PluginShareListParams",
+    "PluginSharePrincipalType",
+    "PluginShareSaveParams",
+    "PluginShareTarget",
+    "PluginShareTargetRole",
+    "PluginShareUpdateDiscoverability",
+    "PluginShareUpdateTargetsParams",
+    "PluginSkillReadParams",
+    "PluginUninstallParams",
+    "PluginsMigration",
+    "ProcessExitedNotification",
+    "ProcessOutputDeltaNotification",
+    "ProcessOutputStream",
+    "ProcessTerminalSize",
+    "RateLimitReachedType",
+    "RateLimitSnapshot",
+    "RateLimitWindow",
+    "RealtimeConversationVersion",
+    "RealtimeOutputModality",
+    "RealtimeVoice",
+    "ReasoningEffort",
+    "ReasoningItemContent",
+    "ReasoningItemReasoningSummary",
+    "ReasoningSummary",
+    "ReasoningSummaryPartAddedNotification",
+    "ReasoningSummaryTextDeltaNotification",
+    "ReasoningTextDeltaNotification",
+    "RemoteControlConnectionStatus",
+    "RemoteControlDisableParams",
+    "RemoteControlEnableParams",
+    "RemoteControlStatusChangedNotification",
+    "RequestId",
+    "RequestPermissionProfile",
+    "ResponseItem",
+    "ResponsesApiWebSearchAction",
+    "ReviewDecision",
+    "ReviewDelivery",
+    "ReviewStartParams",
+    "ReviewTarget",
+    "SandboxMode",
+    "SandboxPolicy",
+    "SelectedCapabilityRoot",
+    "SendAddCreditsNudgeEmailParams",
+    "ServerNotification",
+    "ServerRequest",
+    "ServerRequestResolvedNotification",
+    "SessionMigration",
+    "SessionSource",
+    "Settings",
+    "SkillMigration",
+    "SkillsChangedNotification",
+    "SkillsConfigWriteParams",
+    "SkillsExtraRootsSetParams",
+    "SkillsListParams",
+    "SortDirection",
+    "SpendControlLimitSnapshot",
+    "SubAgentActivityKind",
+    "SubAgentSource",
+    "SubagentMigration",
+    "TerminalInteractionNotification",
+    "TextElement",
+    "TextPosition",
+    "TextRange",
+    "Thread",
+    "ThreadActiveFlag",
+    "ThreadApproveGuardianDeniedActionParams",
+    "ThreadArchiveParams",
+    "ThreadArchivedNotification",
+    "ThreadClosedNotification",
+    "ThreadCompactStartParams",
+    "ThreadDeleteParams",
+    "ThreadDeletedNotification",
+    "ThreadExtra",
+    "ThreadForkParams",
+    "ThreadGoal",
+    "ThreadGoalClearParams",
+    "ThreadGoalClearedNotification",
+    "ThreadGoalGetParams",
+    "ThreadGoalSetParams",
+    "ThreadGoalStatus",
+    "ThreadGoalUpdatedNotification",
+    "ThreadHistoryMode",
+    "ThreadId",
+    "ThreadInjectItemsParams",
+    "ThreadItem",
+    "ThreadListCwdFilter",
+    "ThreadListParams",
+    "ThreadLoadedListParams",
+    "ThreadMemoryMode",
+    "ThreadMetadataGitInfoUpdateParams",
+    "ThreadMetadataUpdateParams",
+    "ThreadNameUpdatedNotification",
+    "ThreadReadParams",
+    "ThreadRealtimeAudioChunk",
+    "ThreadRealtimeClosedNotification",
+    "ThreadRealtimeErrorNotification",
+    "ThreadRealtimeInitialItem",
+    "ThreadRealtimeItemAddedNotification",
+    "ThreadRealtimeOutputAudioDeltaNotification",
+    "ThreadRealtimeSdpNotification",
+    "ThreadRealtimeStartTransport",
+    "ThreadRealtimeStartedNotification",
+    "ThreadRealtimeTranscriptDeltaNotification",
+    "ThreadRealtimeTranscriptDoneNotification",
+    "ThreadResumeInitialTurnsPageParams",
+    "ThreadResumeParams",
+    "ThreadRollbackParams",
+    "ThreadSearchSortKey",
+    "ThreadSection",
+    "ThreadSectionCreateParams",
+    "ThreadSectionDeleteParams",
+    "ThreadSectionListParams",
+    "ThreadSectionMoveParams",
+    "ThreadSectionUpdateParams",
+    "ThreadSetNameParams",
+    "ThreadSettings",
+    "ThreadSettingsUpdatedNotification",
+    "ThreadShellCommandParams",
+    "ThreadSortKey",
+    "ThreadSource",
+    "ThreadSourceKind",
+    "ThreadStartParams",
+    "ThreadStartSource",
+    "ThreadStartedNotification",
+    "ThreadStatus",
+    "ThreadStatusChangedNotification",
+    "ThreadTokenUsage",
+    "ThreadTokenUsageUpdatedNotification",
+    "ThreadUnarchiveParams",
+    "ThreadUnarchivedNotification",
+    "ThreadUnsubscribeParams",
+    "TokenUsageBreakdown",
+    "ToolRequestUserInputAnswer",
+    "ToolRequestUserInputOption",
+    "ToolRequestUserInputParams",
+    "ToolRequestUserInputQuestion",
+    "ToolRequestUserInputResponse",
+    "Turn",
+    "TurnCompletedNotification",
+    "TurnDiffUpdatedNotification",
+    "TurnEnvironmentParams",
+    "TurnError",
+    "TurnInterruptParams",
+    "TurnItemsView",
+    "TurnModerationMetadataNotification",
+    "TurnPlanStep",
+    "TurnPlanStepStatus",
+    "TurnPlanUpdatedNotification",
+    "TurnStartParams",
+    "TurnStartedNotification",
+    "TurnStatus",
+    "TurnSteerParams",
+    "UserInput",
+    "W3cTraceContext",
+    "WarningNotification",
+    "WebSearchAction",
+    "WindowsSandboxSetupCompletedNotification",
+    "WindowsSandboxSetupMode",
+    "WindowsSandboxSetupStartParams",
+    "WindowsWorldWritableWarningNotification",
+    "codex_app_server_protocol.schemas",
+    "codex_app_server_protocol.v2.schemas",
+    "v2"
+  ],
+  "requests": [
+    {
+      "method": "account/login/cancel",
+      "title": "AccountLoginCancelRequestEnvelope"
+    },
+    {
+      "method": "account/login/start",
+      "title": "AccountLoginStartRequestEnvelope"
+    },
+    {
+      "method": "account/logout",
+      "title": "AccountLogoutRequestEnvelope"
+    },
+    {
+      "method": "account/rateLimitResetCredit/consume",
+      "title": "AccountRateLimitResetCreditConsumeRequestEnvelope"
+    },
+    {
+      "method": "account/rateLimits/read",
+      "title": "AccountRateLimitsReadRequestEnvelope"
+    },
+    {
+      "method": "account/read",
+      "title": "AccountReadRequestEnvelope"
+    },
+    {
+      "method": "account/sendAddCreditsNudgeEmail",
+      "title": "AccountSendAddCreditsNudgeEmailRequestEnvelope"
+    },
+    {
+      "method": "account/usage/read",
+      "title": "AccountUsageReadRequestEnvelope"
+    },
+    {
+      "method": "account/workspaceMessages/read",
+      "title": "AccountWorkspaceMessagesReadRequestEnvelope"
+    },
+    {
+      "method": "app/installed",
+      "title": "AppInstalledRequestEnvelope"
+    },
+    {
+      "method": "app/list",
+      "title": "AppListRequestEnvelope"
+    },
+    {
+      "method": "app/read",
+      "title": "AppReadRequestEnvelope"
+    },
+    {
+      "method": "command/exec",
+      "title": "CommandExecRequestEnvelope"
+    },
+    {
+      "method": "command/exec/resize",
+      "title": "CommandExecResizeRequestEnvelope"
+    },
+    {
+      "method": "command/exec/terminate",
+      "title": "CommandExecTerminateRequestEnvelope"
+    },
+    {
+      "method": "command/exec/write",
+      "title": "CommandExecWriteRequestEnvelope"
+    },
+    {
+      "method": "config/batchWrite",
+      "title": "ConfigBatchWriteRequestEnvelope"
+    },
+    {
+      "method": "config/mcpServer/reload",
+      "title": "ConfigMcpServerReloadRequestEnvelope"
+    },
+    {
+      "method": "config/read",
+      "title": "ConfigReadRequestEnvelope"
+    },
+    {
+      "method": "config/value/write",
+      "title": "ConfigValueWriteRequestEnvelope"
+    },
+    {
+      "method": "configRequirements/read",
+      "title": "ConfigRequirementsReadRequestEnvelope"
+    },
+    {
+      "method": "experimentalFeature/enablement/set",
+      "title": "ExperimentalFeatureEnablementSetRequestEnvelope"
+    },
+    {
+      "method": "experimentalFeature/list",
+      "title": "ExperimentalFeatureListRequestEnvelope"
+    },
+    {
+      "method": "externalAgentConfig/detect",
+      "title": "ExternalAgentConfigDetectRequestEnvelope"
+    },
+    {
+      "method": "externalAgentConfig/import",
+      "title": "ExternalAgentConfigImportRequestEnvelope"
+    },
+    {
+      "method": "externalAgentConfig/import/readHistories",
+      "title": "ExternalAgentConfigImportReadHistoriesRequestEnvelope"
+    },
+    {
+      "method": "externalAgentConfig/import/recordHistory",
+      "title": "ExternalAgentConfigImportRecordHistoryRequestEnvelope"
+    },
+    {
+      "method": "feedback/upload",
+      "title": "FeedbackUploadRequestEnvelope"
+    },
+    {
+      "method": "fs/copy",
+      "title": "FsCopyRequestEnvelope"
+    },
+    {
+      "method": "fs/createDirectory",
+      "title": "FsCreateDirectoryRequestEnvelope"
+    },
+    {
+      "method": "fs/getMetadata",
+      "title": "FsGetMetadataRequestEnvelope"
+    },
+    {
+      "method": "fs/readDirectory",
+      "title": "FsReadDirectoryRequestEnvelope"
+    },
+    {
+      "method": "fs/readFile",
+      "title": "FsReadFileRequestEnvelope"
+    },
+    {
+      "method": "fs/remove",
+      "title": "FsRemoveRequestEnvelope"
+    },
+    {
+      "method": "fs/unwatch",
+      "title": "FsUnwatchRequestEnvelope"
+    },
+    {
+      "method": "fs/watch",
+      "title": "FsWatchRequestEnvelope"
+    },
+    {
+      "method": "fs/writeFile",
+      "title": "FsWriteFileRequestEnvelope"
+    },
+    {
+      "method": "fuzzyFileSearch",
+      "title": "FuzzyFileSearchRequestEnvelope"
+    },
+    {
+      "method": "hooks/list",
+      "title": "HooksListRequestEnvelope"
+    },
+    {
+      "method": "initialize",
+      "title": "InitializeRequestEnvelope"
+    },
+    {
+      "method": "marketplace/add",
+      "title": "MarketplaceAddRequestEnvelope"
+    },
+    {
+      "method": "marketplace/remove",
+      "title": "MarketplaceRemoveRequestEnvelope"
+    },
+    {
+      "method": "marketplace/upgrade",
+      "title": "MarketplaceUpgradeRequestEnvelope"
+    },
+    {
+      "method": "mcpServer/oauth/login",
+      "title": "McpServerOauthLoginRequestEnvelope"
+    },
+    {
+      "method": "mcpServer/resource/read",
+      "title": "McpServerResourceReadRequestEnvelope"
+    },
+    {
+      "method": "mcpServer/tool/call",
+      "title": "McpServerToolCallRequestEnvelope"
+    },
+    {
+      "method": "mcpServerStatus/list",
+      "title": "McpServerStatusListRequestEnvelope"
+    },
+    {
+      "method": "model/list",
+      "title": "ModelListRequestEnvelope"
+    },
+    {
+      "method": "modelProvider/capabilities/read",
+      "title": "ModelProviderCapabilitiesReadRequestEnvelope"
+    },
+    {
+      "method": "permissionProfile/list",
+      "title": "PermissionProfileListRequestEnvelope"
+    },
+    {
+      "method": "plugin/install",
+      "title": "PluginInstallRequestEnvelope"
+    },
+    {
+      "method": "plugin/installed",
+      "title": "PluginInstalledRequestEnvelope"
+    },
+    {
+      "method": "plugin/list",
+      "title": "PluginListRequestEnvelope"
+    },
+    {
+      "method": "plugin/read",
+      "title": "PluginReadRequestEnvelope"
+    },
+    {
+      "method": "plugin/share/checkout",
+      "title": "PluginShareCheckoutRequestEnvelope"
+    },
+    {
+      "method": "plugin/share/delete",
+      "title": "PluginShareDeleteRequestEnvelope"
+    },
+    {
+      "method": "plugin/share/list",
+      "title": "PluginShareListRequestEnvelope"
+    },
+    {
+      "method": "plugin/share/save",
+      "title": "PluginShareSaveRequestEnvelope"
+    },
+    {
+      "method": "plugin/share/updateTargets",
+      "title": "PluginShareUpdateTargetsRequestEnvelope"
+    },
+    {
+      "method": "plugin/skill/read",
+      "title": "PluginSkillReadRequestEnvelope"
+    },
+    {
+      "method": "plugin/uninstall",
+      "title": "PluginUninstallRequestEnvelope"
+    },
+    {
+      "method": "review/start",
+      "title": "ReviewStartRequestEnvelope"
+    },
+    {
+      "method": "skills/config/write",
+      "title": "SkillsConfigWriteRequestEnvelope"
+    },
+    {
+      "method": "skills/extraRoots/set",
+      "title": "SkillsExtraRootsSetRequestEnvelope"
+    },
+    {
+      "method": "skills/list",
+      "title": "SkillsListRequestEnvelope"
+    },
+    {
+      "method": "thread/approveGuardianDeniedAction",
+      "title": "ThreadApproveGuardianDeniedActionRequestEnvelope"
+    },
+    {
+      "method": "thread/archive",
+      "title": "ThreadArchiveRequestEnvelope"
+    },
+    {
+      "method": "thread/compact/start",
+      "title": "ThreadCompactStartRequestEnvelope"
+    },
+    {
+      "method": "thread/delete",
+      "title": "ThreadDeleteRequestEnvelope"
+    },
+    {
+      "method": "thread/fork",
+      "title": "ThreadForkRequestEnvelope"
+    },
+    {
+      "method": "thread/goal/clear",
+      "title": "ThreadGoalClearRequestEnvelope"
+    },
+    {
+      "method": "thread/goal/get",
+      "title": "ThreadGoalGetRequestEnvelope"
+    },
+    {
+      "method": "thread/goal/set",
+      "title": "ThreadGoalSetRequestEnvelope"
+    },
+    {
+      "method": "thread/inject_items",
+      "title": "ThreadInjectItemsRequestEnvelope"
+    },
+    {
+      "method": "thread/list",
+      "title": "ThreadListRequestEnvelope"
+    },
+    {
+      "method": "thread/loaded/list",
+      "title": "ThreadLoadedListRequestEnvelope"
+    },
+    {
+      "method": "thread/metadata/update",
+      "title": "ThreadMetadataUpdateRequestEnvelope"
+    },
+    {
+      "method": "thread/name/set",
+      "title": "ThreadNameSetRequestEnvelope"
+    },
+    {
+      "method": "thread/read",
+      "title": "ThreadReadRequestEnvelope"
+    },
+    {
+      "method": "thread/resume",
+      "title": "ThreadResumeRequestEnvelope"
+    },
+    {
+      "method": "thread/rollback",
+      "title": "ThreadRollbackRequestEnvelope"
+    },
+    {
+      "method": "thread/section/move",
+      "title": "ThreadSectionMoveRequestEnvelope"
+    },
+    {
+      "method": "thread/shellCommand",
+      "title": "ThreadShellCommandRequestEnvelope"
+    },
+    {
+      "method": "thread/start",
+      "title": "ThreadStartRequestEnvelope"
+    },
+    {
+      "method": "thread/unarchive",
+      "title": "ThreadUnarchiveRequestEnvelope"
+    },
+    {
+      "method": "thread/unsubscribe",
+      "title": "ThreadUnsubscribeRequestEnvelope"
+    },
+    {
+      "method": "threadSection/create",
+      "title": "ThreadSectionCreateRequestEnvelope"
+    },
+    {
+      "method": "threadSection/delete",
+      "title": "ThreadSectionDeleteRequestEnvelope"
+    },
+    {
+      "method": "threadSection/list",
+      "title": "ThreadSectionListRequestEnvelope"
+    },
+    {
+      "method": "threadSection/update",
+      "title": "ThreadSectionUpdateRequestEnvelope"
+    },
+    {
+      "method": "turn/interrupt",
+      "title": "TurnInterruptRequestEnvelope"
+    },
+    {
+      "method": "turn/start",
+      "title": "TurnStartRequestEnvelope"
+    },
+    {
+      "method": "turn/steer",
+      "title": "TurnSteerRequestEnvelope"
+    },
+    {
+      "method": "windowsSandbox/readiness",
+      "title": "WindowsSandboxReadinessRequestEnvelope"
+    },
+    {
+      "method": "windowsSandbox/setupStart",
+      "title": "WindowsSandboxSetupStartRequestEnvelope"
+    }
+  ],
+  "notifications": [
+    {
+      "method": "account/login/completed",
+      "title": "AccountLoginCompletedNotificationEnvelope"
+    },
+    {
+      "method": "account/rateLimits/updated",
+      "title": "AccountRateLimitsUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "account/updated",
+      "title": "AccountUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "app/list/updated",
+      "title": "AppListUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "command/exec/outputDelta",
+      "title": "CommandExecOutputDeltaNotificationEnvelope"
+    },
+    {
+      "method": "configWarning",
+      "title": "ConfigWarningNotificationEnvelope"
+    },
+    {
+      "method": "deprecationNotice",
+      "title": "DeprecationNoticeNotificationEnvelope"
+    },
+    {
+      "method": "error",
+      "title": "ErrorNotificationEnvelope"
+    },
+    {
+      "method": "externalAgentConfig/import/completed",
+      "title": "ExternalAgentConfigImportCompletedNotificationEnvelope"
+    },
+    {
+      "method": "externalAgentConfig/import/progress",
+      "title": "ExternalAgentConfigImportProgressNotificationEnvelope"
+    },
+    {
+      "method": "fs/changed",
+      "title": "FsChangedNotificationEnvelope"
+    },
+    {
+      "method": "fuzzyFileSearch/sessionCompleted",
+      "title": "FuzzyFileSearchSessionCompletedNotificationEnvelope"
+    },
+    {
+      "method": "fuzzyFileSearch/sessionUpdated",
+      "title": "FuzzyFileSearchSessionUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "guardianWarning",
+      "title": "GuardianWarningNotificationEnvelope"
+    },
+    {
+      "method": "hook/completed",
+      "title": "HookCompletedNotificationEnvelope"
+    },
+    {
+      "method": "hook/started",
+      "title": "HookStartedNotificationEnvelope"
+    },
+    {
+      "method": "item/agentMessage/delta",
+      "title": "ItemAgentMessageDeltaNotificationEnvelope"
+    },
+    {
+      "method": "item/autoApprovalReview/completed",
+      "title": "ItemAutoApprovalReviewCompletedNotificationEnvelope"
+    },
+    {
+      "method": "item/autoApprovalReview/started",
+      "title": "ItemAutoApprovalReviewStartedNotificationEnvelope"
+    },
+    {
+      "method": "item/commandExecution/outputDelta",
+      "title": "ItemCommandExecutionOutputDeltaNotificationEnvelope"
+    },
+    {
+      "method": "item/commandExecution/terminalInteraction",
+      "title": "ItemCommandExecutionTerminalInteractionNotificationEnvelope"
+    },
+    {
+      "method": "item/completed",
+      "title": "ItemCompletedNotificationEnvelope"
+    },
+    {
+      "method": "item/fileChange/outputDelta",
+      "title": "ItemFileChangeOutputDeltaNotificationEnvelope"
+    },
+    {
+      "method": "item/fileChange/patchUpdated",
+      "title": "ItemFileChangePatchUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "item/mcpToolCall/progress",
+      "title": "ItemMcpToolCallProgressNotificationEnvelope"
+    },
+    {
+      "method": "item/plan/delta",
+      "title": "ItemPlanDeltaNotificationEnvelope"
+    },
+    {
+      "method": "item/reasoning/summaryPartAdded",
+      "title": "ItemReasoningSummaryPartAddedNotificationEnvelope"
+    },
+    {
+      "method": "item/reasoning/summaryTextDelta",
+      "title": "ItemReasoningSummaryTextDeltaNotificationEnvelope"
+    },
+    {
+      "method": "item/reasoning/textDelta",
+      "title": "ItemReasoningTextDeltaNotificationEnvelope"
+    },
+    {
+      "method": "item/started",
+      "title": "ItemStartedNotificationEnvelope"
+    },
+    {
+      "method": "mcpServer/oauthLogin/completed",
+      "title": "McpServerOauthLoginCompletedNotificationEnvelope"
+    },
+    {
+      "method": "mcpServer/startupStatus/updated",
+      "title": "McpServerStartupStatusUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "model/rerouted",
+      "title": "ModelReroutedNotificationEnvelope"
+    },
+    {
+      "method": "model/safetyBuffering/updated",
+      "title": "ModelSafetyBufferingUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "model/verification",
+      "title": "ModelVerificationNotificationEnvelope"
+    },
+    {
+      "method": "process/exited",
+      "title": "ProcessExitedNotificationEnvelope"
+    },
+    {
+      "method": "process/outputDelta",
+      "title": "ProcessOutputDeltaNotificationEnvelope"
+    },
+    {
+      "method": "remoteControl/status/changed",
+      "title": "RemoteControlStatusChangedNotificationEnvelope"
+    },
+    {
+      "method": "serverRequest/resolved",
+      "title": "ServerRequestResolvedNotificationEnvelope"
+    },
+    {
+      "method": "skills/changed",
+      "title": "SkillsChangedNotificationEnvelope"
+    },
+    {
+      "method": "thread/archived",
+      "title": "ThreadArchivedNotificationEnvelope"
+    },
+    {
+      "method": "thread/closed",
+      "title": "ThreadClosedNotificationEnvelope"
+    },
+    {
+      "method": "thread/compacted",
+      "title": "ThreadCompactedNotificationEnvelope"
+    },
+    {
+      "method": "thread/deleted",
+      "title": "ThreadDeletedNotificationEnvelope"
+    },
+    {
+      "method": "thread/environment/connected",
+      "title": "ThreadEnvironmentConnectedNotificationEnvelope"
+    },
+    {
+      "method": "thread/environment/disconnected",
+      "title": "ThreadEnvironmentDisconnectedNotificationEnvelope"
+    },
+    {
+      "method": "thread/goal/cleared",
+      "title": "ThreadGoalClearedNotificationEnvelope"
+    },
+    {
+      "method": "thread/goal/updated",
+      "title": "ThreadGoalUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "thread/name/updated",
+      "title": "ThreadNameUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "thread/realtime/closed",
+      "title": "ThreadRealtimeClosedNotificationEnvelope"
+    },
+    {
+      "method": "thread/realtime/error",
+      "title": "ThreadRealtimeErrorNotificationEnvelope"
+    },
+    {
+      "method": "thread/realtime/itemAdded",
+      "title": "ThreadRealtimeItemAddedNotificationEnvelope"
+    },
+    {
+      "method": "thread/realtime/outputAudio/delta",
+      "title": "ThreadRealtimeOutputAudioDeltaNotificationEnvelope"
+    },
+    {
+      "method": "thread/realtime/sdp",
+      "title": "ThreadRealtimeSdpNotificationEnvelope"
+    },
+    {
+      "method": "thread/realtime/started",
+      "title": "ThreadRealtimeStartedNotificationEnvelope"
+    },
+    {
+      "method": "thread/realtime/transcript/delta",
+      "title": "ThreadRealtimeTranscriptDeltaNotificationEnvelope"
+    },
+    {
+      "method": "thread/realtime/transcript/done",
+      "title": "ThreadRealtimeTranscriptDoneNotificationEnvelope"
+    },
+    {
+      "method": "thread/settings/updated",
+      "title": "ThreadSettingsUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "thread/started",
+      "title": "ThreadStartedNotificationEnvelope"
+    },
+    {
+      "method": "thread/status/changed",
+      "title": "ThreadStatusChangedNotificationEnvelope"
+    },
+    {
+      "method": "thread/tokenUsage/updated",
+      "title": "ThreadTokenUsageUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "thread/unarchived",
+      "title": "ThreadUnarchivedNotificationEnvelope"
+    },
+    {
+      "method": "turn/completed",
+      "title": "TurnCompletedNotificationEnvelope"
+    },
+    {
+      "method": "turn/diff/updated",
+      "title": "TurnDiffUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "turn/moderationMetadata",
+      "title": "TurnModerationMetadataNotificationEnvelope"
+    },
+    {
+      "method": "turn/plan/updated",
+      "title": "TurnPlanUpdatedNotificationEnvelope"
+    },
+    {
+      "method": "turn/started",
+      "title": "TurnStartedNotificationEnvelope"
+    },
+    {
+      "method": "warning",
+      "title": "WarningNotificationEnvelope"
+    },
+    {
+      "method": "windows/worldWritableWarning",
+      "title": "WindowsWorldWritableWarningNotificationEnvelope"
+    },
+    {
+      "method": "windowsSandbox/setupCompleted",
+      "title": "WindowsSandboxSetupCompletedNotificationEnvelope"
+    }
+  ],
+  "serverRequests": [
+    {
+      "method": "account/chatgptAuthTokens/refresh",
+      "title": "AccountChatgptAuthTokensRefreshRequestEnvelope"
+    },
+    {
+      "method": "applyPatchApproval",
+      "title": "ApplyPatchApprovalRequestEnvelope"
+    },
+    {
+      "method": "attestation/generate",
+      "title": "AttestationGenerateRequestEnvelope"
+    },
+    {
+      "method": "execCommandApproval",
+      "title": "ExecCommandApprovalRequestEnvelope"
+    },
+    {
+      "method": "item/commandExecution/requestApproval",
+      "title": "ItemCommandExecutionRequestApprovalRequestEnvelope"
+    },
+    {
+      "method": "item/fileChange/requestApproval",
+      "title": "ItemFileChangeRequestApprovalRequestEnvelope"
+    },
+    {
+      "method": "item/permissions/requestApproval",
+      "title": "ItemPermissionsRequestApprovalRequestEnvelope"
+    },
+    {
+      "method": "item/tool/call",
+      "title": "ItemToolCallRequestEnvelope"
+    },
+    {
+      "method": "item/tool/requestUserInput",
+      "title": "ItemToolRequestUserInputRequestEnvelope"
+    },
+    {
+      "method": "mcpServer/elicitation/request",
+      "title": "McpServerElicitationRequestRequestEnvelope"
+    }
+  ],
+  "missingDefinitions": [],
+  "missingMethods": [],
+  "unsupportedConstructs": [],
+  "duplicateSymbols": []
+}

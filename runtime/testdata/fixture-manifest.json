@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "0.1.2",
+  "runtimeVersion": "0.144.4",
+  "upstreamRepo": "openai/codex",
+  "upstreamTag": "rust-v0.144.4",
+  "targets": [
+    {
+      "goos": "darwin",
+      "goarch": "arm64",
+      "triple": "aarch64-apple-darwin",
+      "executable": "codex",
+      "upstreamAsset": "codex-package-aarch64-apple-darwin.tar.gz",
+      "archiveName": "codex-sdk-go-runtime_0.144.4_darwin_arm64.tar.gz",
+      "archiveSha256": "b5b28ee3b935ff705e3fd80930333fe28092045cef37d563acb6182e4f61fa6b",
+      "archiveSize": 230,
+      "files": [
+        {
+          "path": "bin/codex",
+          "sha256": "598537f58a2a4d784546ec32c699f010ead4eb43b368169654b1b6064cd177f1",
+          "size": 29,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "bin/codex-code-mode-host",
+          "sha256": "50fe6dfa05538bd3efd0b17cb34d357c2445bd4918c18a765310eb7ea6e785f2",
+          "size": 26,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "6499db022449e40098539e1df1a4fa026509a8da97cb4fecc1e407abb82ccc35",
+          "size": 20,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg",
+          "sha256": "93fc0b40554ac8179344347e6e26eb3e5f3fbc844702f6108c9dc9dc895e43ed",
+          "size": 24,
+          "mode": 493,
+          "role": "path"
+        }
+      ]
+    },
+    {
+      "goos": "windows",
+      "goarch": "arm64",
+      "triple": "aarch64-pc-windows-msvc",
+      "executable": "codex.exe",
+      "upstreamAsset": "codex-package-aarch64-pc-windows-msvc.tar.gz",
+      "archiveName": "codex-sdk-go-runtime_0.144.4_windows_arm64.tar.gz",
+      "archiveSha256": "eeb9a85804c5615d0d407406cd1aa4a1991774128edffd50dbb401aadfc81b08",
+      "archiveSize": 318,
+      "files": [
+        {
+          "path": "bin/codex-code-mode-host.exe",
+          "sha256": "4d13d9c7a5db4688b35b8b1fbb6b52ecb718ef3f879762496fefd84d80ee984a",
+          "size": 29,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "bin/codex.exe",
+          "sha256": "7ee1dadfe5bc251b0054eb0b4f7186d571f7c4ab93a635356f180dc1f55a4ded",
+          "size": 32,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "6499db022449e40098539e1df1a4fa026509a8da97cb4fecc1e407abb82ccc35",
+          "size": 20,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg.exe",
+          "sha256": "46a1f3768b7c05fc30cd46f005b02d88d53d2ba778586b6f851d8dd769d6ee3e",
+          "size": 27,
+          "mode": 493,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/codex-command-runner.exe",
+          "sha256": "ab49f3eb142e8e18c94fa79d2017f57b6141b1c4cdc042f1a0d0e3de5297090e",
+          "size": 7,
+          "mode": 493,
+          "role": "resource"
+        },
+        {
+          "path": "codex-resources/codex-windows-sandbox-setup.exe",
+          "sha256": "ea7ec57fa66bf8ac9b1989bc11350cfd42213d5e3f2cd8b4d2155fc53f9ba1b3",
+          "size": 8,
+          "mode": 493,
+          "role": "resource"
+        }
+      ]
+    },
+    {
+      "goos": "linux",
+      "goarch": "arm64",
+      "triple": "aarch64-unknown-linux-musl",
+      "executable": "codex",
+      "upstreamAsset": "codex-package-aarch64-unknown-linux-musl.tar.gz",
+      "archiveName": "codex-sdk-go-runtime_0.144.4_linux_arm64.tar.gz",
+      "archiveSha256": "8397804dcc7ec343e4a3b411bc8cc239e0c0da047d2f281dff38013931ed5a24",
+      "archiveSize": 265,
+      "files": [
+        {
+          "path": "bin/codex",
+          "sha256": "bb06ef5e35a197b050d88069b604bf98cb09527816d8b8dfad7586e56d15f986",
+          "size": 35,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "bin/codex-code-mode-host",
+          "sha256": "aa87cb5a0450eedcc27261a99d42047cc271e3c491d08e15ca7a686f1fc86e15",
+          "size": 32,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "6499db022449e40098539e1df1a4fa026509a8da97cb4fecc1e407abb82ccc35",
+          "size": 20,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg",
+          "sha256": "797cf14e5f1dc4fea6b7eac15146aaed34a82a44a48550f22d84ab28a5272070",
+          "size": 30,
+          "mode": 493,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/bwrap",
+          "sha256": "02fa530cf80b07a485b188e4d00809f2736c4077dfa4d9ecece9d8a135805297",
+          "size": 6,
+          "mode": 493,
+          "role": "resource"
+        }
+      ]
+    },
+    {
+      "goos": "darwin",
+      "goarch": "amd64",
+      "triple": "x86_64-apple-darwin",
+      "executable": "codex",
+      "upstreamAsset": "codex-package-x86_64-apple-darwin.tar.gz",
+      "archiveName": "codex-sdk-go-runtime_0.144.4_darwin_amd64.tar.gz",
+      "archiveSha256": "3d4d81c61db0f929deabfc192c112920658a4dd2f1e689741456e186429442d8",
+      "archiveSize": 231,
+      "files": [
+        {
+          "path": "bin/codex",
+          "sha256": "7b36de14ffc1fa05357a945035a8666025a5a3821071f234605824fe81f5d923",
+          "size": 28,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "bin/codex-code-mode-host",
+          "sha256": "2a43ca411fcd720272de93fcd60cdb5c631c24b80892fb25ab2bd985e3699ba8",
+          "size": 25,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "6499db022449e40098539e1df1a4fa026509a8da97cb4fecc1e407abb82ccc35",
+          "size": 20,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg",
+          "sha256": "d8e7acc36b23c6d1894b2badfdfe57b576f9c88fc6e434c8d0c40648986f45b6",
+          "size": 23,
+          "mode": 493,
+          "role": "path"
+        }
+      ]
+    },
+    {
+      "goos": "windows",
+      "goarch": "amd64",
+      "triple": "x86_64-pc-windows-msvc",
+      "executable": "codex.exe",
+      "upstreamAsset": "codex-package-x86_64-pc-windows-msvc.tar.gz",
+      "archiveName": "codex-sdk-go-runtime_0.144.4_windows_amd64.tar.gz",
+      "archiveSha256": "2528d8086367515aa65b01024522d84a815ff7bc00940ae524eab05b9cdb9c4f",
+      "archiveSize": 316,
+      "files": [
+        {
+          "path": "bin/codex-code-mode-host.exe",
+          "sha256": "62e0b98d08925eea2e3efe0a54e3b66247146b91414b4c91b3499f9ca72ef0c8",
+          "size": 28,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "bin/codex.exe",
+          "sha256": "676daaa13933f4320d2747ada68c74dee813312940395aa377e8bfa356148fa5",
+          "size": 31,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "6499db022449e40098539e1df1a4fa026509a8da97cb4fecc1e407abb82ccc35",
+          "size": 20,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg.exe",
+          "sha256": "32eb05eaeb2c85f3c3a70bdbc87cc3b8fcf61d4831ac1c2b27c3056100fa7502",
+          "size": 26,
+          "mode": 493,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/codex-command-runner.exe",
+          "sha256": "ab49f3eb142e8e18c94fa79d2017f57b6141b1c4cdc042f1a0d0e3de5297090e",
+          "size": 7,
+          "mode": 493,
+          "role": "resource"
+        },
+        {
+          "path": "codex-resources/codex-windows-sandbox-setup.exe",
+          "sha256": "ea7ec57fa66bf8ac9b1989bc11350cfd42213d5e3f2cd8b4d2155fc53f9ba1b3",
+          "size": 8,
+          "mode": 493,
+          "role": "resource"
+        }
+      ]
+    },
+    {
+      "goos": "linux",
+      "goarch": "amd64",
+      "triple": "x86_64-unknown-linux-musl",
+      "executable": "codex",
+      "upstreamAsset": "codex-package-x86_64-unknown-linux-musl.tar.gz",
+      "archiveName": "codex-sdk-go-runtime_0.144.4_linux_amd64.tar.gz",
+      "archiveSha256": "07ad5e29447c28feba68c3457c0179960d416ee89ff21ab0b0ceab56e2e6fc3b",
+      "archiveSize": 267,
+      "files": [
+        {
+          "path": "bin/codex",
+          "sha256": "d52c1cc703fa02fa365d328cd15f7fac7319a5ef04515ed16c2893e248126ad7",
+          "size": 34,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "bin/codex-code-mode-host",
+          "sha256": "7fff1c8b7e1cd8f11b12bd7a3f760e2dd544ef430909340990e6c0e5c75abd6b",
+          "size": 31,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "6499db022449e40098539e1df1a4fa026509a8da97cb4fecc1e407abb82ccc35",
+          "size": 20,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg",
+          "sha256": "2d245692a25b2bf115b1cb5973cf16da0c3e1f161efcb3cdbd532ac9761bfc79",
+          "size": 29,
+          "mode": 493,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/bwrap",
+          "sha256": "02fa530cf80b07a485b188e4d00809f2736c4077dfa4d9ecece9d8a135805297",
+          "size": 6,
+          "mode": 493,
+          "role": "resource"
+        }
+      ]
+    }
+  ]
+}

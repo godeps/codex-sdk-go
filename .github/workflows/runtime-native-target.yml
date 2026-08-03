@@ -1,0 +1,72 @@
+name: runtime-native-target
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        required: true
+        type: string
+      target_triple:
+        required: true
+        type: string
+      runtime_bin:
+        required: true
+        type: string
+      expect_goos:
+        required: true
+        type: string
+      expect_goarch:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  smoke:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Verify native runner identity
+        shell: bash
+        run: |
+          test "$(go env GOOS)" = "${{ inputs.expect_goos }}"
+          test "$(go env GOARCH)" = "${{ inputs.expect_goarch }}"
+
+      - name: Repack upstream runtime
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/runtime-artifacts"
+          archive_name="codex-sdk-go-runtime_0.144.4_${{ inputs.expect_goos }}_${{ inputs.expect_goarch }}.tar.gz"
+          go run ./cmd/codex-sdk-runtime repack \
+            --target "${{ inputs.target_triple }}" \
+            --runtime-version 0.144.4 \
+            --sdk-version v0.2.0 \
+            --download-upstream \
+            --stage-dir "$RUNNER_TEMP/runtime-stage" \
+            --archive "$RUNNER_TEMP/runtime-artifacts/$archive_name" \
+            --record "$RUNNER_TEMP/runtime-artifacts/record.json"
+
+      - name: Native smoke and evidence
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/runtime-artifacts/evidence"
+          go run ./cmd/codex-sdk-runtime native-smoke \
+            --runtime-path "$RUNNER_TEMP/runtime-stage/${{ inputs.runtime_bin }}" \
+            --root-dir "$RUNNER_TEMP/runtime-stage" \
+            --target "${{ inputs.target_triple }}" \
+            --runtime-version 0.144.4 \
+            --record "$RUNNER_TEMP/runtime-artifacts/record.json" \
+            --evidence "$RUNNER_TEMP/runtime-artifacts/evidence/${{ inputs.target_triple }}.json"
+
+      - name: Upload native runtime artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-target-${{ inputs.target_triple }}
+          path: ${{ runner.temp }}/runtime-artifacts

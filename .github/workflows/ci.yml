@@ -1,0 +1,135 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Verify runtime workflow dependencies exist
+        shell: bash
+        run: |
+          test -f .github/workflows/runtime-native.yml
+          test -f .github/workflows/runtime-tests.yml
+
+      - name: Verify formatting
+        shell: bash
+        run: |
+          diff_file="$RUNNER_TEMP/gofmt.diff"
+          GOWORK=off gofmt -d . | tee "$diff_file"
+          test ! -s "$diff_file"
+
+      - name: Run go vet
+        shell: bash
+        run: GOWORK=off go vet ./...
+
+      - name: Run unit and compatibility tests
+        shell: bash
+        run: GOWORK=off go test ./...
+
+      - name: Run race tests
+        shell: bash
+        run: GOWORK=off go test -race ./...
+
+      - name: Run integration-tagged tests
+        shell: bash
+        run: GOWORK=off go test -tags=integration ./...
+
+      - name: Install and run static analysis
+        shell: bash
+        run: |
+          GOBIN="$RUNNER_TEMP/bin" GOWORK=off go install honnef.co/go/tools/cmd/staticcheck@2025.1.1
+          "$RUNNER_TEMP/bin/staticcheck" ./...
+
+      - name: Verify protocol generator drift
+        shell: bash
+        run: GOWORK=off go run ./cmd/codex-sdk-gen verify
+
+      - name: Run protocol fuzz smoke
+        shell: bash
+        run: |
+          GOWORK=off go test -run '^$' -fuzz FuzzClientRequestUnmarshal -fuzztime=10s ./protocol
+          GOWORK=off go test -run '^$' -fuzz FuzzServerRequestUnmarshal -fuzztime=10s ./protocol
+          GOWORK=off go test -run '^$' -fuzz FuzzThreadItemUnmarshal -fuzztime=10s ./protocol
+          GOWORK=off go test -run '^$' -fuzz FuzzServerNotificationUnmarshal -fuzztime=10s ./protocol
+          GOWORK=off go test -run '^$' -fuzz FuzzRequestIDUnmarshal -fuzztime=10s ./protocol
+          GOWORK=off go test -run '^$' -fuzz FuzzThreadListCwdFilterUnmarshal -fuzztime=10s ./protocol
+          GOWORK=off go test -run '^$' -fuzz FuzzAuthModeUnmarshal -fuzztime=10s ./protocol
+
+      - name: Repeat race on concurrency and lifecycle suites
+        shell: bash
+        run: GOWORK=off go test -race -count=20 . ./internal/appserver ./internal/router ./internal/runtimebin
+
+      - name: Collect coverage profiles
+        shell: bash
+        run: |
+          mkdir -p artifacts/evidence/ci
+          GOWORK=off go test -covermode=atomic -coverprofile "$RUNNER_TEMP/root.cover" .
+          GOWORK=off go test -covermode=atomic -coverprofile "$RUNNER_TEMP/appserver.cover" ./internal/appserver
+          GOWORK=off go test -covermode=atomic -coverprofile "$RUNNER_TEMP/router.cover" ./internal/router
+          GOWORK=off go test -covermode=atomic -coverprofile "$RUNNER_TEMP/runtimebin.cover" ./internal/runtimebin
+          GOWORK=off go run ./scripts/ci/coverage_gate \
+            --output artifacts/evidence/ci/coverage.json \
+            --gate ".:85:$RUNNER_TEMP/root.cover" \
+            --gate "./internal/appserver:90:$RUNNER_TEMP/appserver.cover" \
+            --gate "./internal/router:90:$RUNNER_TEMP/router.cover" \
+            --gate "./internal/runtimebin:90:$RUNNER_TEMP/runtimebin.cover"
+
+      - name: Write machine-readable CI evidence
+        shell: bash
+        run: |
+          mkdir -p artifacts/evidence/ci
+          cat > artifacts/evidence/ci/ci-evidence.json <<JSON
+          {
+            "workflowName": "ci",
+            "workflowRunId": "${GITHUB_RUN_ID}",
+            "workflowRunUrl": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}",
+            "commit": "${GITHUB_SHA}",
+            "goVersion": "$(go version | sed 's/"/\\"/g')",
+            "staticAnalyzer": "staticcheck",
+            "requiredRuntimeWorkflows": [
+              "stress",
+              "runtime-tests",
+              "runtime-native"
+            ],
+            "compatibility": {
+              "pythonDispositionTest": "TestCompatibilityPythonDispositionCoversPinnedPythonTests"
+            },
+            "commands": [
+              "GOWORK=off gofmt -d .",
+              "GOWORK=off go vet ./...",
+              "GOWORK=off go test ./...",
+              "GOWORK=off go test -race ./...",
+              "GOWORK=off go test -tags=integration ./...",
+              "staticcheck ./...",
+              "GOWORK=off go run ./cmd/codex-sdk-gen verify",
+              "GOWORK=off go test -run '^$' -fuzz FuzzClientRequestUnmarshal -fuzztime=10s ./protocol",
+              "GOWORK=off go test -run '^$' -fuzz FuzzServerRequestUnmarshal -fuzztime=10s ./protocol",
+              "GOWORK=off go test -run '^$' -fuzz FuzzThreadItemUnmarshal -fuzztime=10s ./protocol",
+              "GOWORK=off go test -run '^$' -fuzz FuzzServerNotificationUnmarshal -fuzztime=10s ./protocol",
+              "GOWORK=off go test -run '^$' -fuzz FuzzRequestIDUnmarshal -fuzztime=10s ./protocol",
+              "GOWORK=off go test -run '^$' -fuzz FuzzThreadListCwdFilterUnmarshal -fuzztime=10s ./protocol",
+              "GOWORK=off go test -run '^$' -fuzz FuzzAuthModeUnmarshal -fuzztime=10s ./protocol",
+              "GOWORK=off go test -race -count=20 . ./internal/appserver ./internal/router ./internal/runtimebin"
+            ]
+          }
+          JSON
+
+      - name: Upload CI evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-evidence
+          path: artifacts/evidence/ci

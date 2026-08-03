@@ -1,0 +1,50 @@
+name: runtime-tests
+
+on:
+  push:
+    paths:
+      - ".github/workflows/runtime-tests.yml"
+      - "cmd/codex-sdk-runtime/**"
+      - "internal/runtimebin/**"
+      - "runtime/**"
+      - "go.mod"
+  pull_request:
+    paths:
+      - ".github/workflows/runtime-tests.yml"
+      - "cmd/codex-sdk-runtime/**"
+      - "internal/runtimebin/**"
+      - "runtime/**"
+      - "go.mod"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  runtime-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Test runtime packages
+        run: go test ./internal/runtimebin ./cmd/codex-sdk-runtime
+
+      - name: Verify canonical manifest
+        shell: bash
+        run: |
+          test -f runtime/manifest.json
+          if go run ./cmd/codex-sdk-runtime verify \
+            --cache-root "${{ runner.temp }}/missing-cache" \
+            --runtime-version 0.144.4; then
+            echo "verify unexpectedly succeeded without an installed runtime" >&2
+            exit 1
+          fi

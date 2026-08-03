@@ -1,0 +1,231 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_commit:
+        description: Commit SHA to release
+        required: true
+        type: string
+      tag:
+        description: Release tag to publish
+        required: true
+        type: string
+      runtime_version:
+        description: Pinned runtime version
+        required: true
+        type: string
+      ci_run_id:
+        description: Successful ci workflow run id for the target commit
+        required: true
+        type: string
+      stress_run_id:
+        description: Successful stress workflow run id for the target commit
+        required: true
+        type: string
+      runtime_tests_run_id:
+        description: Successful runtime-tests workflow run id for the target commit
+        required: true
+        type: string
+      runtime_native_run_id:
+        description: Successful runtime-native workflow run id for the target commit
+        required: true
+        type: string
+      create_tag_if_missing:
+        description: Create and push the tag when it does not already exist
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  collect-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_commit }}
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Validate workflow runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ inputs.target_commit }}
+          CI_RUN_ID: ${{ inputs.ci_run_id }}
+          STRESS_RUN_ID: ${{ inputs.stress_run_id }}
+          RUNTIME_TESTS_RUN_ID: ${{ inputs.runtime_tests_run_id }}
+          RUNTIME_NATIVE_RUN_ID: ${{ inputs.runtime_native_run_id }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          RUNTIME_VERSION: ${{ inputs.runtime_version }}
+          CREATE_TAG_IF_MISSING: ${{ inputs.create_tag_if_missing }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?$ ]]
+          [[ "$RUNTIME_VERSION" =~ ^[0-9]+(\.[0-9]+)*(a[0-9]+(\.post[0-9]+)?|b[0-9]+|rc[0-9]+)?$ ]]
+          [[ "$CI_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$STRESS_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$RUNTIME_TESTS_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$RUNTIME_NATIVE_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$CREATE_TAG_IF_MISSING" == "true" || "$CREATE_TAG_IF_MISSING" == "false" ]]
+          validate_run() {
+            local run_id=$1
+            local expected_name=$2
+            local output=$3
+            gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" > "$output"
+            jq -e --arg sha "$EXPECTED_SHA" --arg name "$expected_name" '
+              .status == "completed" and
+              .conclusion == "success" and
+              .head_sha == $sha and
+              .name == $name
+            ' "$output" >/dev/null
+          }
+          mkdir -p artifacts/evidence/release/meta
+          validate_run "$CI_RUN_ID" "ci" artifacts/evidence/release/meta/ci-run.json
+          validate_run "$STRESS_RUN_ID" "stress" artifacts/evidence/release/meta/stress-run.json
+          validate_run "$RUNTIME_TESTS_RUN_ID" "runtime-tests" artifacts/evidence/release/meta/runtime-tests-run.json
+          validate_run "$RUNTIME_NATIVE_RUN_ID" "runtime-native" artifacts/evidence/release/meta/runtime-native-run.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUNTIME_NATIVE_RUN_ID}/jobs" > artifacts/evidence/release/meta/runtime-native-jobs.json
+
+      - name: Download prerequisite artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_RUN_ID: ${{ inputs.ci_run_id }}
+          STRESS_RUN_ID: ${{ inputs.stress_run_id }}
+          RUNTIME_NATIVE_RUN_ID: ${{ inputs.runtime_native_run_id }}
+        shell: bash
+        run: |
+          mkdir -p artifacts/downloads
+          gh run download "$CI_RUN_ID" -n ci-evidence -D artifacts/downloads/ci
+          gh run download "$STRESS_RUN_ID" -n stress-evidence -D artifacts/downloads/stress
+          gh run download "$RUNTIME_NATIVE_RUN_ID" -n runtime-release-bundle -D artifacts/downloads/runtime-native
+
+      - name: Verify downloaded evidence shape
+        shell: bash
+        run: |
+          test -f artifacts/downloads/ci/ci-evidence.json
+          test -f artifacts/downloads/ci/coverage.json
+          test -f artifacts/downloads/stress/stress-summary.json
+          test "$(find artifacts/downloads/stress -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')" = "8"
+          test -f artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json
+          test -f artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json.sig
+          test "$(find artifacts/downloads/runtime-native -name record.json | wc -l | tr -d ' ')" = "6"
+          test "$(find artifacts/downloads/runtime-native -path '*/evidence/*.json' | wc -l | tr -d ' ')" = "6"
+          test "$(find artifacts/downloads/runtime-native -name 'codex-sdk-go-runtime_*.tar.gz' | wc -l | tr -d ' ')" = "6"
+
+      - name: Verify runtime version and build release bundle
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          RUNTIME_VERSION: ${{ inputs.runtime_version }}
+          STRESS_RUN_ID: ${{ inputs.stress_run_id }}
+          RUNTIME_TESTS_RUN_ID: ${{ inputs.runtime_tests_run_id }}
+          RUNTIME_NATIVE_RUN_ID: ${{ inputs.runtime_native_run_id }}
+        shell: bash
+        run: |
+          actual_runtime_version="$(jq -r '.runtimeVersion' artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json)"
+          test "$actual_runtime_version" = "$RUNTIME_VERSION"
+          mkdir -p artifacts/evidence/release
+          GOWORK=off go run ./scripts/ci/release_evidence \
+            --output artifacts/evidence/release/release-bundle.json \
+            --tag "$RELEASE_TAG" \
+            --release-workflow-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            --ci-evidence artifacts/downloads/ci/ci-evidence.json \
+            --coverage-evidence artifacts/downloads/ci/coverage.json \
+            --stress-run-id "$STRESS_RUN_ID" \
+            --stress-run-url "$(jq -r '.html_url' artifacts/evidence/release/meta/stress-run.json)" \
+            --stress-evidence-dir artifacts/downloads/stress \
+            --runtime-tests-run-id "$RUNTIME_TESTS_RUN_ID" \
+            --runtime-tests-run-url "$(jq -r '.html_url' artifacts/evidence/release/meta/runtime-tests-run.json)" \
+            --runtime-native-run-id "$RUNTIME_NATIVE_RUN_ID" \
+            --runtime-native-run-url "$(jq -r '.html_url' artifacts/evidence/release/meta/runtime-native-run.json)" \
+            --runtime-native-jobs artifacts/evidence/release/meta/runtime-native-jobs.json \
+            --runtime-bundle-dir artifacts/downloads/runtime-native \
+            --runtime-manifest artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json \
+            --runtime-manifest-signature artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json.sig \
+            --protocol-manifest protocol/manifest.json
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-evidence
+          path: artifacts/evidence/release
+
+      - name: Upload imported runtime release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-release-bundle-imported
+          path: artifacts/downloads/runtime-native
+
+  publish:
+    needs: collect-evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_commit }}
+          fetch-depth: 0
+
+      - name: Ensure tag exists or create it
+        env:
+          TARGET_COMMIT: ${{ inputs.target_commit }}
+          TAG: ${{ inputs.tag }}
+          CREATE_TAG_IF_MISSING: ${{ inputs.create_tag_if_missing }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$TARGET_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?$ ]]
+          [[ "$CREATE_TAG_IF_MISSING" == "true" || "$CREATE_TAG_IF_MISSING" == "false" ]]
+          git fetch --tags origin
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            exit 0
+          fi
+          if [[ "$CREATE_TAG_IF_MISSING" != "true" ]]; then
+            echo "tag ${TAG} does not exist and create_tag_if_missing=false" >&2
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "${TAG}" "${TARGET_COMMIT}"
+          git push origin "refs/tags/${TAG}"
+
+      - name: Download runtime release bundle and release evidence
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "release-evidence|runtime-release-bundle-imported"
+          path: artifacts/release-downloads
+          merge-multiple: false
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_COMMIT: ${{ inputs.target_commit }}
+          TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$TARGET_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?$ ]]
+          gh release view "$TAG" >/dev/null 2>&1 && {
+            echo "release $TAG already exists" >&2
+            exit 1
+          }
+          gh release create "$TAG" \
+            artifacts/release-downloads/runtime-release-bundle-imported/artifacts/runtime-targets/*/*.tar.gz \
+            artifacts/release-downloads/runtime-release-bundle-imported/artifacts/release/codex-sdk-go-runtime-manifest.json \
+            artifacts/release-downloads/runtime-release-bundle-imported/artifacts/release/codex-sdk-go-runtime-manifest.json.sig \
+            artifacts/release-downloads/release-evidence/release-bundle.json \
+            --target "$TARGET_COMMIT" \
+            --title "$TAG" \
+            --notes-file artifacts/release-downloads/release-evidence/release-bundle.json

@@ -2,6 +2,7 @@ package codex
 
 import (
 	"encoding/json"
+	"time"
 )
 
 // Usage describes token usage for a turn.
@@ -18,12 +19,18 @@ type ThreadError struct {
 
 // ThreadEvent represents a top-level JSONL event.
 type ThreadEvent struct {
-	Type     string       `json:"type"`
-	ThreadID string       `json:"thread_id,omitempty"`
-	Usage    *Usage       `json:"usage,omitempty"`
-	Error    *ThreadError `json:"error,omitempty"`
-	Item     ThreadItem   `json:"item,omitempty"`
-	Message  string       `json:"message,omitempty"`
+	Type     string          `json:"type"`
+	Method   string          `json:"method,omitempty"`
+	ThreadID string          `json:"thread_id,omitempty"`
+	TurnID   string          `json:"turn_id,omitempty"`
+	Usage    *Usage          `json:"usage,omitempty"`
+	Error    *ThreadError    `json:"error,omitempty"`
+	Item     ThreadItem      `json:"item,omitempty"`
+	Message  string          `json:"message,omitempty"`
+	Turn     *TurnState      `json:"turn,omitempty"`
+	Goal     *Goal           `json:"goal,omitempty"`
+	Account  *Account        `json:"account,omitempty"`
+	Raw      json.RawMessage `json:"-"`
 }
 
 func (e *ThreadEvent) UnmarshalJSON(data []byte) error {
@@ -43,6 +50,7 @@ func (e *ThreadEvent) UnmarshalJSON(data []byte) error {
 	e.Usage = aux.Usage
 	e.Error = aux.Error
 	e.Message = aux.Message
+	e.Raw = append(json.RawMessage(nil), data...)
 	if len(aux.Item) != 0 {
 		item, err := parseThreadItem(aux.Item)
 		if err != nil {
@@ -58,6 +66,140 @@ type ThreadItem interface {
 	ItemType() string
 }
 
+// TurnStatus is the runtime status of one turn.
+type TurnStatus string
+
+const (
+	TurnStatusInProgress  TurnStatus = "in_progress"
+	TurnStatusCompleted   TurnStatus = "completed"
+	TurnStatusFailed      TurnStatus = "failed"
+	TurnStatusInterrupted TurnStatus = "interrupted"
+)
+
+// TurnState describes one started or completed turn.
+type TurnState struct {
+	ID          string
+	Status      TurnStatus
+	Error       *ThreadError
+	StartedAt   *time.Time
+	CompletedAt *time.Time
+	Duration    time.Duration
+}
+
+// TurnResult is the collected result returned by the pull-stream API.
+type TurnResult struct {
+	ID            string
+	Status        TurnStatus
+	Error         *ThreadError
+	StartedAt     *time.Time
+	CompletedAt   *time.Time
+	Duration      time.Duration
+	FinalResponse string
+	Items         []ThreadItem
+	Usage         *Usage
+}
+
+// ThreadStatus is the current state of a persisted thread.
+type ThreadStatus string
+
+const (
+	ThreadStatusNotLoaded   ThreadStatus = "notLoaded"
+	ThreadStatusIdle        ThreadStatus = "idle"
+	ThreadStatusActive      ThreadStatus = "active"
+	ThreadStatusSystemError ThreadStatus = "systemError"
+)
+
+// GoalStatus is the stored status of a thread goal.
+type GoalStatus string
+
+const (
+	GoalStatusActive        GoalStatus = "active"
+	GoalStatusPaused        GoalStatus = "paused"
+	GoalStatusBlocked       GoalStatus = "blocked"
+	GoalStatusUsageLimited  GoalStatus = "usageLimited"
+	GoalStatusBudgetLimited GoalStatus = "budgetLimited"
+	GoalStatusComplete      GoalStatus = "complete"
+)
+
+// Goal is the stored logical goal attached to a thread.
+type Goal struct {
+	Objective   string
+	Status      GoalStatus
+	TokenBudget int
+	TokensUsed  int
+	UpdatedAt   *time.Time
+}
+
+// Account is the current runtime authentication state.
+type Account struct {
+	Type string
+	Raw  map[string]any
+}
+
+// AccountState is the result of reading the current runtime account state.
+type AccountState struct {
+	Account            *Account
+	RequiresOpenAIAuth bool
+}
+
+// LoginResult is the terminal result of an interactive login attempt.
+type LoginResult struct {
+	LoginID string
+	Account *Account
+}
+
+// ModelInfo is one entry returned by model/list.
+type ModelInfo struct {
+	ID                        string
+	Model                     string
+	DisplayName               string
+	Description               string
+	Hidden                    bool
+	IsDefault                 bool
+	DefaultServiceTier        string
+	SupportedReasoningEfforts []string
+	Raw                       map[string]any
+}
+
+// ModelPage is one page returned by model/list.
+type ModelPage struct {
+	Data       []ModelInfo
+	NextCursor string
+}
+
+// ThreadRecord is a persisted thread snapshot returned by thread/list and thread/read.
+type ThreadRecord struct {
+	ID            string
+	Name          string
+	Path          string
+	CWD           string
+	Archived      bool
+	Ephemeral     bool
+	Status        ThreadStatus
+	CurrentTurnID string
+	Goal          *Goal
+	Turns         []TurnRecord
+	Raw           map[string]any
+}
+
+// TurnRecord is the persisted representation of one turn within a thread snapshot.
+type TurnRecord struct {
+	ID          string
+	Status      TurnStatus
+	Error       *ThreadError
+	StartedAt   *time.Time
+	CompletedAt *time.Time
+	Duration    time.Duration
+	Items       []ThreadItem
+}
+
+// ThreadPage is one page returned by thread/list.
+type ThreadPage struct {
+	Data            []ThreadRecord
+	NextCursor      string
+	BackwardsCursor string
+}
+
 // UnknownItem preserves forward-compatible item payloads emitted by newer Codex CLIs.
 type UnknownItem struct {
 	Type string          `json:"type"`
@@ -68,9 +210,10 @@ func (i *UnknownItem) ItemType() string { return i.Type }
 
 // AgentMessageItem is a response from the agent.
 type AgentMessageItem struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
-	Text string `json:"text"`
+	ID    string `json:"id"`
+	Type  string `json:"type"`
+	Text  string `json:"text"`
+	Phase string `json:"phase,omitempty"`
 }
 
 func (i *AgentMessageItem) ItemType() string { return i.Type }
@@ -214,7 +357,7 @@ func parseThreadItem(raw json.RawMessage) (ThreadItem, error) {
 		return nil, err
 	}
 	switch base.Type {
-	case "agent_message":
+	case "agent_message", "agentMessage":
 		var item AgentMessageItem
 		if err := json.Unmarshal(raw, &item); err != nil {
 			return nil, err
@@ -226,25 +369,25 @@ func parseThreadItem(raw json.RawMessage) (ThreadItem, error) {
 			return nil, err
 		}
 		return &item, nil
-	case "command_execution":
+	case "command_execution", "commandExecution":
 		var item CommandExecutionItem
 		if err := json.Unmarshal(raw, &item); err != nil {
 			return nil, err
 		}
 		return &item, nil
-	case "file_change":
+	case "file_change", "fileChange":
 		var item FileChangeItem
 		if err := json.Unmarshal(raw, &item); err != nil {
 			return nil, err
 		}
 		return &item, nil
-	case "mcp_tool_call":
+	case "mcp_tool_call", "mcpToolCall":
 		var item McpToolCallItem
 		if err := json.Unmarshal(raw, &item); err != nil {
 			return nil, err
 		}
 		return &item, nil
-	case "web_search":
+	case "web_search", "webSearch":
 		var item WebSearchItem
 		if err := json.Unmarshal(raw, &item); err != nil {
 			return nil, err

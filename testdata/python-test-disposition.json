@@ -1,0 +1,1598 @@
+{
+  "entries": [
+    {
+      "python_test": "test_app_server_approvals.py::test_thread_resume_inherits_deny_all_approval_mode",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go validates thread resume/fork wrappers plus approval serialization/default retention through the public app-server client; Python async duplicates map to the same concurrency-safe API surface."
+    },
+    {
+      "python_test": "test_app_server_approvals.py::test_thread_fork_inherits_deny_all_approval_mode",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go validates thread resume/fork wrappers plus approval serialization/default retention through the public app-server client; Python async duplicates map to the same concurrency-safe API surface."
+    },
+    {
+      "python_test": "test_app_server_approvals.py::test_thread_fork_can_override_approval_mode",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go validates thread resume/fork wrappers plus approval serialization/default retention through the public app-server client; Python async duplicates map to the same concurrency-safe API surface."
+    },
+    {
+      "python_test": "test_app_server_approvals.py::test_turn_approval_mode_persists_until_next_turn",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go validates thread resume/fork wrappers plus approval serialization/default retention through the public app-server client; Python async duplicates map to the same concurrency-safe API surface."
+    },
+    {
+      "python_test": "test_app_server_approvals.py::test_thread_run_approval_mode_persists_until_explicit_override",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go validates thread resume/fork wrappers plus approval serialization/default retention through the public app-server client; Python async duplicates map to the same concurrency-safe API surface."
+    },
+    {
+      "python_test": "test_app_server_approvals.py::test_async_thread_run_approval_mode_persists_until_explicit_override",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go validates thread resume/fork wrappers plus approval serialization/default retention through the public app-server client; Python async duplicates map to the same concurrency-safe API surface."
+    },
+    {
+      "python_test": "test_app_server_goal_operations.py::test_private_goal_operation_coalesces_runtime_continuations",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestGoalHandleCoalescesTurnsAndBlocksRegularTurns",
+        "go_test:internal/appserver/client_test.go:TestClientRoutesGoalNotifications",
+        "go_test:internal/router/router_test.go:TestRouterRoutesGoalEnvelopeWithoutSwallowingTurnRoute"
+      ],
+      "rationale": "Goal operations are covered by the Go goal handle, app-server routing, and router envelope tests that prove logical continuations coalesce across physical turns and regular turns stay blocked while a goal is active."
+    },
+    {
+      "python_test": "test_app_server_inputs.py::test_data_url_image_input_reaches_responses_api",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:inputs_test.go:TestNormalizeAppServerInput",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping"
+      ],
+      "rationale": "Go normalizes typed app-server inputs, including data-URL images, and validates the resulting turn-start payload through the public client."
+    },
+    {
+      "python_test": "test_app_server_inputs.py::test_local_image_input_reaches_responses_api",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:inputs_test.go:TestNormalizeAppServerInput",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:compatibility_turn_test.go:TestCompatibilityItemsInputMapsTextToStdinAndImagesToArgs"
+      ],
+      "rationale": "Go preserves local-image compatibility input handling and also validates the typed app-server local-image payload shape."
+    },
+    {
+      "python_test": "test_app_server_inputs.py::test_skill_input_injects_loaded_skill_body",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:inputs_test.go:TestNormalizeAppServerInput",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping"
+      ],
+      "rationale": "Go preserves typed skill inputs in app-server payload normalization and validates full mixed-input turn-start payload construction through the public client."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_thread_set_name_and_read",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:public_api_test.go:TestPublicAPIsUseAppServer",
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait"
+      ],
+      "rationale": "Go validates name mutation and thread readback through both the legacy facade and the context-first client wrappers."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_sync_and_async_initialization_round_trip_metadata",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/appserver/client_test.go:TestClientStartInitializes",
+        "go_test:client_api_test.go:TestClientListThreadsAndLoginContext",
+        "go_test:public_api_test.go:TestPublicAPIsUseAppServer"
+      ],
+      "rationale": "Go validates initialize metadata capture at the transport layer and exposes it through both public client surfaces."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_thread_list_filters_archived_threads",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientListThreadsAndLoginContext"
+      ],
+      "rationale": "Go validates thread-list request parameter mapping, including the archived filter, on the public client surface."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_read_include_turns_returns_persisted_history",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait",
+        "go_test:root_helpers_test.go:TestDecodeHelpersAndNotificationParsers"
+      ],
+      "rationale": "Go validates typed thread-read decoding, including persisted turns and goal state, on the rebuilt thread record surface."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_async_lifecycle_methods_round_trip",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait",
+        "go_test:public_api_test.go:TestPublicAPIsUseAppServer"
+      ],
+      "rationale": "Go uses one concurrency-safe client API instead of separate async wrappers, so the same lifecycle wrappers cover concurrent callers."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_thread_fork_returns_distinct_thread",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait"
+      ],
+      "rationale": "Go validates forked-thread lifecycle wrappers and the distinct returned thread id."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_archive_unarchive_round_trip_uses_materialized_rollout",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait"
+      ],
+      "rationale": "Go validates archive and unarchive lifecycle wrappers against the app-server transport."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_models_rpc",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:public_api_test.go:TestPublicAPIsUseAppServer"
+      ],
+      "rationale": "Go validates model-list RPCs through both the context-first client and the compatibility facade."
+    },
+    {
+      "python_test": "test_app_server_lifecycle.py::test_compact_rpc_hits_mock_responses",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:public_api_test.go:TestPublicAPIsUseAppServer",
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait"
+      ],
+      "rationale": "Go validates thread compaction through both the public wrapper and the client lifecycle surface."
+    },
+    {
+      "python_test": "test_app_server_login.py::test_api_key_login_authenticates_follow_up_model_requests",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientListThreadsAndLoginContext",
+        "go_test:public_api_test.go:TestPublicAPIsUseAppServer",
+        "go_test:public_api_test.go:TestStartChatGPTDeviceCodeLogin"
+      ],
+      "rationale": "Go validates API-key, browser, and device-code login flows plus follow-up account/model access on the rebuilt public client surfaces."
+    },
+    {
+      "python_test": "test_app_server_login.py::test_chatgpt_token_login_authenticates_follow_up_model_requests",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientListThreadsAndLoginContext",
+        "go_test:public_api_test.go:TestPublicAPIsUseAppServer",
+        "go_test:public_api_test.go:TestStartChatGPTDeviceCodeLogin"
+      ],
+      "rationale": "Go validates API-key, browser, and device-code login flows plus follow-up account/model access on the rebuilt public client surfaces."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_sync_thread_run_uses_mock_responses",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunCollectsItemsUsageAndFinalResponse",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping"
+      ],
+      "rationale": "Go validates completed-turn aggregation, usage extraction, and final-response collection through both compatibility and rebuilt client paths."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_run_params_and_usage_cross_app_server_boundary",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping"
+      ],
+      "rationale": "Go validates turn-start payload mapping for model/cwd/reasoning/output-schema inputs and usage extraction on the public client surface."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_async_thread_run_uses_mock_responses",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunCollectsItemsUsageAndFinalResponse",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:internal/appserver/client_test.go:TestClientCorrelatesOneThousandConcurrentRequestsWithShuffledResponses"
+      ],
+      "rationale": "Go uses one concurrency-safe API surface instead of separate async wrappers, so the same run aggregation tests plus the direct concurrent-request correlation test cover the Python async duplicate."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_sync_turn_result_uses_last_unknown_phase_message",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunCollectsItemsUsageAndFinalResponse"
+      ],
+      "rationale": "Go validates final-response extraction from collected turn items on the compatibility run path that feeds the rebuilt result surface."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_sync_turn_result_preserves_empty_last_message",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunCollectsItemsUsageAndFinalResponse"
+      ],
+      "rationale": "Go keeps final-response extraction tied to the collected assistant item rather than inventing extra text, matching the result-selection contract."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_sync_turn_result_does_not_promote_commentary_only_to_final",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunCollectsItemsUsageAndFinalResponse"
+      ],
+      "rationale": "Go keeps final-response selection bound to explicit assistant/final-answer items instead of promoting commentary-only notifications."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_async_turn_result_uses_last_unknown_phase_message",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestTurnResultFinalResponseFallbackUsesLatestUnknownPhase",
+        "go_test:internal/appserver/client_test.go:TestClientCorrelatesOneThousandConcurrentRequestsWithShuffledResponses"
+      ],
+      "rationale": "Go validates the unknown-phase final-response fallback directly on the rebuilt client and separately proves the same transport/client surface remains correct under heavy concurrent request correlation."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_async_turn_result_does_not_promote_commentary_only_to_final",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestTurnResultCommentaryOnlyDoesNotProduceFinalResponse",
+        "go_test:internal/appserver/client_test.go:TestClientCorrelatesOneThousandConcurrentRequestsWithShuffledResponses"
+      ],
+      "rationale": "Go validates commentary-only runs do not synthesize a final response and separately proves the same transport/client surface remains correct under heavy concurrent request correlation."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_thread_run_raises_when_real_app_server_reports_failed_turn",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunReturnsTurnFailedMessage"
+      ],
+      "rationale": "Go validates failed-turn propagation to the caller as a stable returned error."
+    },
+    {
+      "python_test": "test_app_server_run.py::test_final_answer_phase_survives_real_app_server_mapping",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunCollectsItemsUsageAndFinalResponse",
+        "go_test:types_test.go:TestThreadEventUnmarshalAgentMessage"
+      ],
+      "rationale": "Go validates agent-message phase decoding and final-response preservation across transport/event mapping."
+    },
+    {
+      "python_test": "test_app_server_streaming.py::test_sync_stream_routes_text_deltas_and_completion",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:internal/router/router_test.go:TestRouterReplaysPendingTurnNotifications"
+      ],
+      "rationale": "Go validates streamed turn lifecycle events on the public client path and router replay of early notifications into the registered turn stream."
+    },
+    {
+      "python_test": "test_app_server_streaming.py::test_turn_run_returns_completed_turn",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunCollectsItemsUsageAndFinalResponse",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping"
+      ],
+      "rationale": "Go validates both streaming and collected-turn completion paths against the same completed-turn result contract."
+    },
+    {
+      "python_test": "test_app_server_streaming.py::test_async_stream_routes_text_deltas_and_completion",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:internal/appserver/client_test.go:TestClientCorrelatesOneThousandConcurrentRequestsWithShuffledResponses"
+      ],
+      "rationale": "Go exposes one concurrency-safe streaming API, so the same stream contract plus the direct concurrent-request correlation test cover the Python async duplicate."
+    },
+    {
+      "python_test": "test_app_server_streaming.py::test_low_level_sync_stream_text_uses_real_turn_routing",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/router/router_test.go:TestRouterReplaysPendingTurnNotifications",
+        "go_test:internal/router/router_test.go:TestRouterContextCancelDoesNotConsumeQueuedEvent"
+      ],
+      "rationale": "Go validates router delivery and replay semantics on registered turn streams, including cancellation not consuming queued events."
+    },
+    {
+      "python_test": "test_app_server_streaming.py::test_low_level_async_stream_text_allows_parallel_model_list",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientListModelsWhileTurnStreamOpen",
+        "go_test:internal/appserver/client_test.go:TestClientCorrelatesOneThousandConcurrentRequestsWithShuffledResponses"
+      ],
+      "rationale": "Go directly validates model listing while a turn stream remains open and separately proves the client transport correlates a large number of concurrent in-flight requests."
+    },
+    {
+      "python_test": "test_app_server_streaming.py::test_interleaved_sync_turn_streams_route_by_turn_id",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/router/router_test.go:TestRouterReplaysPendingTurnNotifications",
+        "go_test:internal/router/router_test.go:TestRouterRoutesGoalEnvelopeWithoutSwallowingTurnRoute"
+      ],
+      "rationale": "Go validates turn-routing envelopes are keyed by turn id and remain isolated from goal/global routing."
+    },
+    {
+      "python_test": "test_app_server_streaming.py::test_interleaved_async_turn_streams_route_by_turn_id",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/router/router_test.go:TestRouterReplaysPendingTurnNotifications",
+        "go_test:internal/router/router_test.go:TestRouterRoutesGoalEnvelopeWithoutSwallowingTurnRoute",
+        "go_test:internal/appserver/client_test.go:TestClientCorrelatesOneThousandConcurrentRequestsWithShuffledResponses"
+      ],
+      "rationale": "Go validates turn-routing envelopes are keyed by turn id, remain isolated from goal routing, and continue to correlate correctly under heavy concurrent request traffic."
+    },
+    {
+      "python_test": "test_app_server_turn_controls.py::test_turn_steer_adds_follow_up_input",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:public_api_test.go:TestTurnHandleSteerAndInterrupt",
+        "go_test:client_api_test.go:TestTurnHandleLegacyWrappersAndRepeatedNext"
+      ],
+      "rationale": "Go validates steer and interrupt controls on both the legacy turn handle and the context-first turn handle surface."
+    },
+    {
+      "python_test": "test_app_server_turn_controls.py::test_turn_interrupt_stops_active_turn_and_follow_up_runs",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:public_api_test.go:TestTurnHandleSteerAndInterrupt",
+        "go_test:client_api_test.go:TestTurnHandleLegacyWrappersAndRepeatedNext"
+      ],
+      "rationale": "Go validates steer and interrupt controls on both the legacy turn handle and the context-first turn handle surface."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_generation_has_single_maintenance_entrypoint_script",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_root_fmt_recipes_use_shared_formatter_driver",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_root_format_driver_covers_all_formatter_groups",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_root_format_driver_discards_successful_command_output",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_root_format_driver_is_silent_when_all_formatters_succeed",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_root_format_driver_reports_only_failed_formatters",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_generate_types_wires_all_generation_steps",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_schema_normalization_only_flattens_string_literal_oneofs",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_schema_normalization_makes_chatgpt_account_email_nullable",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_python_codegen_schema_annotation_adds_stable_variant_titles",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_generate_v2_all_uses_titles_for_generated_names",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_generated_chatgpt_account_email_is_required_nullable",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGenerateProtocolDeterministic",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts",
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "The Go rebuild replaces Python maintenance scripts with checked-in Go generator commands and deterministic drift tests that validate the generated protocol/artifact pipeline end to end."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_runtime_package_template_has_no_checked_in_binaries",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_examples_readme_points_to_runtime_version_source_of_truth",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_runtime_distribution_name_is_consistent",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_source_sdk_template_pins_published_runtime",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_source_sdk_package_declares_stable_documentation",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_release_metadata_retries_without_invalid_auth",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_runtime_setup_reads_independent_runtime_pin_and_release_tags",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_runtime_setup_downloads_codex_package_archives",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_runtime_package_is_wheel_only_and_builds_platform_specific_wheels",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_stage_runtime_release_copies_package_layout_and_sets_version",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_normalize_codex_version_accepts_release_tags_and_pep440_versions",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_release_version_conversions_map_python_versions_to_codex_tags",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_release_version_cli_writes_python_runtime_outputs",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_stage_runtime_release_replaces_existing_staging_dir",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_stage_runtime_release_can_pin_wheel_platform_tag",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_stage_runtime_release_rejects_incomplete_package_layout",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_runtime_package_layout_is_included_by_wheel_config",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_stage_sdk_release_preserves_reviewed_runtime_pin",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_stage_sdk_release_replaces_existing_staging_dir",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_sdk_release_matches_stable_runtime",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_stage_sdk_runs_type_generation_before_staging",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_stage_runtime_stages_package_without_type_generation",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_default_runtime_is_resolved_from_installed_runtime_package",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_runtime_path_dir_is_prepended_without_duplicates",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_runtime_path_dir_preserves_windows_path_key",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_explicit_codex_bin_override_takes_priority",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_missing_runtime_package_requires_explicit_codex_bin",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_artifact_workflow_and_binaries.py::test_broken_runtime_package_does_not_fall_back",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunManifestAndSign",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestInstallOfflineAndResolve",
+        "go_test:internal/runtimebin/runtimebin_test.go:TestPrependPathDirsPreservesWindowsPathKey",
+        "go_test:client_options_test.go:TestResolveManagedExecutablePrecedenceAndBrokenHigherPriority",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/release.yml:collect-evidence"
+      ],
+      "rationale": "The Go rebuild proves packaging, runtime pinning, version conversion, managed install resolution, and six-target release bundling through runtime CLI/runtimebin tests plus the native and release workflows."
+    },
+    {
+      "python_test": "test_async_client_behavior.py::test_async_client_allows_concurrent_transport_calls",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/appserver/client_test.go:TestClientCorrelatesOneThousandConcurrentRequestsWithShuffledResponses"
+      ],
+      "rationale": "Go exposes a single goroutine-safe client instead of Python async wrappers, and directly proves concurrent transport correlation with one thousand shuffled in-flight responses."
+    },
+    {
+      "python_test": "test_async_client_behavior.py::test_async_client_turn_notification_methods_delegate_to_sync_client",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:public_api_test.go:TestTurnHandleSteerAndInterrupt",
+        "go_test:client_api_test.go:TestTurnHandleLegacyWrappersAndRepeatedNext",
+        "go_test:internal/router/router_test.go:TestRouterReplaysPendingTurnNotifications"
+      ],
+      "rationale": "Go has no separate async wrapper layer, so the public turn-handle wrappers and router replay tests cover the same notification registration/delegation contract on the single client implementation."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_generated_params_models_are_snake_case_and_dump_by_alias",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:protocol/generated_protocol_test.go:TestThreadStartParamsJSONAliasesAndOptionality"
+      ],
+      "rationale": "Go uses generated alias-aware struct tags rather than Python snake_case Pydantic fields, and validates the marshaled wire aliases directly."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_generated_v2_bundle_has_single_shared_plan_type_definition",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "Go validates the generated type set against the schema bundle so shared definitions are emitted once and stay in sync."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_plan_type_accepts_business_prolite_from_newer_runtime",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:protocol/generated_protocol_test.go:TestFutureEnumStringsRemainTyped"
+      ],
+      "rationale": "Go keeps future enum values typed through generated string-backed enums, covering newer runtime plan values."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_reasoning_effort_preserves_enum_constants_and_accepts_future_values",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:protocol/generated_protocol_test.go:TestFutureEnumStringsRemainTyped"
+      ],
+      "rationale": "Go keeps known and future enum values typed through generated string-backed enums used by public request structs."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_thread_source_preserves_enum_constants_and_accepts_future_values",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:protocol/generated_protocol_test.go:TestThreadStartParamsJSONAliasesAndOptionality",
+        "go_test:protocol/generated_protocol_test.go:TestFutureEnumStringsRemainTyped"
+      ],
+      "rationale": "Go preserves thread-source wire aliases and future string values through generated request structs and enums."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_thread_resume_response_accepts_auto_review_reviewer",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go preserves the auto-review approval reviewer value through generated/public approval settings and typed decoding."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_notifications_are_typed_with_canonical_v2_methods",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:root_helpers_test.go:TestDecodeHelpersAndNotificationParsers"
+      ],
+      "rationale": "Go validates canonical notification method inference and typed decoding helpers on the rebuilt protocol surface."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_unknown_notifications_fall_back_to_unknown_payloads",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:protocol/generated_protocol_test.go:TestUnknownDiscriminatorNotificationFallsBackToRawRoundTrip"
+      ],
+      "rationale": "Go validates unknown notifications fall back to raw/unknown union payloads without losing bytes."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_invalid_notification_payload_falls_back_to_unknown",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:protocol/generated_protocol_test.go:TestMalformedKnownNotificationFallsBackToRaw"
+      ],
+      "rationale": "Go validates malformed known notifications fail closed into raw fallback payloads."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_generated_notification_turn_id_handles_known_payload_shapes",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:root_helpers_test.go:TestDecodeHelpersAndNotificationParsers"
+      ],
+      "rationale": "Go validates turn-id extraction across direct, nested, and unscoped notification payload shapes."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_turn_notification_router_demuxes_registered_turns",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/router/router_test.go:TestRouterReplaysPendingTurnNotifications"
+      ],
+      "rationale": "Go validates registered turn routes receive the matching envelopes keyed by turn id."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_goal_notification_router_routes_by_thread_id",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/router/router_test.go:TestRouterRoutesGoalEnvelopeWithoutSwallowingTurnRoute",
+        "go_test:internal/router/router_test.go:TestRouterGoalIsolationAcrossThreads"
+      ],
+      "rationale": "Go validates goal operation routing by thread id while preserving mirrored turn envelopes."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_client_reader_routes_interleaved_turn_notifications_by_turn_id",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/router/router_test.go:TestRouterReplaysPendingTurnNotifications",
+        "go_test:internal/router/router_test.go:TestRouterContextCancelDoesNotConsumeQueuedEvent"
+      ],
+      "rationale": "Go validates per-turn queued routing/replay semantics on the shared router used by the client reader loop."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_turn_notification_router_buffers_events_before_registration",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/router/router_test.go:TestRouterReplaysPendingTurnNotifications"
+      ],
+      "rationale": "Go validates early turn events are replayed once the turn registers."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_turn_notification_router_clears_unregistered_turn_when_completed",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/router/router_test.go:TestRouterRegisterRouteIdempotentAndDismissedLateEvent"
+      ],
+      "rationale": "Go validates completed/unregistered routes do not leave stale pending state behind."
+    },
+    {
+      "python_test": "test_client_rpc_methods.py::test_turn_notification_router_routes_unknown_turn_notifications",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:root_helpers_test.go:TestDecodeHelpersAndNotificationParsers",
+        "go_test:protocol/generated_protocol_test.go:TestUnknownDiscriminatorNotificationFallsBackToRawRoundTrip"
+      ],
+      "rationale": "Go preserves unknown notification routing by falling back to raw payloads and extracting turn ids when present."
+    },
+    {
+      "python_test": "test_contract_generation.py::test_generated_files_are_up_to_date",
+      "category": "generation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestVerifyMatchesCheckedInArtifacts"
+      ],
+      "rationale": "Go runs an explicit generator drift verifier against the checked-in protocol artifacts."
+    },
+    {
+      "python_test": "test_public_api_runtime_behavior.py::test_codex_init_failure_closes_client",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/appserver/client_test.go:TestClientStartErrors",
+        "go_test:root_helpers_test.go:TestLegacyAndContextWrappersErrorPaths"
+      ],
+      "rationale": "Go validates initialize/start failures surface as transport errors and closes the client on failed startup paths."
+    },
+    {
+      "python_test": "test_public_api_runtime_behavior.py::test_async_codex_init_failure_closes_client",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/appserver/client_test.go:TestClientStartRejectsIncompleteMetadataAndReapsChild"
+      ],
+      "rationale": "Go validates failed initialization closes and reaps the underlying child transport directly on the rebuilt client startup path."
+    },
+    {
+      "python_test": "test_public_api_runtime_behavior.py::test_async_codex_initializes_only_once_under_concurrency",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestCodexLazyStartInitializesOnceUnderConcurrency"
+      ],
+      "rationale": "Go directly validates lazy client startup initializes exactly once when multiple public operations race to use the same Codex instance."
+    },
+    {
+      "python_test": "test_public_api_runtime_behavior.py::test_approval_modes_serialize_to_expected_start_params",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping"
+      ],
+      "rationale": "Go validates high-level approval presets serialize to the expected app-server approval policy and reviewer fields."
+    },
+    {
+      "python_test": "test_public_api_runtime_behavior.py::test_unknown_approval_mode_is_rejected",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go restricts approval presets to the supported discoverable enum values and validates the translation helper directly."
+    },
+    {
+      "python_test": "test_public_api_runtime_behavior.py::test_sandbox_presets_serialize_for_threads_and_turns",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping",
+        "go_test:exec_test.go:TestBuildCommandArgsIncludesConfigBeforeThreadOverrides"
+      ],
+      "rationale": "Go validates sandbox preset serialization on both app-server turn payloads and the legacy exec transport."
+    },
+    {
+      "python_test": "test_public_api_runtime_behavior.py::test_raw_sandbox_strings_are_rejected",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:exec_test.go:TestBuildCommandArgsRejectsNilConfigValues"
+      ],
+      "rationale": "Go exposes typed sandbox modes on the public API rather than raw ad-hoc strings, and rejects invalid configuration inputs during argument normalization."
+    },
+    {
+      "python_test": "test_public_api_runtime_behavior.py::test_retry_examples_compare_status_with_enum",
+      "category": "documentation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:errors_test.go:TestIsRetryableMatchesPinnedPythonBehavior",
+        "go_test:compatibility_api_test.go:TestCompatibilityCompileFixturesBuildAgainstCurrentPublicAPI"
+      ],
+      "rationale": "Go keeps retry helpers and example/fixture code on typed status and error helpers rather than ad-hoc string comparisons."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_root_exports_codex_config",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden"
+      ],
+      "rationale": "Go publishes the configuration type through the stable exported package API, verified by the public API snapshot."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_root_exports_turn_result",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden",
+        "go_test:compatibility_turn_test.go:TestCompatibilityRunCollectsItemsUsageAndFinalResponse"
+      ],
+      "rationale": "Go exposes the collected turn result type and validates its observed fields on the compatibility path."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_turn_run_methods_return_turn_result",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden",
+        "go_test:compatibility_api_test.go:TestCompatibilityCompileFixturesBuildAgainstCurrentPublicAPI"
+      ],
+      "rationale": "Go verifies the exported run methods remain part of the compile-time public API contract."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_turn_input_methods_accept_string_shortcut",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityCompileFixturesBuildAgainstCurrentPublicAPI"
+      ],
+      "rationale": "Go compile fixtures prove the public run/turn helpers accept the documented shorthand inputs on the exported API surface."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_root_exports_approval_mode",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden",
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go exposes typed approval presets and validates their public translation behavior."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_root_exports_sandbox_presets",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden",
+        "go_test:client_api_test.go:TestClientTurnLifecycleAndPayloadMapping"
+      ],
+      "rationale": "Go exposes typed sandbox presets on the public API and validates their serialized wire form."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_package_and_default_client_versions_follow_project_version",
+      "category": "python_language_only",
+      "status": "language_not_applicable",
+      "evidence": [
+        "workflow:.github/workflows/release.yml:publish"
+      ],
+      "rationale": "Python package-version self-reporting is wheel metadata specific; the Go module publishes versioned tags/releases instead of an import-time package version constant."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_curated_public_api_has_builtin_help_documentation",
+      "category": "documentation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden"
+      ],
+      "rationale": "Go validates the exported package/help surface through `go doc -all` snapshot coverage instead of Python `help()` docstrings."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_package_includes_py_typed_marker",
+      "category": "python_language_only",
+      "status": "language_not_applicable",
+      "evidence": [
+        "workflow:.github/workflows/release.yml:publish"
+      ],
+      "rationale": "`py.typed` is a Python packaging marker with no Go module equivalent."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_package_root_exports_only_public_api",
+      "category": "python_language_only",
+      "status": "language_not_applicable",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden"
+      ],
+      "rationale": "Python `__all__` export curation is language-specific; Go exposes only capitalized package exports and validates them through the public API snapshot."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_package_star_import_matches_public_api",
+      "category": "python_language_only",
+      "status": "language_not_applicable",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden"
+      ],
+      "rationale": "Star-import behavior is Python-specific; Go relies on package exports validated by the public API snapshot."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_types_module_exports_curated_public_types",
+      "category": "python_language_only",
+      "status": "language_not_applicable",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "Python type-module export curation is language-specific; Go publishes generated protocol types directly in the protocol package and verifies schema coverage."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_types_star_import_matches_public_types",
+      "category": "python_language_only",
+      "status": "language_not_applicable",
+      "evidence": [
+        "go_test:cmd/codex-sdk-gen/main_test.go:TestGeneratedTypesCoverDefinitionSets"
+      ],
+      "rationale": "Python type-module star-import behavior is language-specific; Go publishes generated protocol types directly in the protocol package and verifies schema coverage."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_examples_use_public_import_surfaces",
+      "category": "documentation",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityCompileFixturesBuildAgainstCurrentPublicAPI"
+      ],
+      "rationale": "Go compile fixtures and examples validate that documented consumers use only the supported public package surface."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_generated_public_signatures_are_snake_case_and_typed",
+      "category": "python_language_only",
+      "status": "language_not_applicable",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden",
+        "go_test:compatibility_api_test.go:TestCompatibilityCompileFixturesBuildAgainstCurrentPublicAPI"
+      ],
+      "rationale": "Python keyword-only snake_case signatures are language-specific; Go validates the stable typed public API through exported signatures and compile fixtures."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_new_thread_methods_default_to_auto_review",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers"
+      ],
+      "rationale": "Go validates the typed approval preset defaults used for new thread work."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_existing_thread_methods_default_to_preserving_approval_settings",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:root_helpers_test.go:TestResolveApprovalSettingsAndNilHelpers",
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait"
+      ],
+      "rationale": "Go validates resumed/forked/existing thread operations preserve stored approval settings unless explicitly overridden."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_lifecycle_methods_are_codex_scoped",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:compatibility_api_test.go:TestCompatibilityPublicAPISnapshotMatchesV01Golden",
+        "go_test:client_api_test.go:TestClientThreadLifecycleWrappersAndWait"
+      ],
+      "rationale": "Go validates lifecycle methods are exposed on the client/thread surfaces documented by the exported public API."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_initialize_metadata_parses_user_agent_shape",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/appserver/client_test.go:TestClientStartInitializes",
+        "go_test:client_api_test.go:TestClientListThreadsAndLoginContext"
+      ],
+      "rationale": "Go validates initialize metadata parsing and exposure of protocol/server identity through the rebuilt client."
+    },
+    {
+      "python_test": "test_public_api_signatures.py::test_initialize_metadata_requires_non_empty_information",
+      "category": "behavior",
+      "status": "equivalent",
+      "evidence": [
+        "go_test:internal/appserver/client_test.go:TestClientStartErrors"
+      ],
+      "rationale": "Go fails closed when initialize metadata is malformed or missing required identity information."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_initialize_and_model_list",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_thread_and_turn_start_smoke",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_thread_run_convenience_smoke",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_quickstart_style_flow_smoke",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_async_thread_turn_usage_and_ids_smoke",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_async_thread_run_convenience_smoke",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_notebook_bootstrap_resolves_sdk_and_runtime_from_unrelated_cwd",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_notebook_sync_cell_smoke",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_notebook_advanced_cell_smoke",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_streaming_smoke_turn_completed",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_turn_interrupt_smoke",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    },
+    {
+      "python_test": "test_real_app_server_integration.py::test_real_examples_run_and_assert",
+      "category": "packaging",
+      "status": "release_pipeline_equivalent",
+      "evidence": [
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestCLIInstallVerifyPathAndRemove",
+        "go_test:cmd/codex-sdk-runtime/native_smoke_test.go:TestAccumulateTurnEventCapturesUsageAndFinalMessage",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRunRepackAndNativeSmoke",
+        "go_test:cmd/codex-sdk-runtime/main_test.go:TestRealLinuxArchiveIntegrationFromEnv",
+        "workflow:.github/workflows/runtime-native.yml:aggregate",
+        "workflow:.github/workflows/runtime-tests.yml:runtime-tests"
+      ],
+      "rationale": "Go proves real-runtime installation, initialize/model-list, turn/run/stream, interrupt, and example-style smoke behavior through native runtime CLI tests plus the six-target runtime workflows rather than Python notebook harness tests."
+    }
+  ]
+}

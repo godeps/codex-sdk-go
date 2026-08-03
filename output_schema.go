@@ -36,6 +36,7 @@ func createOutputSchemaFile(schema any) (outputSchemaFile, error) {
 		_ = cleanup()
 		return outputSchemaFile{}, err
 	}
+	encoded = append(encoded, '\n')
 	if err := os.WriteFile(schemaPath, encoded, 0o644); err != nil {
 		_ = cleanup()
 		return outputSchemaFile{}, err

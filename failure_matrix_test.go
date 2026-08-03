@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 )
@@ -231,6 +232,244 @@ func TestLoginTransportCloseAndContextCancel(t *testing.T) {
 			t.Fatalf("WaitContext missing login id error = %v", err)
 		}
 	})
+}
+
+func TestLoginWaitReturnsFailureNotification(t *testing.T) {
+	server := writeFailureServer(t, "login_failure")
+	client, err := NewClient(context.Background(), WithCodexPath(server))
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	t.Run("browser", func(t *testing.T) {
+		handle, err := client.LoginChatGPT(context.Background())
+		if err != nil {
+			t.Fatalf("LoginChatGPT: %v", err)
+		}
+		result, err := handle.WaitContext(context.Background())
+		if err != nil {
+			t.Fatalf("WaitContext: %v", err)
+		}
+		if result.LoginID != "login-browser" {
+			t.Fatalf("LoginID = %q", result.LoginID)
+		}
+		if result.Account == nil || result.Account.Raw["status"] != "failed" || result.Account.Raw["reason"] != "browser_denied" {
+			t.Fatalf("browser failure result = %#v", result)
+		}
+	})
+
+	t.Run("device code", func(t *testing.T) {
+		handle, err := client.LoginDeviceCode(context.Background())
+		if err != nil {
+			t.Fatalf("LoginDeviceCode: %v", err)
+		}
+		result, err := handle.WaitContext(context.Background())
+		if err != nil {
+			t.Fatalf("WaitContext: %v", err)
+		}
+		if result.LoginID != "login-device" {
+			t.Fatalf("LoginID = %q", result.LoginID)
+		}
+		if result.Account == nil || result.Account.Raw["status"] != "failed" || result.Account.Raw["reason"] != "device_denied" {
+			t.Fatalf("device-code failure result = %#v", result)
+		}
+	})
+}
+
+func TestGoalMutualExclusionAndRouteReuse(t *testing.T) {
+	server := writeFailureServer(t, "goal_hold")
+	client, err := NewClient(context.Background(), WithCodexPath(server))
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	first, err := client.StartGoal(context.Background(), "thread-goal", "ship")
+	if err != nil {
+		t.Fatalf("StartGoal(first): %v", err)
+	}
+	if _, err := client.StartGoal(context.Background(), "thread-goal", "ship again"); err == nil {
+		t.Fatal("StartGoal(second) error = nil")
+	}
+	if got := len(client.goals); got != 1 {
+		t.Fatalf("active goals during ownership = %d, want 1", got)
+	}
+
+	first.Close()
+	if got := len(client.goals); got != 0 {
+		t.Fatalf("active goals after Close = %d, want 0", got)
+	}
+	select {
+	case <-first.state.done:
+	default:
+		t.Fatal("first goal route did not stop after Close")
+	}
+
+	second, err := client.StartGoal(context.Background(), "thread-goal", "ship once more")
+	if err != nil {
+		t.Fatalf("StartGoal(after cleanup): %v", err)
+	}
+	second.Close()
+	if got := len(client.goals); got != 0 {
+		t.Fatalf("active goals after second Close = %d, want 0", got)
+	}
+}
+
+func TestGoalCancelPausesBeforeInterruptAndReleasesState(t *testing.T) {
+	server, captures := writeFailureServerWithCapture(t, "goal_cancel_rollover")
+	client, err := NewClient(context.Background(), WithCodexPath(server))
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	handle, err := client.StartGoal(context.Background(), "thread-goal", "ship")
+	if err != nil {
+		t.Fatalf("StartGoal: %v", err)
+	}
+	if err := handle.CancelContext(context.Background()); err != nil {
+		t.Fatalf("CancelContext: %v", err)
+	}
+	if got := captures.mustRead(t, "interrupt_calls.txt"); got != "goal-turn-1\ngoal-turn-2\n" {
+		t.Fatalf("interrupt calls = %q", got)
+	}
+	if got := captures.mustRead(t, "request_log.txt"); got == "" {
+		t.Fatal("request log empty")
+	} else {
+		pausePos := strings.Index(got, "thread/goal/set\n")
+		interruptPos := strings.Index(got, "turn/interrupt\n")
+		if pausePos == -1 || interruptPos == -1 || pausePos > interruptPos {
+			t.Fatalf("request order = %q", got)
+		}
+	}
+	if got := len(client.goals); got != 0 {
+		t.Fatalf("active goals after cancel = %d, want 0", got)
+	}
+
+	reused, err := client.StartGoal(context.Background(), "thread-goal", "retry")
+	if err != nil {
+		t.Fatalf("StartGoal(reuse): %v", err)
+	}
+	reused.Close()
+}
+
+func TestGoalTerminalPathsReleaseOwnershipExactlyOnce(t *testing.T) {
+	cases := []struct {
+		name string
+		mode string
+		run  func(t *testing.T, client *Client) *GoalHandle
+	}{
+		{
+			name: "success",
+			mode: "goal_success",
+			run: func(t *testing.T, client *Client) *GoalHandle {
+				t.Helper()
+				handle, err := client.StartGoal(context.Background(), "thread-goal", "ship")
+				if err != nil {
+					t.Fatalf("StartGoal: %v", err)
+				}
+				if _, err := handle.RunContext(context.Background()); err != nil {
+					t.Fatalf("RunContext(success): %v", err)
+				}
+				return handle
+			},
+		},
+		{
+			name: "failed turn",
+			mode: "goal_failed",
+			run: func(t *testing.T, client *Client) *GoalHandle {
+				t.Helper()
+				handle, err := client.StartGoal(context.Background(), "thread-goal", "ship")
+				if err != nil {
+					t.Fatalf("StartGoal: %v", err)
+				}
+				if _, err := handle.RunContext(context.Background()); err == nil {
+					t.Fatal("RunContext(failed) error = nil")
+				}
+				return handle
+			},
+		},
+		{
+			name: "timeout",
+			mode: "goal_timeout",
+			run: func(t *testing.T, client *Client) *GoalHandle {
+				t.Helper()
+				ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+				defer cancel()
+				handle, err := client.StartGoal(ctx, "thread-goal", "ship")
+				if !errors.Is(err, context.DeadlineExceeded) {
+					t.Fatalf("StartGoal(timeout) error = %v", err)
+				}
+				return handle
+			},
+		},
+		{
+			name: "cancel",
+			mode: "goal_cancel_rollover",
+			run: func(t *testing.T, client *Client) *GoalHandle {
+				t.Helper()
+				handle, err := client.StartGoal(context.Background(), "thread-goal", "ship")
+				if err != nil {
+					t.Fatalf("StartGoal: %v", err)
+				}
+				if err := handle.CancelContext(context.Background()); err != nil {
+					t.Fatalf("CancelContext: %v", err)
+				}
+				return handle
+			},
+		},
+		{
+			name: "malformed event",
+			mode: "goal_malformed",
+			run: func(t *testing.T, client *Client) *GoalHandle {
+				t.Helper()
+				handle, err := client.StartGoal(context.Background(), "thread-goal", "ship")
+				if err == nil {
+					t.Fatal("StartGoal(malformed) error = nil")
+				}
+				return handle
+			},
+		},
+		{
+			name: "transport close",
+			mode: "goal_transport_close",
+			run: func(t *testing.T, client *Client) *GoalHandle {
+				t.Helper()
+				handle, err := client.StartGoal(context.Background(), "thread-goal", "ship")
+				if err != nil {
+					t.Fatalf("StartGoal: %v", err)
+				}
+				if _, err := handle.RunContext(context.Background()); err == nil {
+					t.Fatal("RunContext(transport close) error = nil")
+				}
+				return handle
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			server := writeFailureServer(t, tc.mode)
+			client, err := NewClient(context.Background(), WithCodexPath(server))
+			if err != nil {
+				t.Fatalf("NewClient: %v", err)
+			}
+			defer func() { _ = client.Close() }()
+
+			handle := tc.run(t, client)
+			if got := len(client.goals); got != 0 {
+				t.Fatalf("active goals after terminal path = %d, want 0", got)
+			}
+			if handle != nil && handle.state != nil {
+				select {
+				case <-handle.state.done:
+				default:
+					t.Fatal("goal route loop still running after terminal path")
+				}
+			}
+		})
+	}
 }
 
 type failureCaptures struct{ root string }

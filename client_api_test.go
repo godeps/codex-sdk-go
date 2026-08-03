@@ -189,6 +189,41 @@ func TestClientListThreadsAndLoginContext(t *testing.T) {
 	}
 }
 
+func TestClientAccountRefreshPayloadAndLogoutState(t *testing.T) {
+	server, captures := writeContextAPIServer(t)
+	client, err := NewClient(context.Background(), CodexOptions{CodexPathOverride: server})
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	before, err := client.Account(context.Background(), true)
+	if err != nil {
+		t.Fatalf("Account(before): %v", err)
+	}
+	if before.Account == nil || before.RequiresOpenAIAuth {
+		t.Fatalf("Account(before) = %#v", before)
+	}
+	if payload := captures.readJSON(t, "account_read_1.json"); payload["refreshToken"] != true {
+		t.Fatalf("account/read refresh payload = %#v", payload)
+	}
+
+	if err := client.Logout(context.Background()); err != nil {
+		t.Fatalf("Logout: %v", err)
+	}
+
+	after, err := client.Account(context.Background(), false)
+	if err != nil {
+		t.Fatalf("Account(after): %v", err)
+	}
+	if after.Account != nil || !after.RequiresOpenAIAuth {
+		t.Fatalf("Account(after) = %#v", after)
+	}
+	if payload := captures.readJSON(t, "account_read_2.json"); payload["refreshToken"] != false {
+		t.Fatalf("second account/read payload = %#v", payload)
+	}
+}
+
 func TestGoalHandleCoalescesTurnsAndBlocksRegularTurns(t *testing.T) {
 	server, _ := writeContextAPIServer(t)
 	client, err := NewClient(context.Background(), CodexOptions{CodexPathOverride: server})

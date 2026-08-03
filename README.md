@@ -11,6 +11,8 @@ This SDK wraps the `codex` CLI and exchanges JSONL events over stdin/stdout.
 - Provide JSON schema for structured responses.
 - Attach local images alongside text prompts.
 - Configure sandboxing, web search, and model settings.
+- Pass through additional Codex CLI `--config` overrides.
+- Tolerate unknown streamed item types from newer Codex CLIs.
 
 ## Requirements
 
@@ -146,6 +148,12 @@ client := codex.NewCodex(codex.CodexOptions{
 	CodexPathOverride: "/path/to/codex",
 	BaseURL:           "https://api.openai.com",
 	APIKey:            "your-api-key",
+	Config: map[string]any{
+		"show_raw_agent_reasoning": true,
+		"sandbox_workspace_write": map[string]any{
+			"network_access": true,
+		},
+	},
 	Env: map[string]string{
 		"PATH": "/usr/local/bin",
 	},
@@ -154,6 +162,8 @@ client := codex.NewCodex(codex.CodexOptions{
 
 Notes:
 
+- `Config` accepts a nested object. The SDK flattens it into repeated `--config dotted.path=TOML-value` flags for each CLI invocation.
+- `ThreadOptions` explicit settings are appended after `Config`, so thread-scoped options override global defaults when they target the same setting.
 - `Env` fully overrides the environment passed to the CLI (the SDK will not inherit the parent process env).
 - `BaseURL` and `APIKey` are mapped to `OPENAI_BASE_URL` and `CODEX_API_KEY` for the CLI process.
 
@@ -198,6 +208,10 @@ Supported values:
 - `ApprovalPolicy`: `never`, `on-request`, `on-failure`, `untrusted`
 
 If you prefer a boolean toggle for web search, set `WebSearchEnabled` instead of `WebSearchMode`.
+
+## Forward compatibility
+
+When a newer Codex CLI emits an item type this SDK does not model yet, the stream continues and exposes the payload as `*codex.UnknownItem`. Its `Type` field preserves the item type string and `Raw` retains the original item JSON for custom handling.
 
 ## Error handling and usage
 

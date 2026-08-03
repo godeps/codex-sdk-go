@@ -4,12 +4,17 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"runtime"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -22,6 +27,7 @@ type CodexExecArgs struct {
 
 	BaseURL  string
 	APIKey   string
+	Config   map[string]any
 	ThreadID string
 	Images   []string
 
@@ -74,53 +80,9 @@ func NewCodexExec(executablePath string, env map[string]string) *CodexExec {
 
 // Run launches the Codex CLI and streams JSONL lines.
 func (c *CodexExec) Run(args CodexExecArgs) (*ExecStream, error) {
-	commandArgs := []string{"exec", "--experimental-json"}
-
-	if args.Model != "" {
-		commandArgs = append(commandArgs, "--model", args.Model)
-	}
-	if args.SandboxMode != "" {
-		commandArgs = append(commandArgs, "--sandbox", string(args.SandboxMode))
-	}
-	if args.WorkingDirectory != "" {
-		commandArgs = append(commandArgs, "--cd", args.WorkingDirectory)
-	}
-	if len(args.AdditionalDirectories) > 0 {
-		for _, dir := range args.AdditionalDirectories {
-			commandArgs = append(commandArgs, "--add-dir", dir)
-		}
-	}
-	if args.SkipGitRepoCheck {
-		commandArgs = append(commandArgs, "--skip-git-repo-check")
-	}
-	if args.OutputSchemaFile != "" {
-		commandArgs = append(commandArgs, "--output-schema", args.OutputSchemaFile)
-	}
-	if args.ModelReasoningEffort != "" {
-		commandArgs = append(commandArgs, "--config", fmt.Sprintf("model_reasoning_effort=%q", args.ModelReasoningEffort))
-	}
-	if args.NetworkAccessEnabled != nil {
-		commandArgs = append(commandArgs, "--config", fmt.Sprintf("sandbox_workspace_write.network_access=%t", *args.NetworkAccessEnabled))
-	}
-	if args.WebSearchMode != "" {
-		commandArgs = append(commandArgs, "--config", fmt.Sprintf("web_search=%q", args.WebSearchMode))
-	} else if args.WebSearchEnabled != nil {
-		if *args.WebSearchEnabled {
-			commandArgs = append(commandArgs, "--config", "web_search=\"live\"")
-		} else {
-			commandArgs = append(commandArgs, "--config", "web_search=\"disabled\"")
-		}
-	}
-	if args.ApprovalPolicy != "" {
-		commandArgs = append(commandArgs, "--config", fmt.Sprintf("approval_policy=%q", args.ApprovalPolicy))
-	}
-	if len(args.Images) > 0 {
-		for _, image := range args.Images {
-			commandArgs = append(commandArgs, "--image", image)
-		}
-	}
-	if args.ThreadID != "" {
-		commandArgs = append(commandArgs, "resume", args.ThreadID)
+	commandArgs, err := buildCommandArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
 	ctx := args.Context
@@ -183,6 +145,213 @@ func (c *CodexExec) Run(args CodexExecArgs) (*ExecStream, error) {
 	}
 
 	return &ExecStream{Lines: lines, wait: wait}, nil
+}
+
+func buildCommandArgs(args CodexExecArgs) ([]string, error) {
+	commandArgs := []string{"exec", "--experimental-json"}
+
+	configOverrides, err := flattenConfigOverrides(args.Config)
+	if err != nil {
+		return nil, err
+	}
+	for _, override := range configOverrides {
+		commandArgs = appendConfigOverride(commandArgs, override)
+	}
+
+	if args.Model != "" {
+		commandArgs = append(commandArgs, "--model", args.Model)
+	}
+	if args.SandboxMode != "" {
+		commandArgs = append(commandArgs, "--sandbox", string(args.SandboxMode))
+	}
+	if args.WorkingDirectory != "" {
+		commandArgs = append(commandArgs, "--cd", args.WorkingDirectory)
+	}
+	for _, dir := range args.AdditionalDirectories {
+		commandArgs = append(commandArgs, "--add-dir", dir)
+	}
+	if args.SkipGitRepoCheck {
+		commandArgs = append(commandArgs, "--skip-git-repo-check")
+	}
+	if args.OutputSchemaFile != "" {
+		commandArgs = append(commandArgs, "--output-schema", args.OutputSchemaFile)
+	}
+	if args.ModelReasoningEffort != "" {
+		commandArgs = appendConfigOverride(commandArgs, fmt.Sprintf("model_reasoning_effort=%q", args.ModelReasoningEffort))
+	}
+	if args.NetworkAccessEnabled != nil {
+		commandArgs = appendConfigOverride(commandArgs, fmt.Sprintf("sandbox_workspace_write.network_access=%t", *args.NetworkAccessEnabled))
+	}
+	if args.WebSearchMode != "" {
+		commandArgs = appendConfigOverride(commandArgs, fmt.Sprintf("web_search=%q", args.WebSearchMode))
+	} else if args.WebSearchEnabled != nil {
+		if *args.WebSearchEnabled {
+			commandArgs = appendConfigOverride(commandArgs, "web_search=\"live\"")
+		} else {
+			commandArgs = appendConfigOverride(commandArgs, "web_search=\"disabled\"")
+		}
+	}
+	if args.ApprovalPolicy != "" {
+		commandArgs = appendConfigOverride(commandArgs, fmt.Sprintf("approval_policy=%q", args.ApprovalPolicy))
+	}
+	for _, image := range args.Images {
+		commandArgs = append(commandArgs, "--image", image)
+	}
+	if args.ThreadID != "" {
+		commandArgs = append(commandArgs, "resume", args.ThreadID)
+	}
+
+	return commandArgs, nil
+}
+
+func appendConfigOverride(commandArgs []string, override string) []string {
+	return append(commandArgs, "--config", override)
+}
+
+func flattenConfigOverrides(config map[string]any) ([]string, error) {
+	if len(config) == 0 {
+		return nil, nil
+	}
+
+	keys := make([]string, 0, len(config))
+	for key := range config {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	overrides := make([]string, 0, len(config))
+	for _, key := range keys {
+		flattened, err := flattenConfigValue(key, reflect.ValueOf(config[key]))
+		if err != nil {
+			return nil, err
+		}
+		overrides = append(overrides, flattened...)
+	}
+	return overrides, nil
+}
+
+func flattenConfigValue(path string, value reflect.Value) ([]string, error) {
+	value = unwrapReflectValue(value)
+	if !value.IsValid() {
+		return nil, fmt.Errorf("config %s: nil values are not supported", path)
+	}
+
+	if value.Kind() == reflect.Map {
+		if value.Type().Key().Kind() != reflect.String {
+			return nil, fmt.Errorf("config %s: map keys must be strings", path)
+		}
+
+		keys := make([]string, 0, value.Len())
+		iter := value.MapRange()
+		for iter.Next() {
+			keys = append(keys, iter.Key().String())
+		}
+		sort.Strings(keys)
+
+		overrides := make([]string, 0, value.Len())
+		for _, key := range keys {
+			childPath := key
+			if path != "" {
+				childPath = path + "." + key
+			}
+			flattened, err := flattenConfigValue(childPath, value.MapIndex(reflect.ValueOf(key)))
+			if err != nil {
+				return nil, err
+			}
+			overrides = append(overrides, flattened...)
+		}
+		return overrides, nil
+	}
+
+	literal, err := encodeTOMLLiteral(value)
+	if err != nil {
+		return nil, fmt.Errorf("config %s: %w", path, err)
+	}
+	return []string{path + "=" + literal}, nil
+}
+
+func encodeTOMLLiteral(value reflect.Value) (string, error) {
+	value = unwrapReflectValue(value)
+	if !value.IsValid() {
+		return "", errors.New("nil values are not supported")
+	}
+
+	if number, ok := value.Interface().(json.Number); ok {
+		return number.String(), nil
+	}
+
+	switch value.Kind() {
+	case reflect.String:
+		encoded, err := json.Marshal(value.String())
+		if err != nil {
+			return "", err
+		}
+		return string(encoded), nil
+	case reflect.Bool:
+		return strconv.FormatBool(value.Bool()), nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.FormatInt(value.Int(), 10), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return strconv.FormatUint(value.Uint(), 10), nil
+	case reflect.Float32, reflect.Float64:
+		return formatTOMLFloat(value.Float()), nil
+	case reflect.Slice, reflect.Array:
+		parts := make([]string, 0, value.Len())
+		for i := range value.Len() {
+			part, err := encodeTOMLLiteral(value.Index(i))
+			if err != nil {
+				return "", err
+			}
+			parts = append(parts, part)
+		}
+		return "[" + strings.Join(parts, ", ") + "]", nil
+	case reflect.Map:
+		if value.Type().Key().Kind() != reflect.String {
+			return "", errors.New("map keys must be strings")
+		}
+
+		keys := make([]string, 0, value.Len())
+		iter := value.MapRange()
+		for iter.Next() {
+			keys = append(keys, iter.Key().String())
+		}
+		sort.Strings(keys)
+
+		parts := make([]string, 0, len(keys))
+		for _, key := range keys {
+			part, err := encodeTOMLLiteral(value.MapIndex(reflect.ValueOf(key)))
+			if err != nil {
+				return "", err
+			}
+			parts = append(parts, key+"="+part)
+		}
+		return "{" + strings.Join(parts, ", ") + "}", nil
+	default:
+		return "", fmt.Errorf("unsupported value type %s", value.Kind())
+	}
+}
+
+func unwrapReflectValue(value reflect.Value) reflect.Value {
+	for value.IsValid() && (value.Kind() == reflect.Interface || value.Kind() == reflect.Pointer) {
+		if value.IsNil() {
+			return reflect.Value{}
+		}
+		value = value.Elem()
+	}
+	return value
+}
+
+func formatTOMLFloat(value float64) string {
+	switch {
+	case math.IsNaN(value):
+		return "nan"
+	case math.IsInf(value, 1):
+		return "inf"
+	case math.IsInf(value, -1):
+		return "-inf"
+	default:
+		return strconv.FormatFloat(value, 'g', -1, 64)
+	}
 }
 
 func buildEnv(override map[string]string, baseURL string, apiKey string) []string {

@@ -46,6 +46,9 @@ type CodexOptions struct {
 	CodexPathOverride string
 	BaseURL           string
 	APIKey            string
+	// Config provides additional Codex CLI configuration overrides.
+	// The SDK flattens nested objects into repeated --config dotted.path=TOML-value flags.
+	Config map[string]any
 	// Env overrides the environment passed to the Codex CLI process.
 	// When provided, the SDK will not inherit variables from the parent process.
 	Env map[string]string

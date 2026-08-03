@@ -11,6 +11,8 @@
 - 提供 JSON schema 以获得结构化响应。
 - 在文本提示中附带本地图片。
 - 配置沙箱、联网搜索和模型设置。
+- 透传额外的 Codex CLI `--config` 覆盖项。
+- 对新版 Codex CLI 的未知流式 item 类型保持兼容。
 
 ## 要求
 
@@ -146,6 +148,12 @@ client := codex.NewCodex(codex.CodexOptions{
 	CodexPathOverride: "/path/to/codex",
 	BaseURL:           "https://api.openai.com",
 	APIKey:            "your-api-key",
+	Config: map[string]any{
+		"show_raw_agent_reasoning": true,
+		"sandbox_workspace_write": map[string]any{
+			"network_access": true,
+		},
+	},
 	Env: map[string]string{
 		"PATH": "/usr/local/bin",
 	},
@@ -154,6 +162,8 @@ client := codex.NewCodex(codex.CodexOptions{
 
 说明：
 
+- `Config` 接受嵌套对象。SDK 会在每次调用 CLI 时将其扁平化为重复的 `--config dotted.path=TOML-value` 参数。
+- `ThreadOptions` 中的显式设置会追加在 `Config` 之后，因此命中同一配置键时会覆盖全局默认值。
 - `Env` 会完全覆盖传给 CLI 的环境变量（SDK 不会继承父进程环境）。
 - `BaseURL` 与 `APIKey` 会映射为 CLI 进程的 `OPENAI_BASE_URL` 与 `CODEX_API_KEY`。
 
@@ -182,6 +192,10 @@ thread := client.StartThread(codex.ThreadOptions{
 - `ApprovalPolicy`: `never`, `on-request`, `on-failure`, `untrusted`
 
 若你更喜欢布尔开关的方式，可设置 `WebSearchEnabled` 而不是 `WebSearchMode`。
+
+## 前向兼容
+
+如果较新的 Codex CLI 发出了本 SDK 尚未建模的 item 类型，stream 不会中断，而是暴露为 `*codex.UnknownItem`。其中 `Type` 保留 item 类型字符串，`Raw` 保留原始 item JSON，便于宿主自行处理。
 
 ## 错误处理与用量
 

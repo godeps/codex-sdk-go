@@ -2,7 +2,6 @@ package codex
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 // Usage describes token usage for a turn.
@@ -58,6 +57,14 @@ func (e *ThreadEvent) UnmarshalJSON(data []byte) error {
 type ThreadItem interface {
 	ItemType() string
 }
+
+// UnknownItem preserves forward-compatible item payloads emitted by newer Codex CLIs.
+type UnknownItem struct {
+	Type string          `json:"type"`
+	Raw  json.RawMessage `json:"raw"`
+}
+
+func (i *UnknownItem) ItemType() string { return i.Type }
 
 // AgentMessageItem is a response from the agent.
 type AgentMessageItem struct {
@@ -256,6 +263,9 @@ func parseThreadItem(raw json.RawMessage) (ThreadItem, error) {
 		}
 		return &item, nil
 	default:
-		return nil, fmt.Errorf("unknown thread item type: %s", base.Type)
+		return &UnknownItem{
+			Type: base.Type,
+			Raw:  append(json.RawMessage(nil), raw...),
+		}, nil
 	}
 }

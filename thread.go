@@ -55,6 +55,7 @@ func (t *Thread) RunStreamed(input Input, turnOptions TurnOptions) (*StreamedTur
 		Input:                 prompt,
 		BaseURL:               t.options.BaseURL,
 		APIKey:                t.options.APIKey,
+		Config:                t.options.Config,
 		ThreadID:              t.id,
 		Images:                images,
 		Model:                 options.Model,

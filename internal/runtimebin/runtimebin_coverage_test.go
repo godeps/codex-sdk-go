@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -455,7 +456,7 @@ func TestResolveRuntimeErrorBranches(t *testing.T) {
 }
 
 func TestResolverAndTargetHelpers(t *testing.T) {
-	env := map[string]string{"PATH": "/a:/b"}
+	env := map[string]string{"PATH": strings.Join([]string{"/a", "/b"}, string(os.PathListSeparator))}
 	PrependPathDirs(env, []string{"", "/x", "/x", "/a"})
 	if env["PATH"] != strings.Join([]string{"/x", "/a", "/b"}, string(os.PathListSeparator)) {
 		t.Fatalf("PrependPathDirs() = %q", env["PATH"])
@@ -1347,8 +1348,10 @@ func TestLookPathUsesOnlySuppliedEnvironmentAndSkipsInvalidCandidates(t *testing
 	if got != want {
 		t.Fatalf("lookPath() = %q, want %q", got, want)
 	}
-	if _, err := lookPath("not-executable", env, false); !errors.Is(err, exec.ErrNotFound) {
-		t.Fatalf("lookPath(non-executable) = %v", err)
+	if runtime.GOOS != "windows" {
+		if _, err := lookPath("not-executable", env, false); !errors.Is(err, exec.ErrNotFound) {
+			t.Fatalf("lookPath(non-executable) = %v", err)
+		}
 	}
 }
 
@@ -1363,7 +1366,7 @@ func TestLookPathWindowsExtensionsFromSuppliedEnvironment(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != want {
+	if !strings.EqualFold(got, want) {
 		t.Fatalf("lookPath() = %q, want %q", got, want)
 	}
 }

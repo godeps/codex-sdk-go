@@ -149,6 +149,10 @@ func TestRunRepackAndNativeSmoke(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(stageDir, "NOTICE")); err != nil {
 		t.Fatalf("missing staged NOTICE: %v", err)
 	}
+	if runtime.GOOS == "windows" {
+		t.Log("fake script is not a PE executable; real Windows native smoke is covered by runtime-native")
+		return
+	}
 	evidencePath := filepath.Join(root, "evidence.json")
 	if err := run(t.Context(), []string{
 		"native-smoke",

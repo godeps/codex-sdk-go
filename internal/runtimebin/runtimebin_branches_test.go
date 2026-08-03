@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -130,6 +131,12 @@ func TestSignatureEvidenceAndExpectedPathsBranches(t *testing.T) {
 		evidence, err := CollectNativeSignatureEvidence(packageDir, target)
 		if err != nil {
 			t.Fatal(err)
+		}
+		if target.GOOS == runtime.GOOS && (target.GOOS == "darwin" || target.GOOS == "windows") {
+			if !evidence.Available || evidence.Reason != "" {
+				t.Fatalf("native %s evidence = %#v", target.GOOS, evidence)
+			}
+			continue
 		}
 		if target.GOOS == "linux" && !strings.Contains(evidence.Reason, "not distributed") {
 			t.Fatalf("linux evidence reason = %q", evidence.Reason)

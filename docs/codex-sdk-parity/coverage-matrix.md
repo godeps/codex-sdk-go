@@ -8,47 +8,47 @@ a written language rationale. The parity release requires every required row to 
 
 ## Functional surface
 
-| ID | Reference behavior | Current Go | Planned owner | Acceptance |
+| ID | Reference behavior | Status | Owner | Acceptance evidence |
 |---|---|---|---|---|
-| F-001 | persistent app-server + initialize | implemented | `internal/appserver`, `client.go` | TRN-001 |
-| F-002 | explicit close/context ownership | implemented | `client.go`, `internal/appserver` | TRN-005, API-001 |
-| F-003 | arbitrary typed JSON-RPC request | implemented | `internal/appserver` | TRN-002, ERR-001 |
-| F-004 | concurrent response correlation | implemented | `internal/appserver` | TRN-002/003 |
-| F-005 | global notification stream | implemented | `internal/router` | RTR-004 |
-| F-006 | early/interleaved turn routing | implemented | `internal/router` | RTR-001 |
-| F-007 | login notification routing | implemented | `internal/router`, `login.go` | RTR-002 |
-| F-008 | goal notification routing | implemented | `internal/router`, `goal.go` | RTR-003 |
-| F-009 | typed server-request/approval handling | implemented | `client.go`, `internal/router` | APR-001/002 |
-| F-010 | start thread | implemented | `client.go`, `thread.go` | API-002 |
-| F-011 | list/filter/sort/page threads | implemented | `client.go` | API-002 |
-| F-012 | read thread/history | implemented | `thread.go` | API-002 |
-| F-013 | resume thread with overrides | implemented | `client.go` | API-002 |
-| F-014 | fork thread | implemented | `client.go` | API-002 |
-| F-015 | archive/unarchive thread | implemented | `client.go` | API-002 |
-| F-016 | set thread name | implemented | `thread.go` | API-002 |
-| F-017 | compact thread | implemented | `thread.go` | API-002 |
-| F-018 | start/collect turn | implemented | `turn.go` | API-003/004 |
-| F-019 | routed full event stream | implemented | `turn.go`, `internal/router` | API-003/007 |
-| F-020 | steer active turn | implemented | `turn.go` | API-003 |
-| F-021 | interrupt active turn | implemented | `turn.go` | API-003 |
-| F-022 | rich TurnResult | implemented | `turn.go` | API-003/004 |
-| F-023 | text input | implemented | `inputs.go` | API-005 |
-| F-024 | data-URL image input | implemented | `inputs.go` | API-005 |
-| F-025 | local image input | implemented | `inputs.go` | API-005 |
-| F-026 | skill input | implemented | `inputs.go` | API-005 |
-| F-027 | mention input | implemented | `inputs.go` | API-005 |
-| F-028 | complete turn options/persistence | implemented | `options.go`, `turn.go` | API-006 |
-| F-029 | model list + metadata | implemented | `client.go` | API-001 |
-| F-030 | typed errors + overload retry | implemented | `errors.go`, `retry.go` | ERR-001/002 |
-| F-031 | account read/logout | implemented | `login.go` | AUTH-001/005 |
-| F-032 | API-key login | implemented | `login.go` | AUTH-002 |
-| F-033 | ChatGPT browser login handle | implemented | `login.go` | AUTH-003 |
-| F-034 | device-code login handle | implemented | `login.go` | AUTH-004 |
-| F-035 | logical goal start/stream | implemented | `goal.go` | GOAL-001/002/003 |
-| F-036 | goal exclusion/cancel/cleanup | implemented | `goal.go` | GOAL-004/005/006 |
+| F-001 | persistent app-server + initialize | verified | `internal/appserver`, `client.go` | TRN-001 |
+| F-002 | explicit close/context ownership | verified | `client.go`, `internal/appserver` | TRN-005, API-001 |
+| F-003 | arbitrary typed JSON-RPC request | verified | `internal/appserver` | TRN-002, ERR-001 |
+| F-004 | concurrent response correlation | verified | `internal/appserver` | TRN-002/003 |
+| F-005 | global notification stream | verified | `internal/router` | RTR-004 |
+| F-006 | early/interleaved turn routing | verified | `internal/router` | RTR-001 |
+| F-007 | login notification routing | verified | `internal/router`, `login.go` | RTR-002 |
+| F-008 | goal notification routing | verified | `internal/router`, `goal.go` | RTR-003 |
+| F-009 | typed server-request/approval handling | verified | `client.go`, `internal/router` | APR-001/002 |
+| F-010 | start thread | verified | `client.go`, `thread.go` | API-002 |
+| F-011 | list/filter/sort/page threads | verified | `client.go` | API-002 |
+| F-012 | read thread/history | verified | `thread.go` | API-002 |
+| F-013 | resume thread with overrides | verified | `client.go` | API-002 |
+| F-014 | fork thread | verified | `client.go` | API-002 |
+| F-015 | archive/unarchive thread | verified | `client.go` | API-002 |
+| F-016 | set thread name | verified | `thread.go` | API-002 |
+| F-017 | compact thread | verified | `thread.go` | API-002 |
+| F-018 | start/collect turn | verified | `turn.go` | API-003/004 |
+| F-019 | routed full event stream | verified | `turn.go`, `internal/router` | API-003/007 |
+| F-020 | steer active turn | verified | `turn.go` | API-003 |
+| F-021 | interrupt active turn | verified | `turn.go` | API-003 |
+| F-022 | rich TurnResult | verified | `turn.go` | API-003/004 |
+| F-023 | text input | verified | `inputs.go` | API-005 |
+| F-024 | data-URL image input | verified | `inputs.go` | API-005 |
+| F-025 | local image input | verified | `inputs.go` | API-005 |
+| F-026 | skill input | verified | `inputs.go` | API-005 |
+| F-027 | mention input | verified | `inputs.go` | API-005 |
+| F-028 | complete turn options/persistence | verified | `options.go`, `turn.go` | API-006 |
+| F-029 | model list + metadata | verified | `client.go` | API-001 |
+| F-030 | typed errors + overload retry | verified | `errors.go`, `retry.go` | ERR-001/002 |
+| F-031 | account read/logout | verified | `login.go` | AUTH-001/005 |
+| F-032 | API-key login | verified | `login.go` | AUTH-002 |
+| F-033 | ChatGPT browser login handle | verified | `login.go` | AUTH-003 |
+| F-034 | device-code login handle | verified | `login.go` | AUTH-004 |
+| F-035 | logical goal start/stream | verified | `goal.go` | GOAL-001/002/003 |
+| F-036 | goal exclusion/cancel/cleanup | verified | `goal.go` | GOAL-004/005/006 |
 | F-037 | future unknown payload tolerance | verified | `protocol`, `internal/router` | PROTO-005: raw round-trip tests for item, notification, primitive, user-input, and nested-union fallbacks |
-| F-038 | v0.1 public source compatibility | implemented | `compatibility.go` | COMPAT-001/002 |
-| F-039 | structured output schema and cleanup | implemented | `turn.go`, compatibility facade | API-006, COMPAT-003 |
+| F-038 | v0.1 public source compatibility | verified | compatibility facade | COMPAT-001/002 |
+| F-039 | structured output schema and cleanup | verified | `thread.go`, compatibility facade | API-006, COMPAT-003 |
 
 ## Generated protocol surface
 
@@ -69,38 +69,38 @@ The generator manifest must contain one row for every source entity with:
 
 Required generated categories:
 
-| ID | Category | Completeness proof | Acceptance |
-|---|---|---|---|
-| P-001 | all aggregate v2 definitions | set equality: schema definitions ↔ manifest | PROTO-002 |
-| P-002 | all ClientRequest methods and params | set equality + request registry | PROTO-002 |
-| P-003 | all response types | request registry response mapping | PROTO-002/004 |
-| P-004 | all ServerNotification methods | notification registry set equality | PROTO-002/005 |
-| P-005 | all ServerRequest methods | server-request registry set equality | PROTO-002, APR-001 |
-| P-006 | all ThreadItem variants | discriminator set equality + unknown fallback | PROTO-002/005 |
-| P-007 | all enum values and future values | constants + arbitrary string round-trip | PROTO-004/005 |
-| P-008 | all notification route identifiers | generated turn/login/thread routing metadata | RTR-001/002/003 |
-| P-009 | schema aliases/required/nullable rules | generated golden vectors | PROTO-004 |
-| P-010 | unknown/malformed payload fallback | raw JSON golden + fuzz tests | PROTO-005/006 |
+| ID | Category | Status | Completeness proof | Acceptance |
+|---|---|---|---|---|
+| P-001 | all aggregate v2 definitions | verified | set equality: schema definitions ↔ manifest | PROTO-002 |
+| P-002 | all ClientRequest methods and params | verified | set equality + request registry | PROTO-002 |
+| P-003 | all response types | verified | request registry response mapping | PROTO-002/004 |
+| P-004 | all ServerNotification methods | verified | notification registry set equality | PROTO-002/005 |
+| P-005 | all ServerRequest methods | verified | server-request registry set equality | PROTO-002, APR-001 |
+| P-006 | all ThreadItem variants | verified | discriminator set equality + unknown fallback | PROTO-002/005 |
+| P-007 | all enum values and future values | verified | constants + arbitrary string round-trip | PROTO-004/005 |
+| P-008 | all notification route identifiers | verified | generated turn/login/thread routing metadata | RTR-001/002/003 |
+| P-009 | schema aliases/required/nullable rules | verified | generated golden vectors | PROTO-004 |
+| P-010 | unknown/malformed payload fallback | verified | raw JSON golden + seven fuzz targets | PROTO-005/006 |
 
 ## Runtime and platform surface
 
-| ID | Capability | Planned owner | Acceptance |
-|---|---|---|---|
-| R-001 | Darwin amd64 asset | implemented | `runtime/manifest.json`, release pipeline | RUN-001/002/008 |
-| R-002 | Darwin arm64 asset | implemented | same | RUN-001/002/008 |
-| R-003 | Linux amd64 musl asset | implemented | same | RUN-001/002/008 |
-| R-004 | Linux arm64 musl asset | implemented | same | RUN-001/002/008 |
-| R-005 | Windows amd64 MSVC asset | implemented | same | RUN-001/002/008 |
-| R-006 | Windows arm64 MSVC asset | implemented | same | RUN-001/002/008 |
-| R-007 | checksum/signature/provenance | implemented | runtime release pipeline | RUN-001/004, REL-002 |
-| R-008 | online explicit install | implemented | `cmd/codex-sdk-runtime` | RUN-003/004/005 |
-| R-009 | offline local install | implemented | `cmd/codex-sdk-runtime` | RUN-003/004 |
-| R-010 | resolution precedence/PATH casing | implemented | `internal/runtimebin` | RUN-006 |
-| R-011 | companion executable layout | implemented | packager, `internal/runtimebin` | RUN-007 |
-| R-012 | stable/prerelease version mapping | implemented | packager | RUN-009 |
-| R-013 | licenses/NOTICE, SPDX SBOM, provenance, native signatures | implemented | runtime release pipeline | RUN-010, REL-002 |
-| R-014 | Ed25519 trust roots, signature envelope, rotation | implemented | `internal/runtimebin/trust_roots.go` | RUN-004, REL-002 |
-| R-015 | native runner identity/evidence | `runtime-native.yml`, release evidence | RUN-002, RUN-008 |
+| ID | Capability | Status | Owner | Acceptance evidence |
+|---|---|---|---|---|
+| R-001 | Darwin amd64 asset | verified | `runtime/manifest.json`, release pipeline | RUN-001/002/008 |
+| R-002 | Darwin arm64 asset | verified | same | RUN-001/002/008 |
+| R-003 | Linux amd64 musl asset | verified | same | RUN-001/002/008 |
+| R-004 | Linux arm64 musl asset | verified | same | RUN-001/002/008 |
+| R-005 | Windows amd64 MSVC asset | verified | same | RUN-001/002/008 |
+| R-006 | Windows arm64 MSVC asset | verified | same | RUN-001/002/008 |
+| R-007 | checksum/signature/provenance | verified | runtime release pipeline | RUN-001/004, REL-002 |
+| R-008 | online explicit install | verified | `cmd/codex-sdk-runtime` | RUN-003/004/005 |
+| R-009 | offline local install | verified | `cmd/codex-sdk-runtime` | RUN-003/004 |
+| R-010 | resolution precedence/PATH casing | verified | `internal/runtimebin` | RUN-006 |
+| R-011 | companion executable layout | verified | packager, `internal/runtimebin` | RUN-007 |
+| R-012 | stable/prerelease version mapping | verified | packager | RUN-009 |
+| R-013 | licenses/NOTICE, SPDX SBOM, provenance, native signatures | verified | runtime release pipeline | RUN-010, REL-002 |
+| R-014 | Ed25519 trust roots, signature envelope, rotation | verified | `internal/runtimebin/trust_roots.go` | RUN-004, REL-002 |
+| R-015 | native runner identity/evidence | verified | `runtime-native.yml`, release evidence | RUN-002, RUN-008; six native jobs in run 30813943748 |
 
 ## Python behavioral test disposition
 

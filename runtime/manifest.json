@@ -1,0 +1,541 @@
+{
+  "schemaVersion": 1,
+  "sdkVersion": "v0.2.0",
+  "runtimeVersion": "0.144.4",
+  "upstreamRepo": "openai/codex",
+  "upstreamTag": "rust-v0.144.4",
+  "targets": [
+    {
+      "goos": "darwin",
+      "goarch": "arm64",
+      "triple": "aarch64-apple-darwin",
+      "executable": "codex",
+      "upstreamAsset": "codex-package-aarch64-apple-darwin.tar.gz",
+      "upstreamArchiveSha256": "312e6fa2826596fb23cc1193c30d51902b6522c36ccc43b36417590e0ebd533d",
+      "upstreamArchiveSize": 116111014,
+      "archiveName": "codex-sdk-go-runtime_0.144.4_darwin_arm64.tar.gz",
+      "archiveSha256": "f744b6d74beb373ece4613aadfae8a268b308cb5ef6ed3b78ed055d72152440c",
+      "archiveSize": 121280966,
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "461a8bd283f0f1ffa87bb8731a60c58d735fcd14ac4047c9b4b2c58457bc0e8f",
+          "size": 1063,
+          "mode": 420,
+          "role": "license"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "0f5c0e27cc1051ca3f6465afcbc51f580e8166fbfdc8f7fdcd70f6838b56f900",
+          "size": 161,
+          "mode": 420,
+          "role": "notice"
+        },
+        {
+          "path": "bin/codex",
+          "sha256": "3302acbda5f53de1a71ebdb0c0f2aae0d47f9324aa9fb6b4e78a47014fd51c7d",
+          "size": 260406464,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "bin/codex-code-mode-host",
+          "sha256": "d0ace4fdb7f9d3872cb158c1493bdb3b2bfe4cb3c0d4c5dfaa3e0e2762574b21",
+          "size": 46374288,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "bde7c53e9019ff5735f80f80c2c2e3e140fd6dc702a21f331c02ffe2733fc36d",
+          "size": 200,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg",
+          "sha256": "4fdf1d8365af224bc70e3c1490d8461d859c37cc70e739a11e987af0215f3e94",
+          "size": 4048816,
+          "mode": 493,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/zsh/bin/zsh",
+          "sha256": "b69893d9da08786211bac0862212e26a8a31af24eb77da21692671c58d388b8d",
+          "size": 737520,
+          "mode": 493,
+          "role": "resource"
+        },
+        {
+          "path": "native-signatures.json",
+          "sha256": "a763d2ae21355061782b3203c6a0a016ce6b00fa388344678e891c8feb4d04dc",
+          "size": 620,
+          "mode": 420,
+          "role": "native-signature-evidence"
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "41dd08e6c4d1954c47f39d1baaecbd24a9362d0286fc8edf3d1f924256c77ee3",
+          "size": 604,
+          "mode": 420,
+          "role": "provenance"
+        },
+        {
+          "path": "sbom.spdx.json",
+          "sha256": "d671e158681f099e6bde09e4fc0e7581721ec3d6c78877e5ced206c7ed2240b9",
+          "size": 1222,
+          "mode": 420,
+          "role": "sbom"
+        }
+      ]
+    },
+    {
+      "goos": "windows",
+      "goarch": "arm64",
+      "triple": "aarch64-pc-windows-msvc",
+      "executable": "codex.exe",
+      "upstreamAsset": "codex-package-aarch64-pc-windows-msvc.tar.gz",
+      "upstreamArchiveSha256": "17c91182789066dcc983c38323d63f1900414e5df63e5c4149b46b5339a17dc4",
+      "upstreamArchiveSize": 130313848,
+      "archiveName": "codex-sdk-go-runtime_0.144.4_windows_arm64.tar.gz",
+      "archiveSha256": "144006138d2c7877c5f2bda6fa1ceccdd9b750c9fd1ce5dc72d6b7e05427e938",
+      "archiveSize": 137562896,
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "562494e1e0ef8f3aff5bcf01b06bb09b98e3f23a78751464e4363d930c82e8d2",
+          "size": 1084,
+          "mode": 438,
+          "role": "license"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "76eb02e798ab9cd0c2510854ca9d3b2460ec0f6ef970ad085661eca62992c998",
+          "size": 164,
+          "mode": 438,
+          "role": "notice"
+        },
+        {
+          "path": "bin/codex-code-mode-host.exe",
+          "sha256": "6b9adc17a3000864d32d55c57060c3ba5d70ff9a17410db40d0cc5fc54bde233",
+          "size": 50627376,
+          "mode": 438,
+          "role": "companion"
+        },
+        {
+          "path": "bin/codex.exe",
+          "sha256": "84406bf7cb8c689e46ebd31244f0458fce3eeed781ec1030399a96baab062932",
+          "size": 293900080,
+          "mode": 438,
+          "role": "executable"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "e6577e528c1652bcc9c073a3371d75f47cfebe44b675ad7542ca10026ae47f3d",
+          "size": 216,
+          "mode": 438,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg.exe",
+          "sha256": "f7799d737b520e00b10dfa72def23904fe66fb03315636a7b78549845ee9609c",
+          "size": 3930112,
+          "mode": 438,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/codex-command-runner.exe",
+          "sha256": "bfcb2c05c8d0980c4288b112b784147706494392c394176aa1aa759dfe9420d1",
+          "size": 1093424,
+          "mode": 438,
+          "role": "resource"
+        },
+        {
+          "path": "codex-resources/codex-windows-sandbox-setup.exe",
+          "sha256": "61ca95f05896a2d51260f564cfd19128de9d12072ff3606d1a4e4e87d95b227f",
+          "size": 7761200,
+          "mode": 438,
+          "role": "resource"
+        },
+        {
+          "path": "native-signatures.json",
+          "sha256": "a41f246a6dc2526e929214f97e16a47c12e3f8da136e9e5b6b59633966ba2aa9",
+          "size": 36490,
+          "mode": 438,
+          "role": "native-signature-evidence"
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "d2ed9d2b17e837b031a1a17fa1118a718e0aabcf866f769ecdf45a1dd77ba680",
+          "size": 690,
+          "mode": 438,
+          "role": "provenance"
+        },
+        {
+          "path": "sbom.spdx.json",
+          "sha256": "51dcff50c8e653675fc8df2dad1eace38128069fcb0d407bac31dfac7345e8b5",
+          "size": 1415,
+          "mode": 438,
+          "role": "sbom"
+        }
+      ]
+    },
+    {
+      "goos": "linux",
+      "goarch": "arm64",
+      "triple": "aarch64-unknown-linux-musl",
+      "executable": "codex",
+      "upstreamAsset": "codex-package-aarch64-unknown-linux-musl.tar.gz",
+      "upstreamArchiveSha256": "b1bc561a5bf74f9c5767c698275ae8043cee2ce45341098048b0b0b8b4e2cfc5",
+      "upstreamArchiveSize": 119080449,
+      "archiveName": "codex-sdk-go-runtime_0.144.4_linux_arm64.tar.gz",
+      "archiveSha256": "7d1370fe89ab6184edc3de534a4c87792646345661c29eb32b63cfabddf50f73",
+      "archiveSize": 124906066,
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "461a8bd283f0f1ffa87bb8731a60c58d735fcd14ac4047c9b4b2c58457bc0e8f",
+          "size": 1063,
+          "mode": 420,
+          "role": "license"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "997ff67e6326ebfa3815ec998a81012be70be63bda455096fb38e7248513bcf4",
+          "size": 167,
+          "mode": 420,
+          "role": "notice"
+        },
+        {
+          "path": "bin/codex",
+          "sha256": "306498eb1e4ba092e1a03c6ebeaeba37964ad868a68b167d4fb775c96321db5c",
+          "size": 259137328,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "bin/codex-code-mode-host",
+          "sha256": "fbe7e52c3350ffb1bd200e36051858c9d5934de800824cb2cabdd9eba4010ba1",
+          "size": 43502544,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "82fdf6e01739420377d64d9c154173c9926cab51c19c895e4a1ffcab9bb6bb47",
+          "size": 206,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg",
+          "sha256": "968cabe8efed72fd8fd482cb76b6084fcb695fc5293af7fb62296b02f487fb69",
+          "size": 4543848,
+          "mode": 493,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/bwrap",
+          "sha256": "0f543a7356ab343b4827222f910461d4196778f328b28acd6c126ef18e9557ab",
+          "size": 529168,
+          "mode": 493,
+          "role": "resource"
+        },
+        {
+          "path": "codex-resources/zsh/bin/zsh",
+          "sha256": "7feeacd883e1dc749847936948c378653c80a69ec4a9542f0f126b411882c179",
+          "size": 878056,
+          "mode": 493,
+          "role": "resource"
+        },
+        {
+          "path": "native-signatures.json",
+          "sha256": "e69ad7d7c3a364d87800710a80c8e582458c2598b197d7e57bcd619b87e5d333",
+          "size": 120,
+          "mode": 420,
+          "role": "native-signature-evidence"
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "af5a7ac78b302dcd301c0bd927f37806e4952506b81a296545763845393dbedc",
+          "size": 645,
+          "mode": 420,
+          "role": "provenance"
+        },
+        {
+          "path": "sbom.spdx.json",
+          "sha256": "02d615d6d6ff546590768ede6062325a23f4039e5a2a3fc2efecaf8c1b57fdac",
+          "size": 1367,
+          "mode": 420,
+          "role": "sbom"
+        }
+      ]
+    },
+    {
+      "goos": "darwin",
+      "goarch": "amd64",
+      "triple": "x86_64-apple-darwin",
+      "executable": "codex",
+      "upstreamAsset": "codex-package-x86_64-apple-darwin.tar.gz",
+      "upstreamArchiveSha256": "666671fbe761fe1fd57d74e725c5a306729f81f4fbefc16a01a0595e69864d41",
+      "upstreamArchiveSize": 126206132,
+      "archiveName": "codex-sdk-go-runtime_0.144.4_darwin_amd64.tar.gz",
+      "archiveSha256": "c4bda309d562feb01c4c1b3b83327b23b24c6af73fc588ac821b4511e28d8e64",
+      "archiveSize": 129670081,
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "461a8bd283f0f1ffa87bb8731a60c58d735fcd14ac4047c9b4b2c58457bc0e8f",
+          "size": 1063,
+          "mode": 420,
+          "role": "license"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "5fa400dd0ff2fd356f1c728e18037b36e633ed4a10544755b2c8026c544292fc",
+          "size": 160,
+          "mode": 420,
+          "role": "notice"
+        },
+        {
+          "path": "bin/codex",
+          "sha256": "1c87c8df60f80a2b08d78bbb9b381fbe0829dc6bbf66b6fa1974cd21e37a5da1",
+          "size": 282983408,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "bin/codex-code-mode-host",
+          "sha256": "85a5eb00d2a979c29255264117b34bc2b6874d44428c99030a3a720bac4e657a",
+          "size": 49106048,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "2247fb1694e744b3c49d3c132bb7e5eb42e694166771b7fe873180f847746554",
+          "size": 199,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg",
+          "sha256": "3bafa7e6ee51ba3ac4ed065883484a309be09b26ea6dad561ae4049bfe049c50",
+          "size": 4442900,
+          "mode": 493,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/zsh/bin/zsh",
+          "sha256": "901782b34a9742b9962199332934ac77229073760bf837bc86b156ce4b86b9fa",
+          "size": 740016,
+          "mode": 493,
+          "role": "resource"
+        },
+        {
+          "path": "native-signatures.json",
+          "sha256": "a763d2ae21355061782b3203c6a0a016ce6b00fa388344678e891c8feb4d04dc",
+          "size": 620,
+          "mode": 420,
+          "role": "native-signature-evidence"
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "fe870dc2556e6ffc3c64572b07208d1de095fad7e97a43736240c4e5d980ac3b",
+          "size": 602,
+          "mode": 420,
+          "role": "provenance"
+        },
+        {
+          "path": "sbom.spdx.json",
+          "sha256": "78f624066e53abbe93eb347d194684127ee14f5169803d306e056d01ac451952",
+          "size": 1221,
+          "mode": 420,
+          "role": "sbom"
+        }
+      ]
+    },
+    {
+      "goos": "windows",
+      "goarch": "amd64",
+      "triple": "x86_64-pc-windows-msvc",
+      "executable": "codex.exe",
+      "upstreamAsset": "codex-package-x86_64-pc-windows-msvc.tar.gz",
+      "upstreamArchiveSha256": "7f41b38da27e41f0fd3509e0e247bf05b7a9b6105565d70ac2be4cc79b64f1fe",
+      "upstreamArchiveSize": 139728340,
+      "archiveName": "codex-sdk-go-runtime_0.144.4_windows_amd64.tar.gz",
+      "archiveSha256": "7a2290712760994dd407e950156a259d082293b049921dddf440c8651881e97e",
+      "archiveSize": 145988776,
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "562494e1e0ef8f3aff5bcf01b06bb09b98e3f23a78751464e4363d930c82e8d2",
+          "size": 1084,
+          "mode": 438,
+          "role": "license"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "5db6042b6f31602f26de855514cafda3654470374773f5d1c10d50b14940b70a",
+          "size": 163,
+          "mode": 438,
+          "role": "notice"
+        },
+        {
+          "path": "bin/codex-code-mode-host.exe",
+          "sha256": "861588375bcccef20441c652c9b7498ba2f286f3db5585501577e34eb34f3121",
+          "size": 53594928,
+          "mode": 438,
+          "role": "companion"
+        },
+        {
+          "path": "bin/codex.exe",
+          "sha256": "51398051c2332b6afe08dc3b9dbb4056085c197f35ca57a307ee303d450cada5",
+          "size": 341142832,
+          "mode": 438,
+          "role": "executable"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "57cd10953ea987b5e22dcc4e14bff7ef004ea3be1eccfb0ac876c016dc9a3fcd",
+          "size": 215,
+          "mode": 438,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg.exe",
+          "sha256": "decdd4992f3f1b9a5ef9898f1b40ab16886d579d6516b4efd3d5eaa19364e408",
+          "size": 4266496,
+          "mode": 438,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/codex-command-runner.exe",
+          "sha256": "d515672e5f62e41f98503e94c674f07d94272118f9feab0072c9748b7ac8a7e3",
+          "size": 1271088,
+          "mode": 438,
+          "role": "resource"
+        },
+        {
+          "path": "codex-resources/codex-windows-sandbox-setup.exe",
+          "sha256": "717a5f5fc3328ad46173aafc4d092b09127e6f9f452c81337b3e8923cc5cdb97",
+          "size": 8817968,
+          "mode": 438,
+          "role": "resource"
+        },
+        {
+          "path": "native-signatures.json",
+          "sha256": "bf00b0613cc7e367bda6d2f41fc1294f7dfd12110a2f93d0ce5815e67bad6451",
+          "size": 36516,
+          "mode": 438,
+          "role": "native-signature-evidence"
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "1e4c9507ffb8e0c1fdf575e34a8643f902f22469ac0a96e8cf23f17379b6f151",
+          "size": 688,
+          "mode": 438,
+          "role": "provenance"
+        },
+        {
+          "path": "sbom.spdx.json",
+          "sha256": "ca482b2ef10893c8e4d17200edddbd697ce4d23efd77609889800acf608e6641",
+          "size": 1414,
+          "mode": 438,
+          "role": "sbom"
+        }
+      ]
+    },
+    {
+      "goos": "linux",
+      "goarch": "amd64",
+      "triple": "x86_64-unknown-linux-musl",
+      "executable": "codex",
+      "upstreamAsset": "codex-package-x86_64-unknown-linux-musl.tar.gz",
+      "upstreamArchiveSha256": "d0a7bdb2ca821c9bb5f4cc2fb11a4ed96025db63b20d1bddf1e632361a108220",
+      "upstreamArchiveSize": 128021348,
+      "archiveName": "codex-sdk-go-runtime_0.144.4_linux_amd64.tar.gz",
+      "archiveSha256": "1d5dc46b2409f8ff905a7fbd6b5414c5cf63efa7eb9c16f2dd9b939526bce487",
+      "archiveSize": 132145663,
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "461a8bd283f0f1ffa87bb8731a60c58d735fcd14ac4047c9b4b2c58457bc0e8f",
+          "size": 1063,
+          "mode": 420,
+          "role": "license"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "5eef1f07c9915a435cc253af2ea9455d5b621c241d4de1c64867170111b66986",
+          "size": 166,
+          "mode": 420,
+          "role": "notice"
+        },
+        {
+          "path": "bin/codex",
+          "sha256": "2b3edc9cdfd1717fba3dbc92817205a8a2c7511d459e456d4817eeff6f78ed7a",
+          "size": 298553392,
+          "mode": 493,
+          "role": "executable"
+        },
+        {
+          "path": "bin/codex-code-mode-host",
+          "sha256": "49c528deb71531b7bfdcaa32e07c12de03f43d91f13edeeda51d527dac2c911e",
+          "size": 46131096,
+          "mode": 493,
+          "role": "companion"
+        },
+        {
+          "path": "codex-package.json",
+          "sha256": "42bab5980ada0004fb00857b9ad36f26038f6b548c6ae12d838fdf3927c17ff0",
+          "size": 205,
+          "mode": 420,
+          "role": "metadata"
+        },
+        {
+          "path": "codex-path/rg",
+          "sha256": "ebeaf56f8a25e102e9419933423738b3a2a613a444fd749d695e15eba53f71f2",
+          "size": 5445512,
+          "mode": 493,
+          "role": "path"
+        },
+        {
+          "path": "codex-resources/bwrap",
+          "sha256": "77360cb751ccedc5971391444ac86a8a33c15b04d6b4a6fe45f5d25496e62c4c",
+          "size": 529776,
+          "mode": 493,
+          "role": "resource"
+        },
+        {
+          "path": "codex-resources/zsh/bin/zsh",
+          "sha256": "67faaaa89242c4a332e16e508a1977cffc24bf7fca31d4411cdfd101f3831ef3",
+          "size": 898480,
+          "mode": 493,
+          "role": "resource"
+        },
+        {
+          "path": "native-signatures.json",
+          "sha256": "e69ad7d7c3a364d87800710a80c8e582458c2598b197d7e57bcd619b87e5d333",
+          "size": 120,
+          "mode": 420,
+          "role": "native-signature-evidence"
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "74ce4ebde4e5010c2d27621435b6f5a175183c5e97113361fd821c2bf4c2074b",
+          "size": 643,
+          "mode": 420,
+          "role": "provenance"
+        },
+        {
+          "path": "sbom.spdx.json",
+          "sha256": "c1a85bd33cefd3604d39091b21402c38b50982fbc9bb174cc457e93e8e088b96",
+          "size": 1366,
+          "mode": 420,
+          "role": "sbom"
+        }
+      ]
+    }
+  ]
+}

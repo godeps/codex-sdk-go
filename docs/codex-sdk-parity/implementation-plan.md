@@ -1,6 +1,6 @@
 # Full Codex SDK parity implementation plan
 
-Status: implementation complete locally; final native-matrix and release verification pending
+Status: implementation and candidate verification complete; final exact-SHA release workflow is the publishing gate
 Reference Python revision: `bb5054fe47`
 Pinned Codex runtime: `0.144.4`
 
@@ -108,7 +108,8 @@ deterministic path. Runtime installation is an explicit command/API operation.
 
 ### Follow-ups
 
-- decide the deprecation release after downstream usage is measured;
+- retain the v0.1 compatibility facade for all v0.2.x releases; earliest removal is v0.3.0 and
+  requires a separate approved compatibility plan;
 - revisit additional architectures only when upstream publishes matching runtime assets;
 - update the pin and regenerate in an isolated change, never mixed with handwritten behavior.
 

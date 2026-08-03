@@ -15,6 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check out pinned Codex reference
+        uses: actions/checkout@v4
+        with:
+          repository: openai/codex
+          ref: bb5054fe47abe73ecbbd454751066a28c89f4bb9
+          path: _reference/codex
+          sparse-checkout: sdk/python
+          persist-credentials: false
+
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod

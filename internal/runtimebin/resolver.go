@@ -80,7 +80,7 @@ func ResolveRuntime(opts ResolveOptions) (ResolvedRuntime, error) {
 	}
 
 	if opts.AllowPATH {
-		path, err := exec.LookPath(binaryBaseName(target.Executable))
+		path, err := lookPath(binaryBaseName(target.Executable), env, opts.Env == nil)
 		if err != nil {
 			return ResolvedRuntime{}, fmt.Errorf("%w: install %s for %s or set CODEX_RUNTIME_PATH", ErrRuntimeNotInstalled, opts.RuntimeVersion, target.Triple)
 		}
@@ -95,6 +95,41 @@ func ResolveRuntime(opts ResolveOptions) (ResolvedRuntime, error) {
 	}
 
 	return ResolvedRuntime{}, fmt.Errorf("%w: install %s for %s or set an explicit path", ErrRuntimeNotInstalled, opts.RuntimeVersion, target.Triple)
+}
+
+func lookPath(file string, env map[string]string, inherit bool) (string, error) {
+	if inherit {
+		return exec.LookPath(file)
+	}
+	candidates := []string{file}
+	if isWindowsEnv() && filepath.Ext(file) == "" {
+		extensions := env["PATHEXT"]
+		if extensions == "" {
+			extensions = ".COM;.EXE;.BAT;.CMD"
+		}
+		for _, extension := range strings.Split(extensions, ";") {
+			if extension != "" {
+				candidates = append(candidates, file+strings.ToLower(extension), file+strings.ToUpper(extension))
+			}
+		}
+	}
+	for _, dir := range filepath.SplitList(env[PathEnvKey(env)]) {
+		if dir == "" {
+			continue
+		}
+		for _, candidate := range candidates {
+			path := filepath.Join(dir, candidate)
+			info, err := os.Stat(path)
+			if err != nil || info.IsDir() {
+				continue
+			}
+			if !isWindowsEnv() && info.Mode().Perm()&0o111 == 0 {
+				continue
+			}
+			return path, nil
+		}
+	}
+	return "", exec.ErrNotFound
 }
 
 func PrependPathDirs(env map[string]string, dirs []string) {

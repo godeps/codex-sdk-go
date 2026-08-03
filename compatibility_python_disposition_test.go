@@ -70,17 +70,19 @@ func TestCompatibilityPythonDispositionCoversPinnedPythonTests(t *testing.T) {
 		"not_applicable":              {},
 	}
 
+	pythonTestsRoot := pinnedPythonTestsRoot(t)
 	cmd := exec.Command("python", "-c", `
 from pathlib import Path
 import json, re
-root = Path('../../other/codex/sdk/python/tests')
+import sys
+root = Path(sys.argv[1])
 items = []
 for path in sorted(root.glob('test_*.py')):
     text = path.read_text()
     for name in re.findall(r'^def (test_[A-Za-z0-9_]+)\(', text, re.M):
         items.append(f"{path.name}::{name}")
 print(json.dumps(items))
-`)
+`, pythonTestsRoot)
 	cmd.Dir = repoRoot(t)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -182,6 +184,26 @@ print(json.dumps(items))
 			t.Fatalf("stale python disposition entry for %s", testID)
 		}
 	}
+}
+
+func pinnedPythonTestsRoot(t *testing.T) string {
+	t.Helper()
+	root := repoRoot(t)
+	candidates := []string{}
+	if reference := os.Getenv("CODEX_REFERENCE_REPO"); reference != "" {
+		candidates = append(candidates, filepath.Join(reference, "sdk", "python", "tests"))
+	}
+	candidates = append(candidates,
+		filepath.Clean(filepath.Join(root, "../../other/codex/sdk/python/tests")),
+		filepath.Join(root, "_reference", "codex", "sdk", "python", "tests"),
+	)
+	for _, candidate := range candidates {
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			return candidate
+		}
+	}
+	t.Fatal("unable to resolve pinned Python test directory")
+	return ""
 }
 
 func collectGoTests(t *testing.T) map[string]map[string]struct{} {

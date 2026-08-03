@@ -147,13 +147,8 @@ jobs:
               "GOWORK=off go test -tags=integration ./...",
               "staticcheck ./...",
               "GOWORK=off go run ./cmd/codex-sdk-gen verify",
-              "GOWORK=off go test -run '^$' -fuzz FuzzClientRequestUnmarshal -fuzztime=10s ./protocol",
-              "GOWORK=off go test -run '^$' -fuzz FuzzServerRequestUnmarshal -fuzztime=10s ./protocol",
-              "GOWORK=off go test -run '^$' -fuzz FuzzThreadItemUnmarshal -fuzztime=10s ./protocol",
-              "GOWORK=off go test -run '^$' -fuzz FuzzServerNotificationUnmarshal -fuzztime=10s ./protocol",
-              "GOWORK=off go test -run '^$' -fuzz FuzzRequestIDUnmarshal -fuzztime=10s ./protocol",
-              "GOWORK=off go test -run '^$' -fuzz FuzzThreadListCwdFilterUnmarshal -fuzztime=10s ./protocol",
-              "GOWORK=off go test -run '^$' -fuzz FuzzAuthModeUnmarshal -fuzztime=10s ./protocol",
+              "GOWORK=off go test -c -fuzz '^FuzzClientRequestUnmarshal$' -o protocol.test ./protocol",
+              "timeout --preserve-status --signal=INT --kill-after=30s 15s protocol.test -test.fuzz='<target>' -test.fuzztime=1m (7 targets)",
               "GOWORK=off go test -race -count=20 . ./internal/appserver ./internal/router ./internal/runtimebin"
             ]
           }

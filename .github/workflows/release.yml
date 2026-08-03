@@ -189,6 +189,11 @@ jobs:
           [[ "$CREATE_TAG_IF_MISSING" == "true" || "$CREATE_TAG_IF_MISSING" == "false" ]]
           git fetch --tags origin
           if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            tag_commit="$(git rev-list -n 1 "$TAG")"
+            if [[ "$tag_commit" != "$TARGET_COMMIT" ]]; then
+              echo "tag ${TAG} points to ${tag_commit}, expected ${TARGET_COMMIT}" >&2
+              exit 1
+            fi
             exit 0
           fi
           if [[ "$CREATE_TAG_IF_MISSING" != "true" ]]; then

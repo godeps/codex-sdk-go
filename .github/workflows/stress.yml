@@ -76,7 +76,7 @@ jobs:
           # Go's internal duration deadline can race worker teardown and report
           # context.DeadlineExceeded after a clean run. Keep that deadline in
           # reserve and stop with SIGINT after the required budget plus grace.
-          timeout --preserve-status --signal=INT --kill-after=1m 10m15s \
+          timeout --preserve-status --signal=INT --kill-after=1m 615s \
             "$fuzz_dir/protocol.test" \
               -test.timeout=16m \
               -test.run='^$' \

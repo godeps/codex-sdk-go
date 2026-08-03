@@ -148,3 +148,12 @@ jobs:
           path: |
             artifacts/runtime-targets
             artifacts/release
+
+      - name: Upload canonical signed manifest
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-canonical-manifest
+          path: |
+            artifacts/release/codex-sdk-go-runtime-manifest.json
+            artifacts/release/codex-sdk-go-runtime-manifest.json.sig

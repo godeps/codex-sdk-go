@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -1321,6 +1322,49 @@ func TestResolveRuntimeAllowPATHMissingReturnsInstallHint(t *testing.T) {
 		Target:         &target,
 	}); !errors.Is(err, ErrRuntimeNotInstalled) {
 		t.Fatalf("ResolveRuntime() PATH miss = %v", err)
+	}
+}
+
+func TestLookPathUsesOnlySuppliedEnvironmentAndSkipsInvalidCandidates(t *testing.T) {
+	t.Setenv("OS", "")
+	first := t.TempDir()
+	second := t.TempDir()
+	if err := os.Mkdir(filepath.Join(first, "codex"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(first, "not-executable"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(second, "codex")
+	if err := os.WriteFile(want, []byte("#!/bin/sh\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	env := map[string]string{"PATH": string(os.PathListSeparator) + first + string(os.PathListSeparator) + second}
+	got, err := lookPath("codex", env, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != want {
+		t.Fatalf("lookPath() = %q, want %q", got, want)
+	}
+	if _, err := lookPath("not-executable", env, false); !errors.Is(err, exec.ErrNotFound) {
+		t.Fatalf("lookPath(non-executable) = %v", err)
+	}
+}
+
+func TestLookPathWindowsExtensionsFromSuppliedEnvironment(t *testing.T) {
+	t.Setenv("OS", "Windows_NT")
+	dir := t.TempDir()
+	want := filepath.Join(dir, "codex.EXE")
+	if err := os.WriteFile(want, []byte("binary"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := lookPath("codex", map[string]string{"Path": dir, "PATHEXT": ";.EXE"}, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != want {
+		t.Fatalf("lookPath() = %q, want %q", got, want)
 	}
 }
 

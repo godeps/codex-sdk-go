@@ -105,6 +105,19 @@ func TestRunManifestAndSign(t *testing.T) {
 	}
 }
 
+func TestSignRejectsPrivateKeyCommandLineFlag(t *testing.T) {
+	err := run(t.Context(), []string{
+		"sign",
+		"--manifest", "manifest.json",
+		"--output", "manifest.json.sig",
+		"--key-id", "test",
+		"--private-key-base64", "must-not-be-accepted",
+	})
+	if err == nil {
+		t.Fatal("sign accepted a private key in process arguments")
+	}
+}
+
 func TestRunRepackAndNativeSmoke(t *testing.T) {
 	root := t.TempDir()
 	target := currentTestTarget(t)

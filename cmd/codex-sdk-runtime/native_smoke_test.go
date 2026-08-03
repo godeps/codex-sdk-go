@@ -363,13 +363,13 @@ func buildSignedRelease(t *testing.T) signedRelease {
 	seed := bytes.Repeat([]byte{11}, ed25519.SeedSize)
 	privateKey := ed25519.NewKeyFromSeed(seed)
 	signaturePath := filepath.Join(root, "manifest.json.sig")
+	t.Setenv("CODEX_RUNTIME_MANIFEST_PRIVATE_KEY_BASE64", base64.StdEncoding.EncodeToString(privateKey))
 	if _, err := captureStdout(t, func() error {
 		return run(context.Background(), []string{
 			"sign",
 			"--manifest", manifestPath,
 			"--output", signaturePath,
 			"--key-id", "runtime-manifest-v3",
-			"--private-key-base64", base64.StdEncoding.EncodeToString(privateKey),
 		})
 	}); err != nil {
 		t.Fatalf("sign: %v", err)

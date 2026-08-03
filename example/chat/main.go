@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -20,14 +22,19 @@ func main() {
 	model := flag.String("model", "", "Model to use (e.g., claude-sonnet-4, gpt-4)")
 	flag.Parse()
 
-	options := codex.CodexOptions{}
+	clientOptions := []codex.Option{codex.WithAllowPATH(true)}
 	if *apiKey != "" {
-		options.APIKey = *apiKey
+		clientOptions = append(clientOptions, codex.WithAPIKey(*apiKey))
 	}
 	if *baseURL != "" {
-		options.BaseURL = *baseURL
+		clientOptions = append(clientOptions, codex.WithBaseURL(*baseURL))
 	}
-	client := codex.NewCodex(options)
+	client, err := codex.NewClient(context.Background(), clientOptions...)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "start client:", err)
+		return
+	}
+	defer client.Close()
 
 	threadOptions := codex.ThreadOptions{
 		WorkingDirectory: ".",
@@ -38,7 +45,11 @@ func main() {
 	if *model != "" {
 		threadOptions.Model = *model
 	}
-	thread := client.StartThread(threadOptions)
+	thread, err := client.StartThread(context.Background(), threadOptions)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "start thread:", err)
+		return
+	}
 
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Enter message (type 'exit' to quit):")
@@ -60,13 +71,27 @@ func main() {
 
 		ctx, cancel := context.WithTimeout(context.Background(), *timeout)
 		if *stream {
-			streamed, err := thread.RunStreamed(codex.TextInput(line), codex.TurnOptions{Context: ctx})
+			handle, err := thread.StartTurnContext(ctx, codex.TextInput(line), codex.TurnOptions{})
 			if err != nil {
 				cancel()
 				fmt.Fprintln(os.Stderr, "run error:", err)
 				continue
 			}
-			for event := range streamed.Events {
+			streamed, err := handle.StreamContext(ctx)
+			if err != nil {
+				cancel()
+				fmt.Fprintln(os.Stderr, "stream error:", err)
+				continue
+			}
+			for {
+				event, err := streamed.Next(ctx)
+				if errors.Is(err, io.EOF) {
+					break
+				}
+				if err != nil {
+					fmt.Fprintln(os.Stderr, "stream error:", err)
+					break
+				}
 				switch event.Type {
 				case "item.completed":
 					fmt.Printf("item: %#v\n", event.Item)
@@ -80,14 +105,12 @@ func main() {
 					fmt.Printf("stream error: %s\n", event.Message)
 				}
 			}
-			if err := <-streamed.Done; err != nil {
-				fmt.Fprintln(os.Stderr, "run error:", err)
-			}
+			_ = streamed.Close()
 			cancel()
 			continue
 		}
 
-		turn, err := thread.Run(codex.TextInput(line), codex.TurnOptions{Context: ctx})
+		turn, err := thread.RunContext(ctx, codex.TextInput(line), codex.TurnOptions{})
 		cancel()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "run error:", err)

@@ -46,7 +46,7 @@ a written language rationale. The parity release requires every required row to 
 | F-034 | device-code login handle | implemented | `login.go` | AUTH-004 |
 | F-035 | logical goal start/stream | implemented | `goal.go` | GOAL-001/002/003 |
 | F-036 | goal exclusion/cancel/cleanup | implemented | `goal.go` | GOAL-004/005/006 |
-| F-037 | future unknown payload tolerance | partial item fallback | `protocol`, `internal/router` | PROTO-005 |
+| F-037 | future unknown payload tolerance | verified | `protocol`, `internal/router` | PROTO-005: raw round-trip tests for item, notification, primitive, user-input, and nested-union fallbacks |
 | F-038 | v0.1 public source compatibility | implemented | `compatibility.go` | COMPAT-001/002 |
 | F-039 | structured output schema and cleanup | implemented | `turn.go`, compatibility facade | API-006, COMPAT-003 |
 
@@ -137,6 +137,5 @@ Rules:
 
 ## Evidence state
 
-Before implementation, all rows remain baseline `missing` or `partial`. Implementers update status
-only after attaching the exact test name and CI evidence. Code presence alone is `implemented`, not
-`verified`.
+Rows move from `implemented` to `verified` only when their named acceptance test and exact-SHA CI or
+release evidence pass. The final release commit must contain no required `missing` or `partial` row.

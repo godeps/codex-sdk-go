@@ -197,22 +197,19 @@ func runSign(args []string) error {
 		manifestPath = fs.String("manifest", "", "manifest path")
 		outputPath   = fs.String("output", "", "signature output path")
 		keyID        = fs.String("key-id", "", "trust root key identifier")
-		privateKey   = fs.String("private-key-base64", "", "ed25519 private key in base64")
 	)
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	if *privateKey == "" {
-		*privateKey = os.Getenv("CODEX_RUNTIME_MANIFEST_PRIVATE_KEY_BASE64")
-	}
-	if *manifestPath == "" || *outputPath == "" || *keyID == "" || *privateKey == "" {
-		return errors.New("sign requires --manifest, --output, --key-id, and CODEX_RUNTIME_MANIFEST_PRIVATE_KEY_BASE64 (or --private-key-base64)")
+	privateKey := os.Getenv("CODEX_RUNTIME_MANIFEST_PRIVATE_KEY_BASE64")
+	if *manifestPath == "" || *outputPath == "" || *keyID == "" || privateKey == "" {
+		return errors.New("sign requires --manifest, --output, --key-id, and CODEX_RUNTIME_MANIFEST_PRIVATE_KEY_BASE64")
 	}
 	manifestBytes, err := os.ReadFile(*manifestPath)
 	if err != nil {
 		return err
 	}
-	decoded, err := decodeBase64(*privateKey)
+	decoded, err := decodeBase64(privateKey)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,9 @@ The Go SDK exposes the Codex app-server in two layers:
 - `Codex`, the legacy v0.1 compatibility facade for existing callers.
 
 Use `Client` for new code. Keep `Codex` only while migrating older call sites.
+The v0.1 facade remains supported and regression-tested through all v0.2.x releases and will not be
+removed before v0.3.0. Any removal will be announced through a separate compatibility plan and
+release notice.
 
 ## Getting Started
 

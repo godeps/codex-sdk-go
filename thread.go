@@ -9,6 +9,8 @@ import (
 )
 
 // Turn represents the v0.1 compatibility result returned by Thread.Run.
+//
+// Deprecated: use TurnResult. Supported through v0.2.x; earliest removal is v0.3.0.
 type Turn struct {
 	Items         []ThreadItem
 	FinalResponse string
@@ -16,6 +18,8 @@ type Turn struct {
 }
 
 // StreamedTurn is the v0.1 compatibility streaming adapter returned by RunStreamed.
+//
+// Deprecated: use TurnHandle.Stream or TurnHandle.RunContext.
 type StreamedTurn struct {
 	Events <-chan ThreadEvent
 	Done   <-chan error
@@ -85,6 +89,8 @@ func (t *Thread) rootClient() *Client {
 }
 
 // NewThread constructs a compatibility thread backed by `codex exec`.
+//
+// Deprecated: create threads through Client.StartThread or Client.ResumeThread.
 func NewThread(exec *CodexExec, options CodexOptions, threadOptions ThreadOptions, id string) *Thread {
 	return &Thread{
 		exec:          exec,
@@ -112,6 +118,8 @@ func newClientThread(client *Client, threadOptions ThreadOptions, id string, pre
 }
 
 // RunStreamed sends input to the agent and streams v0.1 compatibility events.
+//
+// Deprecated: use StartTurnContext and TurnHandle.Stream or TurnHandle.RunContext.
 func (t *Thread) RunStreamed(input Input, turnOptions TurnOptions) (*StreamedTurn, error) {
 	if t.exec != nil {
 		return t.runStreamedCompat(input, turnOptions)
@@ -151,6 +159,8 @@ func (t *Thread) StartTurnContext(ctx context.Context, input Input, turnOptions 
 }
 
 // Run sends input to the agent and returns the completed v0.1 result.
+//
+// Deprecated: use RunContext.
 func (t *Thread) Run(input Input, turnOptions TurnOptions) (*Turn, error) {
 	if t.exec != nil {
 		return t.runCompat(input, turnOptions)

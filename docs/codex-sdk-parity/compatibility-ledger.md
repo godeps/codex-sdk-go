@@ -1,32 +1,39 @@
 # v0.1 compatibility contract and migration ledger
 
-Status: baseline contract frozen for implementation; evidence fixtures are created in Phase 0.
+Status: final v0.2.0 release ledger. Every preserved behavior and intentional difference below has
+checked-in acceptance evidence.
 
-This ledger defines what the parity rebuild must preserve for existing Go SDK consumers. Each row
-must gain fixture/test evidence before the old exec transport is replaced. Any observed change not
-listed here is a release blocker until documented and approved.
+This ledger defines what the parity rebuild preserves for existing Go SDK consumers. An observed
+change not listed here is a release blocker until it records the old behavior, new behavior,
+migration, first release, and acceptance evidence.
 
-| Area | v0.1 contract to preserve | Planned proof | Intentional difference |
-|---|---|---|---|
-| Public API | Existing exported constructors, options, input helpers, item/result types, `Run`, and `RunStreamed` compile | normalized `go doc -all` snapshot plus compile fixtures | Deprecation comments only; no removal |
-| CLI lookup | explicit CLI option, then PATH, then `vendor/<target-triple>/codex` | process-launch transcript per source | New API requires explicit PATH policy; deprecated facade retains default PATH lookup |
-| Environment | nil `Env` inherits; non-nil `Env` fully replaces inherited environment | child-process environment transcript, including Windows `PATH`/`Path` | None |
-| Endpoint/auth | BaseURL, API key, and originator overrides reach the child exactly as today | arguments/environment transcript with redacted canaries | None |
-| Configuration | option/config/TOML precedence and serialization remain stable | golden argv/config transcript | None |
-| Output schema | object validation, temporary-file contents/lifetime, and cleanup remain stable | valid/invalid schema and cleanup tests | New app-server API may send JSON directly; facade observable behavior stays unchanged |
-| Thread lifecycle | start/resume behavior and exposed thread ID remain stable | fake-runtime transcript and compile fixture | Thread ID storage becomes race-free; this is a defect fix |
-| Run | event collection, final response selection, usage, cancellation, and process errors remain stable | JSONL transcript goldens | Internally adapted to persistent app-server |
-| RunStreamed | event ordering, terminal result/error, and cancellation remain stable | bounded-stream transcript and abandoned-consumer test | Adapter is bounded and closes its iterator to prevent leaks |
-| Inputs | text and local-image constructors and serialization remain stable | input golden vectors | New API additionally supports data URL, skill, and mention |
-| Unknown data | `UnknownItem.Raw` retains the original bytes/meaning | unknown-item round-trip golden | New protocol types add raw fallbacks beyond old items |
+| Area | Old v0.1 behavior | New v0.2 behavior / intentional difference | Migration | First release | Acceptance evidence |
+|---|---|---|---|---|---|
+| Public API | Exported constructors, options, inputs, items, `Run`, and `RunStreamed` compile. | The source-compatible facade remains, now explicitly deprecated; the context-first `Client` is preferred. | Follow the symbol map below; no immediate source edit is required. | v0.2.0 | `TestCompatibilityPublicAPISnapshotMatchesV01Golden`, `TestCompatibilityCompileFixturesBuildAgainstCurrentPublicAPI` |
+| CLI lookup | Resolution is explicit option, then PATH, then `vendor/<target-triple>/codex`. | The facade preserves that order. `Client` additionally supports a signed cache/runtime policy and requires explicit `WithAllowPATH` when PATH fallback is desired. | Pin with `WithCodexPath` or `WithRuntimeCacheRoot`; opt into PATH with `WithAllowPATH`. | v0.2.0 | `TestCompatibilityFindCodexPathPrefersPATHBinary`, `TestCompatibilityFindCodexPathFallsBackToBundledVendorPath`, runtime resolver tests |
+| Environment | Nil `Env` inherits; non-nil `Env` fully replaces the inherited environment. | Unchanged, including case-insensitive Windows PATH handling. | None. | v0.2.0 | `TestCompatibilityNilEnvInheritsParentAndSetsOriginator`, `TestCompatibilityOverrideEnvReplacesParentEnvironment` |
+| Endpoint/auth | Base URL, API key, and originator overrides reach the child. | Observable behavior is unchanged; secrets are additionally redacted from captured stderr. | None. | v0.2.0 | `TestCompatibilityCLIArgvTranscriptMatchesV01Golden`, app-server redaction tests |
+| Configuration | Option/config/TOML precedence and serialization are stable. | Observable facade precedence is unchanged; app-server options are mapped directly. | None. | v0.2.0 | `TestCompatibilityCLIArgvTranscriptMatchesV01Golden` and compatibility transcript goldens |
+| Output schema | Only object schemas are accepted; the temporary schema file lives through execution and is removed afterward. | Facade behavior is unchanged; the app-server API sends the schema JSON directly. | New callers pass the same `TurnOptions.OutputSchema` through `RunContext`. | v0.2.0 | `TestCompatibilityOutputSchemaRejectsNonObjects`, `TestCompatibilityOutputSchemaWritesStableJSONAndCleansUp`, `TestCompatibilityRunStreamedPreservesSchemaLifetimeDuringRun` |
+| Thread lifecycle | Start/resume exposes a mutable thread ID. | Source and output are unchanged; ID access is synchronized to remove the v0.1 data race. | None. | v0.2.0 | compile fixtures, `go test -race`, thread lifecycle tests |
+| Run | A process per call produces events, final response, usage, cancellation, and process errors. | The facade preserves results while adapting to one persistent app-server transport. | Prefer `Thread.RunContext` for explicit cancellation and lifecycle ownership. | v0.2.0 | `TestCompatibilityRunCollectsItemsUsageAndFinalResponse`, `TestCompatibilityRunReturnsTurnFailedMessage` |
+| RunStreamed | Events remain ordered and terminate with one result/error. | The adapter is bounded and closes its iterator when abandoned, preventing goroutine leaks. | Prefer `StartTurnContext` plus `TurnHandle.Stream` or `RunContext`. | v0.2.0 | `TestCompatibilityRunStreamedPreservesSchemaLifetimeDuringRun`, `TestRunStreamedAbandonedConsumerClosesBoundedAdapter` |
+| Inputs | Text and local-image constructors serialize as before. | Those inputs are unchanged; data URL, skill, and mention inputs are added. | Existing inputs need no change; use the new constructors only when needed. | v0.2.0 | `TestCompatibilityItemsInputMapsTextToStdinAndImagesToArgs`, input golden tests |
+| Unknown data | `UnknownItem.Raw` preserves original JSON bytes and meaning. | Preserved and extended to generated discriminated unions, notifications, primitives, and nested unions. | Continue inspecting `Raw`; new code may also use generated raw fallback variants. | v0.2.0 | `TestThreadEventUnmarshalUnknownItem`, `TestUnknownDiscriminatorThreadItemFallsBackToRawRoundTrip`, `TestUnknownDiscriminatorNotificationFallsBackToRawRoundTrip`, `TestNestedUnionUnknownVariantFallsBackToRaw` |
 
-## Required baseline artifacts
+## Release artifacts
 
 - `testdata/compat/v0.1/public-api.txt`: normalized public API snapshot.
 - `testdata/compat/v0.1/compile/`: current README examples and representative consumers.
 - `testdata/compat/v0.1/transcripts/`: argv, environment, JSONL, structured-output, and failure
   goldens.
-- one test/evidence link per ledger row before its status may become `verified`.
+- the final release evidence bundle links exact-SHA CI, stress, native-runtime, and runtime-test runs.
+
+## Deprecation support window
+
+The v0.1 facade is supported and regression-tested for every v0.2.x release. It will not be removed
+before v0.3.0. Removal requires a separate approved compatibility plan, a release-note migration
+notice, and a major-version-compatible decision if the module has reached v1 at that time.
 
 ## Migration map
 

@@ -3,6 +3,10 @@
 The module still ships the v0.1 facade, but new code should use the context-first `Client`
 surface.
 
+The v0.1 facade is supported and regression-tested throughout the v0.2.x release line. It will not
+be removed before v0.3.0; removal requires a separately approved compatibility plan and release
+notice. This gives existing consumers a full minor release line to migrate.
+
 ## Core Mapping
 
 | v0.1 symbol | Current API |

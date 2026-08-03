@@ -84,6 +84,8 @@ type ThreadReadResponse struct {
 }
 
 // Metadata returns the initialized app-server metadata when available.
+//
+// Deprecated: use Client.Metadata.
 func (c *Codex) Metadata() *Metadata {
 	if c == nil || c.client == nil {
 		return nil
@@ -92,6 +94,8 @@ func (c *Codex) Metadata() *Metadata {
 }
 
 // Models returns the current app-server model list.
+//
+// Deprecated: use Client.ListModels.
 func (c *Codex) Models(includeHidden bool) (*ModelListResponse, error) {
 	var response ModelListResponse
 	if err := c.client.request(context.Background(), "model/list", map[string]any{
@@ -103,6 +107,8 @@ func (c *Codex) Models(includeHidden bool) (*ModelListResponse, error) {
 }
 
 // LoginAPIKey authenticates the local app-server session with an API key.
+//
+// Deprecated: use Client.LoginAPIKey.
 func (c *Codex) LoginAPIKey(apiKey string) error {
 	return c.client.request(context.Background(), "account/login/start", map[string]any{
 		"type":   "apiKey",
@@ -111,6 +117,8 @@ func (c *Codex) LoginAPIKey(apiKey string) error {
 }
 
 // StartChatGPTLogin starts a browser-based ChatGPT login flow.
+//
+// Deprecated: use Client.LoginChatGPT.
 func (c *Codex) StartChatGPTLogin() (*ChatGPTLoginHandle, error) {
 	var response struct {
 		Type    string `json:"type"`
@@ -133,6 +141,8 @@ func (c *Codex) StartChatGPTLogin() (*ChatGPTLoginHandle, error) {
 }
 
 // StartChatGPTDeviceCodeLogin starts a device-code ChatGPT login flow.
+//
+// Deprecated: use Client.LoginDeviceCode.
 func (c *Codex) StartChatGPTDeviceCodeLogin() (*DeviceCodeLoginHandle, error) {
 	var response struct {
 		Type            string `json:"type"`
@@ -157,6 +167,8 @@ func (c *Codex) StartChatGPTDeviceCodeLogin() (*DeviceCodeLoginHandle, error) {
 }
 
 // Account reads the current account state.
+//
+// Deprecated: use Client.Account.
 func (c *Codex) Account(refreshToken bool) (*AccountResponse, error) {
 	var response AccountResponse
 	if err := c.client.request(context.Background(), "account/read", map[string]any{
@@ -168,11 +180,15 @@ func (c *Codex) Account(refreshToken bool) (*AccountResponse, error) {
 }
 
 // Logout clears the current account session.
+//
+// Deprecated: use Client.Logout.
 func (c *Codex) Logout() error {
 	return c.client.request(context.Background(), "account/logout", nil, nil)
 }
 
 // Read loads the thread's persisted state from the app-server.
+//
+// Deprecated: use Thread.ReadContext.
 func (t *Thread) Read(includeTurns bool) (*ThreadReadResponse, error) {
 	if t.exec != nil {
 		return nil, ErrTransportClosed
@@ -192,6 +208,8 @@ func (t *Thread) Read(includeTurns bool) (*ThreadReadResponse, error) {
 }
 
 // SetName updates the persisted thread name.
+//
+// Deprecated: use Thread.SetNameContext.
 func (t *Thread) SetName(name string) error {
 	if t.exec != nil {
 		return ErrTransportClosed
@@ -207,6 +225,8 @@ func (t *Thread) SetName(name string) error {
 }
 
 // Compact requests app-server compaction for the current thread.
+//
+// Deprecated: use Thread.CompactContext.
 func (t *Thread) Compact() error {
 	if t.exec != nil {
 		return ErrTransportClosed

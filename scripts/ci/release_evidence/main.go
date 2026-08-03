@@ -334,7 +334,7 @@ func collectRuntimeEvidence(root string, manifest runtimebin.Manifest, manifestS
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		evidencePath, err := findTargetFile(root, target.Triple, "evidence.json")
+		evidencePath, err := findTargetEvidence(root, target.Triple)
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -455,6 +455,29 @@ func findTargetFile(root string, targetTriple string, exactName string) (string,
 	}
 	if len(matches) != 1 {
 		return "", fmt.Errorf("release_evidence: expected exactly one %s for %s under %s, got %d", exactName, targetTriple, root, len(matches))
+	}
+	return matches[0], nil
+}
+
+func findTargetEvidence(root string, targetTriple string) (string, error) {
+	var matches []string
+	err := filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || filepath.Ext(path) != ".json" {
+			return nil
+		}
+		if filepath.Base(filepath.Dir(path)) == "evidence" && strings.Contains(filepath.ToSlash(path), targetTriple) {
+			matches = append(matches, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+	if len(matches) != 1 {
+		return "", fmt.Errorf("release_evidence: expected exactly one native evidence JSON for %s under %s, got %d", targetTriple, root, len(matches))
 	}
 	return matches[0], nil
 }

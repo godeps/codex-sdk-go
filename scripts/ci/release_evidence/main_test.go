@@ -41,6 +41,34 @@ func TestFindOneRequiresSingleMatch(t *testing.T) {
 	}
 }
 
+func TestFindTargetEvidenceMatchesNativeArtifactLayout(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	target := "x86_64-unknown-linux-musl"
+	evidenceDir := filepath.Join(root, "runtime-target-"+target, "evidence")
+	if err := os.MkdirAll(evidenceDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(evidenceDir, target+".json")
+	if err := os.WriteFile(want, []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := findTargetEvidence(root, target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != want {
+		t.Fatalf("findTargetEvidence() = %q, want %q", got, want)
+	}
+	if err := os.WriteFile(filepath.Join(evidenceDir, "duplicate.json"), []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := findTargetEvidence(root, target); err == nil {
+		t.Fatal("expected duplicate native evidence to fail")
+	}
+}
+
 func TestBuildBundleIncludesManifestSignature(t *testing.T) {
 	t.Parallel()
 
@@ -118,7 +146,11 @@ func TestBuildBundleIncludesManifestSignature(t *testing.T) {
 		}
 		archivePath := filepath.Join(dir, runtimebin.ArchiveName(runtimebin.DefaultRuntimeVersion, target))
 		recordPath := filepath.Join(dir, "record.json")
-		evidencePath := filepath.Join(dir, "evidence.json")
+		evidenceDir := filepath.Join(dir, "evidence")
+		if err := os.MkdirAll(evidenceDir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		evidencePath := filepath.Join(evidenceDir, target.Triple+".json")
 		if err := os.WriteFile(archivePath, []byte(target.Triple), 0o644); err != nil {
 			t.Fatal(err)
 		}

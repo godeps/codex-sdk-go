@@ -63,12 +63,32 @@ jobs:
       - name: Fuzz generated protocol family for ten minutes
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p artifacts/evidence/stress
-          GOWORK=off go test -timeout=15m -run '^$' -fuzz '^${{ matrix.target }}$' -fuzztime=10m ./protocol
+          fuzz_dir="$(mktemp -d "${RUNNER_TEMP}/codex-protocol-fuzz.XXXXXX")"
+          cleanup() {
+            find "$fuzz_dir" -type f -delete
+            find "$fuzz_dir" -depth -type d -empty -delete
+          }
+          trap cleanup EXIT
+          mkdir -p "$fuzz_dir/cache"
+          GOWORK=off go test -c -fuzz '^${{ matrix.target }}$' -o "$fuzz_dir/protocol.test" ./protocol
+          # Go's internal duration deadline can race worker teardown and report
+          # context.DeadlineExceeded after a clean run. Keep that deadline in
+          # reserve and stop with SIGINT after the required budget plus grace.
+          timeout --preserve-status --signal=INT --kill-after=1m 10m15s \
+            "$fuzz_dir/protocol.test" \
+              -test.timeout=16m \
+              -test.run='^$' \
+              -test.fuzz='^${{ matrix.target }}$' \
+              -test.fuzzcachedir="$fuzz_dir/cache" \
+              -test.fuzztime=15m
           cat > "artifacts/evidence/stress/${{ matrix.target }}.json" <<JSON
           {
             "fuzzTarget": "${{ matrix.target }}",
             "fuzzTime": "10m",
+            "harnessWallTime": "10m15s",
+            "durationControl": "external-sigint",
             "package": "./protocol"
           }
           JSON

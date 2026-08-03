@@ -64,7 +64,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p artifacts/evidence/stress
-          GOWORK=off go test -run '^$' -fuzz '^${{ matrix.target }}$' -fuzztime=10m ./protocol
+          GOWORK=off go test -timeout=15m -run '^$' -fuzz '^${{ matrix.target }}$' -fuzztime=10m ./protocol
           cat > "artifacts/evidence/stress/${{ matrix.target }}.json" <<JSON
           {
             "fuzzTarget": "${{ matrix.target }}",

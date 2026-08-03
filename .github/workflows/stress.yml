@@ -87,10 +87,16 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Download stress summaries
+      - name: Download stress summary
         uses: actions/download-artifact@v4
         with:
-          pattern: "stress-summary|protocol-fuzz-*"
+          name: stress-summary
+          path: artifacts/evidence/stress
+
+      - name: Download protocol fuzz summaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "protocol-fuzz-*"
           path: artifacts/evidence/stress
           merge-multiple: true
 

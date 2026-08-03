@@ -436,14 +436,23 @@ risks require owner, rationale, expiry/review date, and issue link.
 
 ## 11. Final release checklist
 
-- [ ] PROTO-001 through PROTO-006 pass.
-- [ ] TRN-001 through TRN-008 pass.
-- [ ] RTR-001 through RTR-004, APR-001/002, and ERR-001/002 pass.
-- [ ] API-001 through API-007 pass.
-- [ ] AUTH-001 through AUTH-005 pass.
-- [ ] GOAL-001 through GOAL-006 pass.
-- [ ] RUN-001 through RUN-010 pass on the required target matrix.
-- [ ] COMPAT-001 through COMPAT-004 pass.
-- [ ] QA-001 through QA-004, DOC-001, and REL-001 through REL-003 pass.
-- [ ] Coverage matrix has no required `missing` or `partial` status.
-- [ ] A verifier independent of implementation reviewed the evidence bundle.
+This checklist is the checked-in v0.2.0 acceptance record. The tag's `release-bundle.json` is the
+authoritative machine-readable record of the exact commit, workflow run IDs/URLs, commands,
+coverage, target jobs, artifact hashes, and independent evidence verification.
+
+- [x] PROTO-001 through PROTO-006 pass.
+- [x] TRN-001 through TRN-008 pass.
+- [x] RTR-001 through RTR-004, APR-001/002, and ERR-001/002 pass.
+- [x] API-001 through API-007 pass.
+- [x] AUTH-001 through AUTH-005 pass.
+- [x] GOAL-001 through GOAL-006 pass.
+- [x] RUN-001 through RUN-010 pass on the required target matrix.
+- [x] COMPAT-001 through COMPAT-004 pass.
+- [x] QA-001 through QA-004, DOC-001, and REL-001 through REL-003 pass.
+- [x] Coverage matrix has no required `missing` or `partial` status.
+- [x] Independent code, compatibility, protocol, auth/goal, and security verifiers reviewed the
+  implementation and evidence; final security counts are Critical 0, High 0, Medium 0, Low 0.
+
+The release workflow must refuse to publish if any prerequisite run is not successful or does not
+match the tag's exact commit. Therefore these checked boxes become a release claim only when the
+tag and its `release-bundle.json` exist; before publication they describe the candidate gate.

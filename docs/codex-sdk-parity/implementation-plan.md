@@ -1,6 +1,6 @@
 # Full Codex SDK parity implementation plan
 
-Status: implementation and candidate verification complete; final exact-SHA release workflow is the publishing gate
+Status: complete for v0.2.0; publication remains guarded by the exact-SHA release workflow
 Reference Python revision: `bb5054fe47`
 Pinned Codex runtime: `0.144.4`
 

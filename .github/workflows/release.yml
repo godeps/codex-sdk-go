@@ -115,8 +115,8 @@ jobs:
           test -f artifacts/downloads/ci/coverage.json
           test -f artifacts/downloads/stress/stress-summary.json
           test "$(find artifacts/downloads/stress -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')" = "8"
-          test -f artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json
-          test -f artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json.sig
+          test -f artifacts/downloads/runtime-native/release/codex-sdk-go-runtime-manifest.json
+          test -f artifacts/downloads/runtime-native/release/codex-sdk-go-runtime-manifest.json.sig
           test "$(find artifacts/downloads/runtime-native -name record.json | wc -l | tr -d ' ')" = "6"
           test "$(find artifacts/downloads/runtime-native -path '*/evidence/*.json' | wc -l | tr -d ' ')" = "6"
           test "$(find artifacts/downloads/runtime-native -name 'codex-sdk-go-runtime_*.tar.gz' | wc -l | tr -d ' ')" = "6"
@@ -130,7 +130,7 @@ jobs:
           RUNTIME_NATIVE_RUN_ID: ${{ inputs.runtime_native_run_id }}
         shell: bash
         run: |
-          actual_runtime_version="$(jq -r '.runtimeVersion' artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json)"
+          actual_runtime_version="$(jq -r '.runtimeVersion' artifacts/downloads/runtime-native/release/codex-sdk-go-runtime-manifest.json)"
           test "$actual_runtime_version" = "$RUNTIME_VERSION"
           mkdir -p artifacts/evidence/release
           GOWORK=off go run ./scripts/ci/release_evidence \
@@ -148,8 +148,8 @@ jobs:
             --runtime-native-run-url "$(jq -r '.html_url' artifacts/evidence/release/meta/runtime-native-run.json)" \
             --runtime-native-jobs artifacts/evidence/release/meta/runtime-native-jobs.json \
             --runtime-bundle-dir artifacts/downloads/runtime-native \
-            --runtime-manifest artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json \
-            --runtime-manifest-signature artifacts/downloads/runtime-native/artifacts/release/codex-sdk-go-runtime-manifest.json.sig \
+            --runtime-manifest artifacts/downloads/runtime-native/release/codex-sdk-go-runtime-manifest.json \
+            --runtime-manifest-signature artifacts/downloads/runtime-native/release/codex-sdk-go-runtime-manifest.json.sig \
             --protocol-manifest protocol/manifest.json
 
       - name: Upload release evidence
@@ -222,9 +222,9 @@ jobs:
             exit 1
           }
           gh release create "$TAG" \
-            artifacts/release-downloads/runtime-release-bundle-imported/artifacts/runtime-targets/*/*.tar.gz \
-            artifacts/release-downloads/runtime-release-bundle-imported/artifacts/release/codex-sdk-go-runtime-manifest.json \
-            artifacts/release-downloads/runtime-release-bundle-imported/artifacts/release/codex-sdk-go-runtime-manifest.json.sig \
+            artifacts/release-downloads/runtime-release-bundle-imported/runtime-targets/*/*.tar.gz \
+            artifacts/release-downloads/runtime-release-bundle-imported/release/codex-sdk-go-runtime-manifest.json \
+            artifacts/release-downloads/runtime-release-bundle-imported/release/codex-sdk-go-runtime-manifest.json.sig \
             artifacts/release-downloads/release-evidence/release-bundle.json \
             --target "$TARGET_COMMIT" \
             --title "$TAG" \

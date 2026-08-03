@@ -27,10 +27,9 @@ type generationOutput struct {
 type protocolGenerator struct {
 	bundle *schemaBundle
 
-	decls      map[string]string
-	order      []string
-	emitted    map[string]bool
-	helperOnce bool
+	decls   map[string]string
+	order   []string
+	emitted map[string]bool
 }
 
 func loadSchemaBundle(schemaDir string) (*schemaBundle, error) {
@@ -675,6 +674,7 @@ func jsonLooksArray(data []byte) bool {
 	return false
 }
 
+//lint:ignore U1000 Reserved for generated boolean union variants.
 func jsonLooksBool(data []byte) bool {
 	for _, b := range data {
 		switch b {
@@ -744,15 +744,6 @@ func walkSchema(value any, visit func(title string, enum []string)) {
 			walkSchema(child, visit)
 		}
 	}
-}
-
-func sortManifestMethods(methods []manifestMethod) {
-	sort.Slice(methods, func(i, j int) bool {
-		if methods[i].Method == methods[j].Method {
-			return methods[i].Title < methods[j].Title
-		}
-		return methods[i].Method < methods[j].Method
-	})
 }
 
 func variantTypeName(parent string, variant map[string]any, index int) string {

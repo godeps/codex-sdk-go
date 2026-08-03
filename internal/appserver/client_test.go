@@ -699,7 +699,8 @@ func TestClientStartErrors(t *testing.T) {
 
 func TestClientDirectErrorPaths(t *testing.T) {
 	client := New(Config{})
-	if _, err := client.Request(nil, "initialize", nil); !errors.Is(err, ErrTransportClosed) {
+	var nilContext context.Context
+	if _, err := client.Request(nilContext, "initialize", nil); !errors.Is(err, ErrTransportClosed) {
 		t.Fatalf("Request(before start) error = %v", err)
 	}
 	if err := client.Notify(context.Background(), "initialized", nil); !errors.Is(err, ErrTransportClosed) {

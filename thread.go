@@ -24,7 +24,6 @@ type StreamedTurn struct {
 // TurnHandle controls one live app-server turn.
 type TurnHandle struct {
 	client   *Client
-	thread   *Thread
 	threadID string
 	id       string
 	started  TurnState

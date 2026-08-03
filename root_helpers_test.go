@@ -39,7 +39,8 @@ func TestOptionHelpersAndContextFallback(t *testing.T) {
 	if turnOpts.ContextOrBackground() == nil {
 		t.Fatal("ContextOrBackground() = nil")
 	}
-	ctx := context.WithValue(context.Background(), "k", "v")
+	type contextKey struct{}
+	ctx := context.WithValue(context.Background(), contextKey{}, "v")
 	turnOpts.Context = ctx
 	if got := turnOpts.ContextOrBackground(); got != ctx {
 		t.Fatalf("ContextOrBackground() = %v, want %v", got, ctx)
@@ -290,32 +291,33 @@ func TestLegacyAndContextWrappersErrorPaths(t *testing.T) {
 	}
 
 	var client Client
-	if err := client.CloseContext(nil); err != nil {
+	var nilContext context.Context
+	if err := client.CloseContext(nilContext); err != nil {
 		t.Fatalf("CloseContext(nil transport) error = %v", err)
 	}
-	if err := client.WaitContext(nil); err != nil {
+	if err := client.WaitContext(nilContext); err != nil {
 		t.Fatalf("WaitContext(nil transport) error = %v", err)
 	}
 	client.transport = newSDKClient(CodexOptions{})
-	if err := client.CloseContext(nil); err == nil {
+	if err := client.CloseContext(nilContext); err == nil {
 		t.Fatal("CloseContext(nil ctx) error = nil")
 	}
-	if err := client.WaitContext(nil); err == nil {
+	if err := client.WaitContext(nilContext); err == nil {
 		t.Fatal("WaitContext(nil ctx) error = nil")
 	}
-	if _, err := client.Account(nil, false); err == nil {
+	if _, err := client.Account(nilContext, false); err == nil {
 		t.Fatal("Account(nil) error = nil")
 	}
-	if err := client.Logout(nil); err == nil {
+	if err := client.Logout(nilContext); err == nil {
 		t.Fatal("Logout(nil) error = nil")
 	}
-	if err := client.LoginAPIKey(nil, "sk"); err == nil {
+	if err := client.LoginAPIKey(nilContext, "sk"); err == nil {
 		t.Fatal("LoginAPIKey(nil) error = nil")
 	}
-	if _, err := client.LoginChatGPT(nil); err == nil {
+	if _, err := client.LoginChatGPT(nilContext); err == nil {
 		t.Fatal("LoginChatGPT(nil) error = nil")
 	}
-	if _, err := client.LoginDeviceCode(nil); err == nil {
+	if _, err := client.LoginDeviceCode(nilContext); err == nil {
 		t.Fatal("LoginDeviceCode(nil) error = nil")
 	}
 	var nilClient *Client

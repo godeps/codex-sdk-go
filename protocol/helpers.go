@@ -92,6 +92,7 @@ func jsonLooksArray(data []byte) bool {
 	return false
 }
 
+//lint:ignore U1000 Reserved for generated boolean union variants.
 func jsonLooksBool(data []byte) bool {
 	for _, b := range data {
 		switch b {

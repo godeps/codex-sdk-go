@@ -416,7 +416,7 @@ func collectTargetJobs(jobs workflowJobsResponse) []targetJobEvidence {
 		if job.URL == "" {
 			continue
 		}
-		out = append(out, targetJobEvidence{Name: job.Name, URL: job.URL})
+		out = append(out, targetJobEvidence(job))
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	return out

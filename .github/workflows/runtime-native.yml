@@ -98,10 +98,12 @@ jobs:
         run: |
           mkdir -p artifacts/release/runtime
           records=()
+          record_count=0
           while IFS= read -r -d '' path; do
             records+=(--record "$path")
+            record_count=$((record_count + 1))
           done < <(find artifacts/runtime-targets -name record.json -print0 | sort -z)
-          test "${#records[@]}" -eq 6
+          test "$record_count" -eq 6
           go run ./cmd/codex-sdk-runtime manifest \
             --sdk-version v0.2.0 \
             --runtime-version 0.144.4 \

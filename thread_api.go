@@ -9,9 +9,6 @@ import (
 
 // ReadContext loads the thread's persisted state from the app-server.
 func (t *Thread) ReadContext(ctx context.Context, includeTurns bool) (*ThreadRecord, error) {
-	if t.exec != nil {
-		return nil, ErrTransportClosed
-	}
 	if ctx == nil {
 		return nil, errors.New("codex: nil context")
 	}
@@ -23,9 +20,6 @@ func (t *Thread) ReadContext(ctx context.Context, includeTurns bool) (*ThreadRec
 
 // SetNameContext updates the persisted thread name.
 func (t *Thread) SetNameContext(ctx context.Context, name string) error {
-	if t.exec != nil {
-		return ErrTransportClosed
-	}
 	if ctx == nil {
 		return errors.New("codex: nil context")
 	}
@@ -37,9 +31,6 @@ func (t *Thread) SetNameContext(ctx context.Context, name string) error {
 
 // CompactContext requests app-server compaction for the current thread.
 func (t *Thread) CompactContext(ctx context.Context) error {
-	if t.exec != nil {
-		return ErrTransportClosed
-	}
 	if ctx == nil {
 		return errors.New("codex: nil context")
 	}

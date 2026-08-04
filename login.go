@@ -2,9 +2,7 @@ package codex
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 )
 
 // LoginAPIKey authenticates the local app-server session with an API key.
@@ -132,39 +130,4 @@ func (h *DeviceCodeLoginHandle) CancelContext(ctx context.Context) error {
 	return h.client.request(ctx, "account/login/cancel", map[string]any{
 		"loginId": h.LoginID,
 	}, nil)
-}
-
-func waitCompatLogin(ctx context.Context, transport *sdkClient, loginID string) (*AccountLoginCompleted, error) {
-	if err := transport.registerLogin(loginID); err != nil {
-		return nil, err
-	}
-	defer transport.unregisterLogin(loginID)
-	for {
-		if ctx != nil && ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
-		raw, err := transport.nextLogin(ctx, loginID)
-		if err != nil {
-			return nil, err
-		}
-		method, params, err := splitNotification(raw)
-		if err != nil {
-			var completed AccountLoginCompleted
-			if decodeErr := json.Unmarshal(raw, &completed); decodeErr == nil && completed.LoginID != "" {
-				return &completed, nil
-			}
-			return nil, err
-		}
-		if method != "account/login/completed" {
-			continue
-		}
-		var completed AccountLoginCompleted
-		if err := json.Unmarshal(params, &completed); err != nil {
-			return nil, err
-		}
-		if completed.LoginID == "" {
-			return nil, fmt.Errorf("codex: login completion missing login id")
-		}
-		return &completed, nil
-	}
 }

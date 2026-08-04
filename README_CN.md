@@ -1,11 +1,7 @@
 # Codex SDK（Go）
 
-Go 版 Codex SDK 提供两层入口：
-
-- `Client`：推荐的、基于 `context.Context` 的长期连接 API。
-- `Codex`：为了 v0.1 迁移保留的兼容外观层。
-
-新代码优先使用 `Client`。只有在迁移旧调用时才使用 `Codex`。
+Go 版 Codex SDK 通过一套基于 `context.Context` 的 `Client` API 提供长期连接和并发调用。
+v0.1 兼容外观层在 v0.2.x 迁移窗口结束后退役，不再属于 v0.3 公共 API。
 
 ## 快速开始
 
@@ -132,8 +128,7 @@ func main() {
 - `Client.Account(ctx, refreshToken)`
 - `Client.Logout(ctx)`
 
-交互式登录句柄提供 `WaitContext` 和 `CancelContext`。兼容层保留旧的 `Wait` 和
-`Cancel` 方法。
+交互式登录句柄提供 `WaitContext` 和 `CancelContext`。
 
 goal API 作用于已持久化的线程：
 
@@ -202,7 +197,7 @@ schema 路径、schema SHA-256，以及六个平台目标。生成器不会自�
 
 ## 迁移与示例
 
-兼容层仍然保留在模块中，方便逐步迁移。参见
+从 v0.1 或 v0.2 兼容 API 升级的调用方，需要在采用 v0.3 前完成迁移。参见
 [docs/migration-v0.1-to-v0.2.md](docs/migration-v0.1-to-v0.2.md) 和
 [docs/api-reference.md](docs/api-reference.md)。
 

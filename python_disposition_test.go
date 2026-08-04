@@ -39,7 +39,7 @@ type pythonDispositionLegacy struct {
 	Evidence []string `json:"evidence"`
 }
 
-func TestCompatibilityPythonDispositionCoversPinnedPythonTests(t *testing.T) {
+func TestPythonDispositionCoversPinnedPythonTests(t *testing.T) {
 	t.Parallel()
 
 	dispositionPath := filepath.Join(repoRoot(t), "testdata", "python-test-disposition.json")

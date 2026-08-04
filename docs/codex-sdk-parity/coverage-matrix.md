@@ -47,8 +47,8 @@ a written language rationale. The parity release requires every required row to 
 | F-035 | logical goal start/stream | verified | `goal.go` | GOAL-001/002/003 |
 | F-036 | goal exclusion/cancel/cleanup | verified | `goal.go` | GOAL-004/005/006 |
 | F-037 | future unknown payload tolerance | verified | `protocol`, `internal/router` | PROTO-005: raw round-trip tests for item, notification, primitive, user-input, and nested-union fallbacks |
-| F-038 | v0.1 public source compatibility | verified | compatibility facade | COMPAT-001/002 |
-| F-039 | structured output schema and cleanup | verified | `thread.go`, compatibility facade | API-006, COMPAT-003 |
+| F-038 | v0.1 facade removal and migration | verified | `public_api_surface_test.go`, migration ledger | COMPAT-001/002/004 |
+| F-039 | structured output schema validation | verified | `turn_api.go`, `output_schema.go` | API-006, COMPAT-003 |
 
 ## Generated protocol surface
 

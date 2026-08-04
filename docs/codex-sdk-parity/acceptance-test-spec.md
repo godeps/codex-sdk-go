@@ -202,8 +202,8 @@ error, start/completion timestamps, duration, final response, items, and usage.
 
 The stream is a pull iterator. `Next(ctx)` yields one notification, returns `io.EOF` after normal
 completion, and returns a stable terminal error after failure. `Close` is concurrent-safe and
-idempotent, unregisters its route, and future `Next` calls match `ErrStreamClosed`. `Run` consumes
-the iterator; deprecated `RunStreamed` uses a bounded adapter that closes/cancels when abandoned.
+idempotent, unregisters its route, and future `Next` calls match `ErrStreamClosed`.
+`TurnHandle.RunContext` consumes the iterator and collects the result.
 
 ### API-004 — final response semantics
 
@@ -352,29 +352,27 @@ signature. Missing legal metadata, SBOM, provenance, or an expected signature bl
 
 ## 9. Compatibility acceptance
 
-### COMPAT-001 — source compatibility
+### COMPAT-001 — removal boundary
 
-**MUST:** compile fixtures using the v0.1 public constructors, options, input helpers, item type
-assertions, `Run`, and `RunStreamed` compile unchanged.
+**MUST:** `go doc -all .` contains the context-first Client/thread/login/goal API and does not
+contain `Codex`, `NewCodex`, `CodexExec`, `NewCodexExec`, `NewThread`, `Turn`, `StreamedTurn`,
+`Thread.Run`, `Thread.RunStreamed`, or login `Wait`/`Cancel` facade methods.
 
-### COMPAT-002 — behavior compatibility
+### COMPAT-002 — replacement behavior
 
-**MUST:** black-box goldens cover CLI resolution `explicit > PATH > vendor/<triple>/codex`, nil
-environment inheritance versus non-nil full replacement, BaseURL/API-key/originator and
-config/TOML precedence, output-schema object validation/temp-file cleanup, start/resume/thread ID,
-`Run`/`RunStreamed` events/final response/usage/errors, text/local-image inputs, cancellation,
-process error, and `UnknownItem.Raw`. The thread-ID race fix preserves source/API output while
-proving concurrent access safe.
+**MUST:** modern black-box tests cover managed runtime resolution, environment/config handling,
+start/resume/thread IDs, `RunContext`, pull streaming, final response, usage, failures,
+structured inputs, output-schema validation, cancellation, and `UnknownItem.Raw`.
 
 ### COMPAT-003 — documented differences
 
 **MUST:** every intentional semantic change has old behavior, new behavior, migration, and release
 version in a compatibility ledger. Undocumented differences block release.
 
-### COMPAT-004 — deprecation
+### COMPAT-004 — deprecation and removal
 
-**MUST:** deprecated APIs remain tested and documented for the promised window. Removal requires a
-separate approved plan and, if module version is v1+, semantic-version-compatible release handling.
+**MUST:** v0.2 release history remains documented; v0.3 removal has explicit approval, a complete
+symbol migration map, changelog notice, absence test, and pre-v1 minor-version release handling.
 
 ## 10. Quality, documentation, and release gates
 

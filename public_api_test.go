@@ -1,36 +1,41 @@
 package codex
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
 func TestPublicAPIsUseAppServer(t *testing.T) {
+	ctx := context.Background()
 	script := writePublicAPIServer(t)
-	codex := NewCodex(CodexOptions{CodexPathOverride: script})
-	defer func() { _ = codex.Close() }()
+	client, err := NewClient(ctx, WithCodexPath(script))
+	if err != nil {
+		t.Fatalf("NewClient() error = %v", err)
+	}
+	defer func() { _ = client.Close() }()
 
-	models, err := codex.Models(true)
+	models, err := client.ListModels(ctx, true)
 	if err != nil {
 		t.Fatalf("Models() error = %v", err)
 	}
-	if len(models.Data) != 1 || models.Data[0]["id"] != "gpt-test" {
+	if len(models.Data) != 1 || models.Data[0].ID != "gpt-test" {
 		t.Fatalf("Models() = %#v", models)
 	}
 
-	if err := codex.LoginAPIKey("sk-test"); err != nil {
+	if err := client.LoginAPIKey(ctx, "sk-test"); err != nil {
 		t.Fatalf("LoginAPIKey() error = %v", err)
 	}
 
-	login, err := codex.StartChatGPTLogin()
+	login, err := client.LoginChatGPT(ctx)
 	if err != nil {
 		t.Fatalf("StartChatGPTLogin() error = %v", err)
 	}
-	if err := login.Cancel(); err != nil {
+	if err := login.CancelContext(ctx); err != nil {
 		t.Fatalf("login.Cancel() error = %v", err)
 	}
-	completed, err := login.Wait()
+	completed, err := login.WaitContext(ctx)
 	if err != nil {
 		t.Fatalf("login.Wait() error = %v", err)
 	}
@@ -38,7 +43,7 @@ func TestPublicAPIsUseAppServer(t *testing.T) {
 		t.Fatalf("login.Wait() loginID = %q", completed.LoginID)
 	}
 
-	account, err := codex.Account(false)
+	account, err := client.Account(ctx, false)
 	if err != nil {
 		t.Fatalf("Account() error = %v", err)
 	}
@@ -46,91 +51,105 @@ func TestPublicAPIsUseAppServer(t *testing.T) {
 		t.Fatalf("Account() RequiresOpenAIAuth = true, want false")
 	}
 
-	thread := codex.StartThread(ThreadOptions{})
-	if err := thread.SetName("named thread"); err != nil {
+	thread, err := client.StartThread(ctx, ThreadOptions{})
+	if err != nil {
+		t.Fatalf("StartThread() error = %v", err)
+	}
+	if err := thread.SetNameContext(ctx, "named thread"); err != nil {
 		t.Fatalf("SetName() error = %v", err)
 	}
-	read, err := thread.Read(false)
+	read, err := thread.ReadContext(ctx, false)
 	if err != nil {
 		t.Fatalf("Read() error = %v", err)
 	}
-	if read.Thread.ID != "thread-1" || read.Thread.Name != "named thread" {
-		t.Fatalf("Read() = %#v", read.Thread)
+	if read.ID != "thread-1" || read.Name != "named thread" {
+		t.Fatalf("ReadContext() = %#v", read)
 	}
-	if err := thread.Compact(); err != nil {
+	if err := thread.CompactContext(ctx); err != nil {
 		t.Fatalf("Compact() error = %v", err)
 	}
-	if metadata := codex.Metadata(); metadata == nil || metadata.ProtocolVersion != "2026-08-03" {
+	if metadata := client.Metadata(); metadata == nil || metadata.ProtocolVersion != "2026-08-03" {
 		t.Fatalf("Metadata() = %#v", metadata)
 	}
-	if err := codex.Logout(); err != nil {
+	if err := client.Logout(ctx); err != nil {
 		t.Fatalf("Logout() error = %v", err)
 	}
 }
 
 func TestStartChatGPTDeviceCodeLogin(t *testing.T) {
+	ctx := context.Background()
 	script := writePublicAPIServer(t)
-	codex := NewCodex(CodexOptions{CodexPathOverride: script})
-	defer func() { _ = codex.Close() }()
+	client, err := NewClient(ctx, WithCodexPath(script))
+	if err != nil {
+		t.Fatalf("NewClient() error = %v", err)
+	}
+	defer func() { _ = client.Close() }()
 
-	login, err := codex.StartChatGPTDeviceCodeLogin()
+	login, err := client.LoginDeviceCode(ctx)
 	if err != nil {
 		t.Fatalf("StartChatGPTDeviceCodeLogin() error = %v", err)
 	}
 	if login.UserCode != "ABCD-EFGH" {
 		t.Fatalf("UserCode = %q", login.UserCode)
 	}
-	if err := login.Cancel(); err != nil {
+	if err := login.CancelContext(ctx); err != nil {
 		t.Fatalf("login.Cancel() error = %v", err)
 	}
-	if _, err := login.Wait(); err != nil {
+	if _, err := login.WaitContext(ctx); err != nil {
 		t.Fatalf("login.Wait() error = %v", err)
 	}
 }
 
 func TestTurnHandleSteerAndInterrupt(t *testing.T) {
+	ctx := context.Background()
 	script := writePublicAPIServer(t)
-	codex := NewCodex(CodexOptions{CodexPathOverride: script})
-	defer func() { _ = codex.Close() }()
+	client, err := NewClient(ctx, WithCodexPath(script))
+	if err != nil {
+		t.Fatalf("NewClient() error = %v", err)
+	}
+	defer func() { _ = client.Close() }()
 
-	thread := codex.StartThread(ThreadOptions{})
-	handle, err := thread.StartTurn(TextInput("start"), TurnOptions{})
+	thread, err := client.StartThread(ctx, ThreadOptions{})
+	if err != nil {
+		t.Fatalf("StartThread() error = %v", err)
+	}
+	handle, err := thread.StartTurnContext(ctx, TextInput("start"), TurnOptions{})
 	if err != nil {
 		t.Fatalf("StartTurn() error = %v", err)
 	}
 	if handle.ID() != "turn-1" {
 		t.Fatalf("handle.ID() = %q", handle.ID())
 	}
-	if err := handle.Steer(TextInput("follow up")); err != nil {
+	if err := handle.SteerContext(ctx, TextInput("follow up")); err != nil {
 		t.Fatalf("Steer() error = %v", err)
 	}
-	if err := handle.Interrupt(); err != nil {
+	if err := handle.InterruptContext(ctx); err != nil {
 		t.Fatalf("Interrupt() error = %v", err)
 	}
 
-	resumed := codex.ResumeThread("thread-123", ThreadOptions{})
+	resumed, err := client.ResumeThread(ctx, "thread-123", ThreadOptions{})
+	if err != nil {
+		t.Fatalf("ResumeThread() error = %v", err)
+	}
 	if resumed.ID() != "thread-123" {
 		t.Fatalf("ResumeThread().ID() = %q", resumed.ID())
 	}
 }
 
-func TestLegacyManagedThreadRunAndRunStreamed(t *testing.T) {
+func TestThreadRunContextCollectsResult(t *testing.T) {
+	ctx := context.Background()
 	script := writePublicAPIServer(t)
-	codex := NewCodex(CodexOptions{CodexPathOverride: script})
-	defer func() { _ = codex.Close() }()
-
-	thread := codex.StartThread(ThreadOptions{})
-	streamed, err := thread.RunStreamed(TextInput("hello"), TurnOptions{})
+	client, err := NewClient(ctx, WithCodexPath(script))
 	if err != nil {
-		t.Fatalf("RunStreamed() error = %v", err)
+		t.Fatalf("NewClient() error = %v", err)
 	}
-	for range streamed.Events {
-	}
-	if err := <-streamed.Done; err != nil {
-		t.Fatalf("RunStreamed done: %v", err)
-	}
+	defer func() { _ = client.Close() }()
 
-	turn, err := thread.Run(TextInput("hello"), TurnOptions{})
+	thread, err := client.StartThread(ctx, ThreadOptions{})
+	if err != nil {
+		t.Fatalf("StartThread() error = %v", err)
+	}
+	turn, err := thread.RunContext(ctx, TextInput("hello"), TurnOptions{})
 	if err != nil {
 		t.Fatalf("Run() error = %v", err)
 	}
@@ -186,6 +205,9 @@ for line in sys.stdin:
     elif method == "account/login/cancel":
         write({"id": req_id, "result": {}})
     elif method == "thread/start":
+        write({"id": req_id, "result": {"thread": {"id": current_thread_id}}})
+    elif method == "thread/resume":
+        current_thread_id = message.get("params", {}).get("threadId", current_thread_id)
         write({"id": req_id, "result": {"thread": {"id": current_thread_id}}})
     elif method == "thread/name/set":
         thread_name = message.get("params", {}).get("name", "")

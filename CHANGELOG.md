@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Removed
+
+- The v0.1 compatibility facade, completing its scheduled v0.3 removal: `Codex`/`NewCodex`, the public
+  `CodexExec` transport, `NewThread`, `Thread.Run`, `Thread.RunStreamed`, facade-only response
+  types, and login/thread helpers without explicit context.
+- The process-per-turn `codex exec` implementation and its v0.1 compile/transcript fixtures. The
+  SDK now has one app-server transport and one context-first public API.
+
 ### Added
 
 - Current API reference, runtime installation guide, auth/approval/goal guide,

@@ -266,18 +266,24 @@ func TestGoalHandleCoalescesTurnsAndBlocksRegularTurns(t *testing.T) {
 	}
 }
 
-func TestCodexLazyStartInitializesOnceUnderConcurrency(t *testing.T) {
+func TestClientConcurrentRequestsReuseInitialization(t *testing.T) {
 	server, captures := writeContextAPIServer(t)
-	codex := NewCodex(CodexOptions{CodexPathOverride: server})
-	defer func() { _ = codex.Close() }()
+	client, err := NewClient(context.Background(), WithCodexPath(server))
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	defer func() { _ = client.Close() }()
 
-	thread := codex.StartThread(ThreadOptions{})
+	thread, err := client.StartThread(context.Background(), ThreadOptions{})
+	if err != nil {
+		t.Fatalf("StartThread: %v", err)
+	}
 	var wg sync.WaitGroup
 	errCh := make(chan error, 3)
 	for _, fn := range []func() error{
-		func() error { _, err := codex.Models(true); return err },
-		func() error { _, err := thread.Read(false); return err },
-		func() error { return thread.SetName("x") },
+		func() error { _, err := client.ListModels(context.Background(), true); return err },
+		func() error { _, err := thread.ReadContext(context.Background(), false); return err },
+		func() error { return thread.SetNameContext(context.Background(), "x") },
 	} {
 		wg.Add(1)
 		go func(fn func() error) {
@@ -444,7 +450,7 @@ func TestClientThreadLifecycleWrappersAndWait(t *testing.T) {
 	}
 }
 
-func TestTurnHandleLegacyWrappersAndRepeatedNext(t *testing.T) {
+func TestTurnHandleSingleConsumerAndRepeatedNext(t *testing.T) {
 	server, _ := writeContextAPIServer(t)
 	client, err := NewClient(context.Background(), CodexOptions{CodexPathOverride: server})
 	if err != nil {
@@ -501,20 +507,11 @@ func TestTurnHandleLegacyWrappersAndRepeatedNext(t *testing.T) {
 	if err != nil {
 		t.Fatalf("StartTurnContext#3: %v", err)
 	}
-	if _, err := handle3.Run(); err != nil {
-		t.Fatalf("Run: %v", err)
+	if _, err := handle3.RunContext(context.Background()); err != nil {
+		t.Fatalf("RunContext: %v", err)
 	}
-	streamed, err := thread.RunStreamed(TextInput("hello"), TurnOptions{})
-	if err != nil {
-		t.Fatalf("RunStreamed: %v", err)
-	}
-	for range streamed.Events {
-	}
-	if err := <-streamed.Done; err != nil {
-		t.Fatalf("RunStreamed done: %v", err)
-	}
-	if _, err := thread.Run(TextInput("hello"), TurnOptions{}); err != nil {
-		t.Fatalf("Thread.Run: %v", err)
+	if _, err := thread.RunContext(context.Background(), TextInput("hello"), TurnOptions{}); err != nil {
+		t.Fatalf("Thread.RunContext: %v", err)
 	}
 }
 

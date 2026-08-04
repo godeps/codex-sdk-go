@@ -61,15 +61,6 @@ func NewClient(ctx context.Context, opts ...Option) (*Client, error) {
 	}, nil
 }
 
-func newSDKClient(options CodexOptions) *sdkClient {
-	return &sdkClient{
-		options: options,
-		resolveRuntime: func(options CodexOptions) (resolvedExecutable, error) {
-			return resolvedExecutable{path: findCodexPathWithOverride(options.CodexPathOverride)}, nil
-		},
-	}
-}
-
 func newManagedSDKClient(options CodexOptions) *sdkClient {
 	return &sdkClient{
 		options:        options,
@@ -697,13 +688,6 @@ func buildEnvMap(override map[string]string, baseURL string, apiKey string) map[
 		env["CODEX_API_KEY"] = apiKey
 	}
 	return env
-}
-
-func findCodexPathWithOverride(path string) string {
-	if path != "" {
-		return path
-	}
-	return findCodexPath()
 }
 
 func translateAppServerError(err error) error {

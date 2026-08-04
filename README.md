@@ -1,14 +1,12 @@
 # Codex SDK (Go)
 
-The Go SDK exposes the Codex app-server in two layers:
+[![Go Reference](https://pkg.go.dev/badge/github.com/godeps/codex-sdk-go.svg)](https://pkg.go.dev/github.com/godeps/codex-sdk-go)
+[![CI](https://github.com/godeps/codex-sdk-go/actions/workflows/ci.yml/badge.svg)](https://github.com/godeps/codex-sdk-go/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/godeps/codex-sdk-go)](LICENSE)
 
-- `Client`, the preferred context-first API for long-lived, concurrent use.
-- `Codex`, the legacy v0.1 compatibility facade for existing callers.
-
-Use `Client` for new code. Keep `Codex` only while migrating older call sites.
-The v0.1 facade remains supported and regression-tested through all v0.2.x releases and will not be
-removed before v0.3.0. Any removal will be announced through a separate compatibility plan and
-release notice.
+The Go SDK exposes the Codex app-server through one context-first `Client` API for long-lived,
+concurrent use. The legacy v0.1 surface was retired after the v0.2.x migration window and is not
+part of the v0.3 API surface.
 
 ## Getting Started
 
@@ -139,8 +137,7 @@ The context-first login and account APIs are:
 - `Client.Account(ctx, refreshToken)`
 - `Client.Logout(ctx)`
 
-The interactive login handles expose `WaitContext` and `CancelContext`. The legacy facade keeps
-the older `Wait` and `Cancel` helpers for compatibility.
+The interactive login handles expose `WaitContext` and `CancelContext`.
 
 Goal APIs operate on persisted threads:
 
@@ -216,17 +213,22 @@ of guessing.
 
 ## Migration And Examples
 
-The legacy facade remains in the module so callers can migrate gradually. See
-[docs/migration-v0.1-to-v0.2.md](docs/migration-v0.1-to-v0.2.md) for the compatibility map and
+Callers upgrading from the v0.1 or v0.2 migration surfaces must migrate before adopting v0.3. See
+[docs/migration-v0.1-to-v0.2.md](docs/migration-v0.1-to-v0.2.md) for the removal map and
 [docs/api-reference.md](docs/api-reference.md) for the current context-first surface.
 
 Executable examples live under:
 
+- `example`
+- `example/chat`
 - `example/common`
 - `example/stream`
 - `example/steer`
 - `example/image`
 - `example/structured-output`
+
+Release verification and the evidence-gated `v0.3.1` tag flow are documented in
+[docs/release-verification.md](docs/release-verification.md).
 
 ## Contributing
 

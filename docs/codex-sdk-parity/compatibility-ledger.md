@@ -1,7 +1,8 @@
 # v0.1 compatibility contract and migration ledger
 
-Status: final v0.2.0 release ledger. Every preserved behavior and intentional difference below has
-checked-in acceptance evidence.
+Status: final v0.2.0 historical ledger plus the approved v0.3 removal decision. Every v0.2.0
+preservation claim below had checked-in acceptance evidence at release time; the legacy fixtures
+were removed with the facade in v0.3.
 
 This ledger defines what the parity rebuild preserves for existing Go SDK consumers. An observed
 change not listed here is a release blocker until it records the old behavior, new behavior,
@@ -21,27 +22,33 @@ migration, first release, and acceptance evidence.
 | Inputs | Text and local-image constructors serialize as before. | Those inputs are unchanged; data URL, skill, and mention inputs are added. | Existing inputs need no change; use the new constructors only when needed. | v0.2.0 | `TestCompatibilityItemsInputMapsTextToStdinAndImagesToArgs`, input golden tests |
 | Unknown data | `UnknownItem.Raw` preserves original JSON bytes and meaning. | Preserved and extended to generated discriminated unions, notifications, primitives, and nested unions. | Continue inspecting `Raw`; new code may also use generated raw fallback variants. | v0.2.0 | `TestThreadEventUnmarshalUnknownItem`, `TestUnknownDiscriminatorThreadItemFallsBackToRawRoundTrip`, `TestUnknownDiscriminatorNotificationFallsBackToRawRoundTrip`, `TestNestedUnionUnknownVariantFallsBackToRaw` |
 
-## Release artifacts
+## v0.2.0 release artifacts (historical)
 
-- `testdata/compat/v0.1/public-api.txt`: normalized public API snapshot.
-- `testdata/compat/v0.1/compile/`: current README examples and representative consumers.
-- `testdata/compat/v0.1/transcripts/`: argv, environment, JSONL, structured-output, and failure
-  goldens.
+- `testdata/compat/v0.1/` contained the normalized API snapshot, compile consumers, and transport
+  transcripts used to accept v0.2.0. These source-tree fixtures were retired with the facade;
+  v0.2.0 remains available from its immutable tag and release artifacts.
 - the final release evidence bundle links exact-SHA CI, stress, native-runtime, and runtime-test runs.
 
-## Deprecation support window
+## Completed deprecation support window
 
-The v0.1 facade is supported and regression-tested for every v0.2.x release. It will not be removed
-before v0.3.0. Removal requires a separate approved compatibility plan, a release-note migration
-notice, and a major-version-compatible decision if the module has reached v1 at that time.
+The v0.1 facade was supported and regression-tested in v0.2.0, satisfying the documented v0.2.x
+window. The user approved removal for the next minor line; because this module remains pre-v1, the
+removal is assigned to v0.3.0 and is documented in the changelog and migration guide.
+
+The v0.3 acceptance evidence is:
+
+- `TestLegacyFacadeIsAbsentFromPublicAPI` proves the retired exports are absent;
+- `TestPublicAPISurfaceUsesContextClient` proves the replacement Client/thread/login/goal surface;
+- the full test, race, vet, staticcheck, generator-lock, and example build gates protect the
+  protocol, runtime, cross-platform, login, and goal capabilities retained after removal.
 
 ## Migration map
 
-The legacy facade remains in place so downstream consumers can migrate gradually.
+The following map is mandatory for downstream consumers upgrading to v0.3.
 
 | v0.1 symbol | Current API | Notes |
 |---|---|---|
-| `NewCodex` | `NewClient(ctx, options)` | New code should own context and lifecycle explicitly. |
+| `NewCodex` | `NewClient(ctx, options)` | The caller owns context and lifecycle explicitly. |
 | `Codex.StartThread` | `Client.StartThread` | Both create a persisted thread. |
 | `Codex.ResumeThread` | `Client.ResumeThread` | Both resume by thread ID. |
 | `Thread.Run` | `Thread.RunContext` | The context-first API returns `TurnResult`. |
@@ -59,5 +66,6 @@ The legacy facade remains in place so downstream consumers can migrate gradually
 ## Change procedure
 
 For every necessary incompatibility, add the old behavior, new behavior, migration instructions,
-first release version, rationale, and acceptance evidence to this ledger before merging it. Removal
-of deprecated symbols requires a separate approved plan and release decision.
+first release version, rationale, and acceptance evidence to this ledger before merging it. The
+v0.3 removal was explicitly approved and is superseded by the checked-in migration and acceptance
+artifacts above.

@@ -55,7 +55,6 @@ Auth and goals:
 - `ID() string`
 - `Stream() (*TurnStream, error)`
 - `StreamContext(ctx) (*TurnStream, error)`
-- `Run() (*Turn, error)`
 - `RunContext(ctx) (*TurnResult, error)`
 - `Steer(input Input) error`
 - `SteerContext(ctx, input) error`
@@ -87,13 +86,9 @@ Goal values:
 
 ## Login Handles
 
-- `ChatGPTLoginHandle.Wait()`
 - `ChatGPTLoginHandle.WaitContext(ctx)`
-- `ChatGPTLoginHandle.Cancel()`
 - `ChatGPTLoginHandle.CancelContext(ctx)`
-- `DeviceCodeLoginHandle.Wait()`
 - `DeviceCodeLoginHandle.WaitContext(ctx)`
-- `DeviceCodeLoginHandle.Cancel()`
 - `DeviceCodeLoginHandle.CancelContext(ctx)`
 
 ## Inputs

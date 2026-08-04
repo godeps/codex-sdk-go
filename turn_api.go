@@ -56,39 +56,6 @@ func (h *TurnHandle) StreamContext(_ context.Context) (*TurnStream, error) {
 	return &TurnStream{handle: h}, nil
 }
 
-func (h *TurnHandle) streamAdapter(ctx context.Context) (*StreamedTurn, error) {
-	stream, err := h.StreamContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	events := make(chan ThreadEvent, 16)
-	done := make(chan error, 1)
-	go func() {
-		defer close(events)
-		defer close(done)
-		defer stream.Close()
-		for {
-			event, err := stream.Next(ctx)
-			if err != nil {
-				if errors.Is(err, io.EOF) {
-					done <- nil
-				} else {
-					done <- err
-				}
-				return
-			}
-			select {
-			case events <- *event:
-			default:
-				_ = stream.Close()
-				done <- ErrStreamClosed
-				return
-			}
-		}
-	}()
-	return &StreamedTurn{Events: events, Done: done}, nil
-}
-
 // Next returns one routed turn notification.
 func (s *TurnStream) Next(ctx context.Context) (*ThreadEvent, error) {
 	if s == nil || s.handle == nil {
@@ -138,19 +105,6 @@ func (s *TurnStream) Close() error {
 	s.closed = true
 	s.handle.client.transport.unregisterTurn(s.handle.id)
 	return nil
-}
-
-// Run waits for the handle's turn to finish and collects its final result.
-func (h *TurnHandle) Run() (*Turn, error) {
-	result, err := h.RunContext(context.Background())
-	if err != nil {
-		return nil, err
-	}
-	return &Turn{
-		Items:         result.Items,
-		FinalResponse: result.FinalResponse,
-		Usage:         result.Usage,
-	}, nil
 }
 
 // RunContext waits for the handle's turn to finish and collects its final result.

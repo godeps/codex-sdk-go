@@ -3,6 +3,9 @@ name: runtime-native
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
+      - master
     paths:
       - ".github/workflows/runtime-native.yml"
       - "cmd/codex-sdk-runtime/**"
@@ -81,13 +84,13 @@ jobs:
       - windows_arm64
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: runtime-target-*
           path: artifacts/runtime-targets
@@ -142,7 +145,7 @@ jobs:
           PY
 
       - name: Upload release bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: runtime-release-bundle
           path: |
@@ -151,7 +154,7 @@ jobs:
 
       - name: Upload canonical signed manifest
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: runtime-canonical-manifest
           path: |

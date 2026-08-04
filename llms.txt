@@ -1,0 +1,36 @@
+# codex-sdk-go
+
+Go SDK for the Codex app-server. The public API is context-first and designed
+around one long-lived client that manages threads, turns, login flows, and
+goals.
+
+Primary package:
+- `github.com/godeps/codex-sdk-go` — exported client, thread, turn, goal,
+  config, and input APIs
+
+Important supporting paths:
+- `protocol/` — checked-in generated protocol types and manifests
+- `cmd/codex-sdk-gen/` — schema/protocol verification and refresh tooling
+- `cmd/codex-sdk-runtime/` — managed runtime installer and resolver
+- `example/` — runnable sample programs
+- `docs/` — API, runtime, migration, concurrency, auth, and release docs
+
+Start here:
+- `README.md`
+- `docs/api-reference.md`
+- `docs/runtime-installation.md`
+- `docs/release-verification.md`
+
+Verification commands:
+- `GOWORK=off go doc -all .`
+- `GOWORK=off go test`
+- `GOWORK=off go test ./...`
+- `GOWORK=off go test -race ./...`
+- `GOWORK=off go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...`
+- `GOWORK=off go run ./cmd/codex-sdk-gen verify`
+
+Release note:
+- `v0.3.1` and later releases are evidence-gated. Dispatch
+  `.github/workflows/release.yml` with successful `ci`, `stress`,
+  `runtime-tests`, and `runtime-native` run IDs for the target commit, then let
+  the workflow create the `v*` tag after the evidence bundle is assembled.

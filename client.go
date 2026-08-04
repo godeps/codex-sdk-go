@@ -61,15 +61,6 @@ func NewClient(ctx context.Context, opts ...Option) (*Client, error) {
 	}, nil
 }
 
-func newSDKClient(options CodexOptions) *sdkClient {
-	return &sdkClient{
-		options: options,
-		resolveRuntime: func(options CodexOptions) (resolvedExecutable, error) {
-			return resolvedExecutable{path: findCodexPathWithOverride(options.CodexPathOverride)}, nil
-		},
-	}
-}
-
 func newManagedSDKClient(options CodexOptions) *sdkClient {
 	return &sdkClient{
 		options:        options,
@@ -378,7 +369,7 @@ func (c *Client) StartThread(ctx context.Context, options ThreadOptions) (*Threa
 		return nil, err
 	}
 	record := decodeThreadRecord(response.Thread)
-	return newClientThread(c, options, record.ID, true), nil
+	return newClientThread(c, record.ID), nil
 }
 
 // ResumeThread resumes an existing thread immediately.
@@ -392,7 +383,7 @@ func (c *Client) ResumeThread(ctx context.Context, threadID string, options Thre
 		return nil, err
 	}
 	record := decodeThreadRecord(response.Thread)
-	return newClientThread(c, options, record.ID, true), nil
+	return newClientThread(c, record.ID), nil
 }
 
 // ReadThread returns the current persisted thread snapshot.
@@ -469,7 +460,7 @@ func (c *Client) ForkThread(ctx context.Context, threadID string, options Thread
 		return nil, err
 	}
 	record := decodeThreadRecord(response.Thread)
-	return newClientThread(c, options, record.ID, true), nil
+	return newClientThread(c, record.ID), nil
 }
 
 // ArchiveThread archives one thread.
@@ -697,13 +688,6 @@ func buildEnvMap(override map[string]string, baseURL string, apiKey string) map[
 		env["CODEX_API_KEY"] = apiKey
 	}
 	return env
-}
-
-func findCodexPathWithOverride(path string) string {
-	if path != "" {
-		return path
-	}
-	return findCodexPath()
 }
 
 func translateAppServerError(err error) error {

@@ -327,7 +327,7 @@ type GoalStream struct {
 
 // GetGoalContext reads the stored thread goal.
 func (t *Thread) GetGoalContext(ctx context.Context) (*Goal, error) {
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return nil, err
 	}
 	return t.rootClient().GetGoal(ctx, t.ID())
@@ -335,7 +335,7 @@ func (t *Thread) GetGoalContext(ctx context.Context) (*Goal, error) {
 
 // SetGoalContext updates the stored thread goal.
 func (t *Thread) SetGoalContext(ctx context.Context, update GoalUpdate) (*Goal, error) {
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return nil, err
 	}
 	return t.rootClient().SetGoal(ctx, t.ID(), update)
@@ -343,7 +343,7 @@ func (t *Thread) SetGoalContext(ctx context.Context, update GoalUpdate) (*Goal, 
 
 // ClearGoalContext clears the stored thread goal.
 func (t *Thread) ClearGoalContext(ctx context.Context) error {
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return err
 	}
 	return t.rootClient().ClearGoal(ctx, t.ID())
@@ -351,7 +351,7 @@ func (t *Thread) ClearGoalContext(ctx context.Context) error {
 
 // PauseGoalContext pauses the stored active goal.
 func (t *Thread) PauseGoalContext(ctx context.Context) (*Goal, error) {
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return nil, err
 	}
 	return t.rootClient().PauseGoal(ctx, t.ID())
@@ -359,7 +359,7 @@ func (t *Thread) PauseGoalContext(ctx context.Context) (*Goal, error) {
 
 // StartGoalContext starts one logical goal operation on this thread.
 func (t *Thread) StartGoalContext(ctx context.Context, objective string) (*GoalHandle, error) {
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return nil, err
 	}
 	return t.rootClient().StartGoal(ctx, t.ID(), objective)
@@ -464,7 +464,7 @@ func (c *Client) StartGoal(ctx context.Context, threadID string, objective strin
 
 		handle = &GoalHandle{
 			client: c,
-			thread: newClientThread(c, ThreadOptions{}, threadID, true),
+			thread: newClientThread(c, threadID),
 			state:  state,
 		}
 		cleanup = false

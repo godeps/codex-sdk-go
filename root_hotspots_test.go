@@ -44,7 +44,7 @@ func TestTranslateAppServerErrorAndMetadataSnapshot(t *testing.T) {
 	}
 }
 
-func TestTOMLHelpersAndRuntimePathFallback(t *testing.T) {
+func TestTOMLHelpers(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
@@ -68,8 +68,12 @@ func TestTOMLHelpersAndRuntimePathFallback(t *testing.T) {
 	if literal, err := encodeTOMLLiteral(reflect.ValueOf(map[string]any{"x": 1})); err != nil || literal != "{x=1}" {
 		t.Fatalf("encodeTOMLLiteral(map) = %q err=%v", literal, err)
 	}
-	if got := findCodexPathWithOverride("/bin/codex"); got != "/bin/codex" {
-		t.Fatalf("findCodexPathWithOverride() = %q", got)
+}
+
+func TestConfigFlatteningRejectsNilValues(t *testing.T) {
+	t.Parallel()
+	if _, err := flattenConfigOverrides(map[string]any{"bad": nil}); err == nil {
+		t.Fatal("flattenConfigOverrides(nil value) error = nil")
 	}
 }
 
@@ -91,7 +95,7 @@ func TestCancelGoalOperationDirect(t *testing.T) {
 func TestSDKClientRouteHelperErrorBranches(t *testing.T) {
 	t.Parallel()
 
-	client := newSDKClient(CodexOptions{CodexPathOverride: "/missing/codex"})
+	client := newManagedSDKClient(CodexOptions{CodexPathOverride: "/missing/codex"})
 	if err := client.registerTurn("turn-1"); err == nil {
 		t.Fatal("registerTurn() error = nil")
 	}

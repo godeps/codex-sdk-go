@@ -17,11 +17,11 @@ current user guide lives in the root [README](../../README.md); the contribution
   definition of done.
 - [Coverage matrix](coverage-matrix.md): traceability from Python capabilities and generated
   protocol surfaces to planned Go packages and acceptance tests.
-- [v0.1 compatibility ledger](compatibility-ledger.md): frozen legacy behavior, canary fixtures,
-  and the process for approving intentional differences.
+- [v0.1 compatibility ledger](compatibility-ledger.md): frozen v0.2 release history, the approved
+  v0.3 facade removal, migration mapping, and acceptance evidence.
 
-The compatibility ledger now also includes a mechanical migration map from the v0.1 facade to the
-new context-first API.
+The compatibility ledger includes the mechanical migration map from the removed v0.1 facade to
+the context-first API.
 
 OMX execution handoff artifacts are stored in:
 

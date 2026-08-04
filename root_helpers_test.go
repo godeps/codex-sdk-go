@@ -230,10 +230,10 @@ func TestParseThreadItemAndNotificationHelpers(t *testing.T) {
 	}
 }
 
-func TestLegacyAndContextWrappersErrorPaths(t *testing.T) {
+func TestContextWrappersErrorPaths(t *testing.T) {
 	t.Parallel()
 
-	thread := NewThread(NewCodexExec("/missing/codex", nil), CodexOptions{}, ThreadOptions{}, "")
+	thread := &Thread{}
 	if _, err := thread.ReadContext(context.Background(), false); !errors.Is(err, ErrTransportClosed) {
 		t.Fatalf("ReadContext() error = %v", err)
 	}
@@ -267,16 +267,6 @@ func TestLegacyAndContextWrappersErrorPaths(t *testing.T) {
 	if _, err := thread.StartGoalContext(context.Background(), "ship"); !errors.Is(err, ErrTransportClosed) {
 		t.Fatalf("StartGoalContext() error = %v", err)
 	}
-	if _, err := thread.Read(false); !errors.Is(err, ErrTransportClosed) {
-		t.Fatalf("Read() error = %v", err)
-	}
-	if err := thread.SetName("x"); !errors.Is(err, ErrTransportClosed) {
-		t.Fatalf("SetName() error = %v", err)
-	}
-	if err := thread.Compact(); !errors.Is(err, ErrTransportClosed) {
-		t.Fatalf("Compact() error = %v", err)
-	}
-
 	if _, err := (&ChatGPTLoginHandle{}).WaitContext(context.Background()); !errors.Is(err, ErrTransportClosed) {
 		t.Fatalf("ChatGPTLoginHandle.WaitContext() error = %v", err)
 	}
@@ -298,7 +288,7 @@ func TestLegacyAndContextWrappersErrorPaths(t *testing.T) {
 	if err := client.WaitContext(nilContext); err != nil {
 		t.Fatalf("WaitContext(nil transport) error = %v", err)
 	}
-	client.transport = newSDKClient(CodexOptions{})
+	client.transport = newManagedSDKClient(CodexOptions{})
 	if err := client.CloseContext(nilContext); err == nil {
 		t.Fatal("CloseContext(nil ctx) error = nil")
 	}
@@ -359,20 +349,6 @@ func TestThreadItemsAndUnknownPayload(t *testing.T) {
 	}
 }
 
-func TestWaitCompatLoginFallbackAndTerminalErrors(t *testing.T) {
-	t.Parallel()
-
-	transport := newSDKClient(CodexOptions{CodexPathOverride: "/missing/codex"})
-	if _, err := waitCompatLogin(context.Background(), transport, "login-1"); err == nil {
-		t.Fatal("waitCompatLogin() error = nil")
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	if _, err := waitCompatLogin(ctx, transport, "login-1"); err == nil {
-		t.Fatal("waitCompatLogin(canceled) error = nil")
-	}
-}
-
 func TestTurnStreamClosedAndResultErrors(t *testing.T) {
 	t.Parallel()
 
@@ -386,50 +362,6 @@ func TestTurnStreamClosedAndResultErrors(t *testing.T) {
 	}
 	if _, err := collectTurnResult(context.Background(), &TurnStream{terminalEOF: true, handle: &TurnHandle{client: &Client{}}}, "turn-1"); err == nil {
 		t.Fatal("collectTurnResult() error = nil")
-	}
-}
-
-func TestLegacyPublicAPIErrorsAndNilMetadata(t *testing.T) {
-	t.Parallel()
-
-	var nilCodex *Codex
-	if got := nilCodex.Metadata(); got != nil {
-		t.Fatalf("nil Codex Metadata() = %#v", got)
-	}
-
-	codex := NewCodex(CodexOptions{CodexPathOverride: "/missing/codex"})
-	if got := codex.Metadata(); got != nil {
-		t.Fatalf("Metadata before start = %#v", got)
-	}
-	if _, err := codex.Models(true); err == nil {
-		t.Fatal("Models() error = nil")
-	}
-	if _, err := codex.Account(false); err == nil {
-		t.Fatal("Account() error = nil")
-	}
-	if _, err := codex.StartChatGPTLogin(); err == nil {
-		t.Fatal("StartChatGPTLogin() error = nil")
-	}
-	if _, err := codex.StartChatGPTDeviceCodeLogin(); err == nil {
-		t.Fatal("StartChatGPTDeviceCodeLogin() error = nil")
-	}
-	if err := codex.LoginAPIKey("sk"); err == nil {
-		t.Fatal("LoginAPIKey() error = nil")
-	}
-	var zeroCodex Codex
-	if err := zeroCodex.Close(); err != nil {
-		t.Fatalf("zero Codex Close() error = %v", err)
-	}
-
-	thread := codex.StartThread(ThreadOptions{})
-	if _, err := thread.Read(false); err == nil {
-		t.Fatal("Thread.Read() error = nil")
-	}
-	if err := thread.SetName("x"); err == nil {
-		t.Fatal("Thread.SetName() error = nil")
-	}
-	if err := thread.Compact(); err == nil {
-		t.Fatal("Thread.Compact() error = nil")
 	}
 }
 

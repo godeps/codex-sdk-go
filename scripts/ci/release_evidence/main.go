@@ -26,9 +26,6 @@ type ciEvidence struct {
 	Commands                 []string `json:"commands"`
 	StaticAnalyzer           string   `json:"staticAnalyzer"`
 	RequiredRuntimeWorkflows []string `json:"requiredRuntimeWorkflows"`
-	Compatibility            struct {
-		PythonDispositionTest string `json:"pythonDispositionTest"`
-	} `json:"compatibility"`
 }
 
 type coverageEvidence struct {

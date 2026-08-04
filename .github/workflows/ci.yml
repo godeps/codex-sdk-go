@@ -2,6 +2,11 @@ name: ci
 
 on:
   push:
+    branches:
+      - main
+      - master
+    tags-ignore:
+      - "v*"
   pull_request:
   workflow_dispatch:
 
@@ -13,10 +18,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Check out pinned Codex reference
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: openai/codex
           ref: bb5054fe47abe73ecbbd454751066a28c89f4bb9
@@ -24,7 +29,7 @@ jobs:
           sparse-checkout: sdk/python
           persist-credentials: false
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
 
@@ -45,7 +50,7 @@ jobs:
         shell: bash
         run: GOWORK=off go vet ./...
 
-      - name: Run unit and compatibility tests
+      - name: Run unit and package tests
         shell: bash
         run: GOWORK=off go test ./...
 
@@ -62,6 +67,12 @@ jobs:
         run: |
           GOBIN="$RUNNER_TEMP/bin" GOWORK=off go install honnef.co/go/tools/cmd/staticcheck@2025.1.1
           "$RUNNER_TEMP/bin/staticcheck" ./...
+
+      - name: Install and run govulncheck
+        shell: bash
+        run: |
+          GOBIN="$RUNNER_TEMP/bin" GOWORK=off go install golang.org/x/vuln/cmd/govulncheck@v1.6.0
+          "$RUNNER_TEMP/bin/govulncheck" ./...
 
       - name: Verify protocol generator drift
         shell: bash
@@ -131,13 +142,14 @@ jobs:
             "commit": "${GITHUB_SHA}",
             "goVersion": "$(go version | sed 's/"/\\"/g')",
             "staticAnalyzer": "staticcheck",
+            "vulnerabilityScanner": "govulncheck",
             "requiredRuntimeWorkflows": [
               "stress",
               "runtime-tests",
               "runtime-native"
             ],
-            "compatibility": {
-              "pythonDispositionTest": "TestCompatibilityPythonDispositionCoversPinnedPythonTests"
+            "evidence": {
+              "pinnedPythonDispositionTest": "TestPythonDispositionCoversPinnedPythonTests"
             },
             "commands": [
               "GOWORK=off gofmt -d .",
@@ -146,6 +158,7 @@ jobs:
               "GOWORK=off go test -race ./...",
               "GOWORK=off go test -tags=integration ./...",
               "staticcheck ./...",
+              "govulncheck ./...",
               "GOWORK=off go run ./cmd/codex-sdk-gen verify",
               "GOWORK=off go test -c -fuzz '^FuzzClientRequestUnmarshal$' -o protocol.test ./protocol",
               "timeout --preserve-status --signal=INT --kill-after=30s 15s protocol.test -test.fuzz='<target>' -test.fuzztime=1m (7 targets)",
@@ -155,7 +168,7 @@ jobs:
           JSON
 
       - name: Upload CI evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-evidence
           path: artifacts/evidence/ci

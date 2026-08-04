@@ -44,27 +44,6 @@ func TestTurnTransportCloseAndStableTerminalError(t *testing.T) {
 	}
 }
 
-func TestRunStreamedAbandonedConsumerClosesBoundedAdapter(t *testing.T) {
-	server := writeFailureServer(t, "turn_spam")
-	client, err := NewClient(context.Background(), WithCodexPath(server))
-	if err != nil {
-		t.Fatalf("NewClient: %v", err)
-	}
-	defer func() { _ = client.Close() }()
-
-	thread, err := client.StartThread(context.Background(), ThreadOptions{})
-	if err != nil {
-		t.Fatalf("StartThread: %v", err)
-	}
-	streamed, err := thread.RunStreamed(TextInput("hello"), TurnOptions{})
-	if err != nil {
-		t.Fatalf("RunStreamed: %v", err)
-	}
-	if err := <-streamed.Done; !errors.Is(err, ErrStreamClosed) {
-		t.Fatalf("RunStreamed Done error = %v, want ErrStreamClosed", err)
-	}
-}
-
 func TestGoalStartTimeoutAndMalformedRoute(t *testing.T) {
 	t.Run("timeout", func(t *testing.T) {
 		server := writeFailureServer(t, "goal_timeout")

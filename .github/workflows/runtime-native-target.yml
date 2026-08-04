@@ -27,9 +27,9 @@ jobs:
   smoke:
     runs-on: ${{ inputs.runner }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
 
@@ -66,7 +66,7 @@ jobs:
             --evidence "$RUNNER_TEMP/runtime-artifacts/evidence/${{ inputs.target_triple }}.json"
 
       - name: Upload native runtime artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: runtime-target-${{ inputs.target_triple }}
           path: ${{ runner.temp }}/runtime-artifacts

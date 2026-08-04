@@ -16,7 +16,7 @@ and `CancelContext` to abort the attempt.
 
 ## Approval
 
-The thread and turn options expose both the legacy approval mode and the higher-level approval
+The thread and turn options expose both a low-level approval mode and the higher-level approval
 preset:
 
 - `ApprovalMode`: `never`, `on-request`, `on-failure`, `untrusted`
@@ -29,8 +29,8 @@ Current mapping:
 | `ApprovalPresetDenyAll` | `ApprovalNever` |
 | `ApprovalPresetAutoReview` | `ApprovalOnRequest` with `auto_review` reviewer |
 
-When both are present, the preset wins. Use the legacy `ApprovalPolicy` only when you are
-migrating code that already speaks `ApprovalMode`.
+When both are present, the preset wins. Prefer `ApprovalPreset` for the two supported high-level
+policies; use `ApprovalPolicy` when the runtime's explicit low-level mode is required.
 
 ## Goal State
 

@@ -1,8 +1,18 @@
 # Full Codex SDK parity implementation plan
 
-Status: complete for v0.2.0; publication remains guarded by the exact-SHA release workflow
+Status: complete for v0.2.0; the separately approved v0.3 facade-removal phase is implemented in
+the current tree
 Reference Python revision: `bb5054fe47`
 Pinned Codex runtime: `0.144.4`
+
+## Superseding v0.3 decision
+
+The v0.2 plan below is preserved as release history. Its temporary compatibility requirement and
+Phase 8 exit gate were fulfilled by v0.2.0. The user subsequently approved removal of the facade
+for v0.3. The removal deletes the deprecated root/exec/thread/login adapters and v0.1 canaries,
+keeps shared option/input/item types, and leaves generated protocols, goal/login behavior, managed
+runtime packaging, and all six target platforms unchanged. Acceptance is defined by COMPAT-001
+through COMPAT-004 in the current acceptance test specification and the migration ledger.
 
 ## 1. Objective
 

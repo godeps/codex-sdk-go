@@ -15,12 +15,14 @@ Run the commands that prove the docs still match the code:
 
 ```bash
 GOWORK=off go doc -all .
+GOWORK=off go test
 GOWORK=off go test ./example/...
 GOWORK=off go test ./cmd/codex-sdk-gen
 GOWORK=off go test ./cmd/codex-sdk-runtime
 GOWORK=off go test ./internal/runtimebin ./internal/router
 GOWORK=off go test ./...
 GOWORK=off go test -race ./...
+GOWORK=off go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
 ```
 
 For runtime packaging and lock updates:
@@ -32,6 +34,11 @@ GOWORK=off go run ./cmd/codex-sdk-gen verify
 
 `cmd/codex-sdk-gen verify` requires the pinned reference checkout described in
 `docs/codex-sdk-parity/README.md`.
+
+For release candidates, follow the evidence-gated tag flow in
+`docs/release-verification.md`: collect successful `ci`, `stress`, `runtime-tests`, and
+`runtime-native` run IDs for the target commit before dispatching `release.yml`, and let the
+workflow create the `v*` tag only after the evidence bundle is assembled.
 
 ## Docs To Keep In Sync
 

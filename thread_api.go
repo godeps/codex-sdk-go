@@ -12,7 +12,7 @@ func (t *Thread) ReadContext(ctx context.Context, includeTurns bool) (*ThreadRec
 	if ctx == nil {
 		return nil, errors.New("codex: nil context")
 	}
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return nil, err
 	}
 	return t.rootClient().ReadThread(ctx, t.ID(), includeTurns)
@@ -23,7 +23,7 @@ func (t *Thread) SetNameContext(ctx context.Context, name string) error {
 	if ctx == nil {
 		return errors.New("codex: nil context")
 	}
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return err
 	}
 	return t.rootClient().SetThreadName(ctx, t.ID(), name)
@@ -34,7 +34,7 @@ func (t *Thread) CompactContext(ctx context.Context) error {
 	if ctx == nil {
 		return errors.New("codex: nil context")
 	}
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return err
 	}
 	return t.rootClient().CompactThread(ctx, t.ID())
@@ -42,7 +42,7 @@ func (t *Thread) CompactContext(ctx context.Context) error {
 
 // ArchiveContext archives the current thread.
 func (t *Thread) ArchiveContext(ctx context.Context) error {
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return err
 	}
 	return t.rootClient().ArchiveThread(ctx, t.ID())
@@ -50,7 +50,7 @@ func (t *Thread) ArchiveContext(ctx context.Context) error {
 
 // UnarchiveContext restores the current archived thread.
 func (t *Thread) UnarchiveContext(ctx context.Context) error {
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return err
 	}
 	return t.rootClient().UnarchiveThread(ctx, t.ID())
@@ -58,7 +58,7 @@ func (t *Thread) UnarchiveContext(ctx context.Context) error {
 
 // ForkContext creates a new thread from this thread.
 func (t *Thread) ForkContext(ctx context.Context, options ThreadOptions) (*Thread, error) {
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return nil, err
 	}
 	return t.rootClient().ForkThread(ctx, t.ID(), options)

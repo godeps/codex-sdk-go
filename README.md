@@ -1,8 +1,12 @@
 # Codex SDK (Go)
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/godeps/codex-sdk-go.svg)](https://pkg.go.dev/github.com/godeps/codex-sdk-go)
+[![CI](https://github.com/godeps/codex-sdk-go/actions/workflows/ci.yml/badge.svg)](https://github.com/godeps/codex-sdk-go/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/godeps/codex-sdk-go)](LICENSE)
+
 The Go SDK exposes the Codex app-server through one context-first `Client` API for long-lived,
-concurrent use. The v0.1 compatibility facade was retired after the v0.2.x migration window and is
-not part of the v0.3 API surface.
+concurrent use. The legacy v0.1 surface was retired after the v0.2.x migration window and is not
+part of the v0.3 API surface.
 
 ## Getting Started
 
@@ -209,17 +213,22 @@ of guessing.
 
 ## Migration And Examples
 
-Callers upgrading from v0.1 or v0.2 compatibility APIs must migrate before adopting v0.3. See
+Callers upgrading from the v0.1 or v0.2 migration surfaces must migrate before adopting v0.3. See
 [docs/migration-v0.1-to-v0.2.md](docs/migration-v0.1-to-v0.2.md) for the removal map and
 [docs/api-reference.md](docs/api-reference.md) for the current context-first surface.
 
 Executable examples live under:
 
+- `example`
+- `example/chat`
 - `example/common`
 - `example/stream`
 - `example/steer`
 - `example/image`
 - `example/structured-output`
+
+Release verification and the evidence-gated `v0.3.1` tag flow are documented in
+[docs/release-verification.md](docs/release-verification.md).
 
 ## Contributing
 

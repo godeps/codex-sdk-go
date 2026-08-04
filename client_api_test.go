@@ -236,7 +236,7 @@ func TestGoalHandleCoalescesTurnsAndBlocksRegularTurns(t *testing.T) {
 	if err != nil {
 		t.Fatalf("StartGoal: %v", err)
 	}
-	thread := newClientThread(client, ThreadOptions{}, "thread-goal", true)
+	thread := newClientThread(client, "thread-goal")
 	if _, err := thread.StartTurnContext(context.Background(), TextInput("should fail"), TurnOptions{}); err == nil {
 		t.Fatal("StartTurnContext while goal active = nil, want error")
 	}

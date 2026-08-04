@@ -3,7 +3,6 @@ package codex
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -21,11 +20,7 @@ type TurnHandle struct {
 // Thread represents a conversation with the agent.
 type Thread struct {
 	client *Client
-
-	mu            sync.RWMutex
-	id            string
-	threadOptions ThreadOptions
-	prepared      bool
+	id     string
 }
 
 // ID returns the current thread identifier.
@@ -33,34 +28,20 @@ func (t *Thread) ID() string {
 	if t == nil {
 		return ""
 	}
-	t.mu.RLock()
-	defer t.mu.RUnlock()
 	return t.id
 }
 
-func (t *Thread) markPrepared(id string) {
-	t.mu.Lock()
-	t.id = id
-	t.prepared = true
-	t.mu.Unlock()
-}
-
-func (t *Thread) isPrepared() bool {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-	return t.prepared
-}
-
 func (t *Thread) rootClient() *Client {
+	if t == nil {
+		return nil
+	}
 	return t.client
 }
 
-func newClientThread(client *Client, threadOptions ThreadOptions, id string, prepared bool) *Thread {
+func newClientThread(client *Client, id string) *Thread {
 	return &Thread{
-		client:        client,
-		id:            id,
-		threadOptions: threadOptions,
-		prepared:      prepared,
+		client: client,
+		id:     id,
 	}
 }
 
@@ -78,7 +59,7 @@ func (t *Thread) StartTurnContext(ctx context.Context, input Input, turnOptions 
 	if ctx == nil {
 		return nil, errors.New("codex: nil context")
 	}
-	if err := t.ensurePrepared(ctx); err != nil {
+	if err := t.ensureMaterialized(); err != nil {
 		return nil, err
 	}
 	client := t.rootClient()
@@ -97,32 +78,10 @@ func (t *Thread) RunContext(ctx context.Context, input Input, turnOptions TurnOp
 	return handle.RunContext(ctx)
 }
 
-func (t *Thread) ensurePrepared(ctx context.Context) error {
-	if t.isPrepared() {
-		return nil
-	}
-	client := t.rootClient()
-	if client == nil {
+func (t *Thread) ensureMaterialized() error {
+	if t.rootClient() == nil || t.ID() == "" {
 		return ErrTransportClosed
 	}
-	payload := threadPayload(t.threadOptions)
-	method := "thread/start"
-	if threadID := t.ID(); threadID != "" {
-		method = "thread/resume"
-		payload["threadId"] = threadID
-	}
-	var response struct {
-		Thread struct {
-			ID string `json:"id"`
-		} `json:"thread"`
-	}
-	if err := client.transport.request(ctx, method, payload, &response); err != nil {
-		return err
-	}
-	if response.Thread.ID == "" {
-		return fmt.Errorf("%s returned an empty thread id", method)
-	}
-	t.markPrepared(response.Thread.ID)
 	return nil
 }
 

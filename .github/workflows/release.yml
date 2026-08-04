@@ -45,12 +45,12 @@ jobs:
       actions: read
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.target_commit }}
           fetch-depth: 0
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
 
@@ -153,13 +153,13 @@ jobs:
             --protocol-manifest protocol/manifest.json
 
       - name: Upload release evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-evidence
           path: artifacts/evidence/release
 
       - name: Upload imported runtime release bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: runtime-release-bundle-imported
           path: artifacts/downloads/runtime-native
@@ -171,7 +171,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.target_commit }}
           fetch-depth: 0
@@ -206,13 +206,13 @@ jobs:
           git push origin "refs/tags/${TAG}"
 
       - name: Download runtime release bundle
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: runtime-release-bundle-imported
           path: artifacts/release-downloads/runtime-release-bundle-imported
 
       - name: Download release evidence
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: release-evidence
           path: artifacts/release-downloads/release-evidence

@@ -73,22 +73,22 @@ jobs:
           trap cleanup EXIT
           mkdir -p "$fuzz_dir/cache"
           GOWORK=off go test -c -fuzz '^${{ matrix.target }}$' -o "$fuzz_dir/protocol.test" ./protocol
-          # Go's internal duration deadline can race worker teardown and report
-          # context.DeadlineExceeded after a clean run. Keep that deadline in
-          # reserve and stop with SIGINT after the required budget plus grace.
-          timeout --preserve-status --signal=INT --kill-after=1m 615s \
+          # Let the fuzz coordinator stop its workers cleanly at the evidence
+          # boundary. The outer timeout is only a hard guard for a hung process;
+          # interrupting at the boundary can be reported as a worker crash.
+          timeout --preserve-status --signal=TERM --kill-after=1m 12m \
             "$fuzz_dir/protocol.test" \
-              -test.timeout=16m \
+              -test.timeout=11m30s \
               -test.run='^$' \
               -test.fuzz='^${{ matrix.target }}$' \
               -test.fuzzcachedir="$fuzz_dir/cache" \
-              -test.fuzztime=15m
+              -test.fuzztime=10m
           cat > "artifacts/evidence/stress/${{ matrix.target }}.json" <<JSON
           {
             "fuzzTarget": "${{ matrix.target }}",
             "fuzzTime": "10m",
-            "harnessWallTime": "10m15s",
-            "durationControl": "external-sigint",
+            "harnessWallTime": "10m",
+            "durationControl": "coordinator-deadline",
             "package": "./protocol"
           }
           JSON

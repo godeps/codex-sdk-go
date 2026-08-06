@@ -280,6 +280,21 @@ func (c *Client) NextGoal(threadID string, ctxs ...context.Context) (json.RawMes
 	return c.router.NextGoal(threadID, ctxs...)
 }
 
+// RegisterCompaction starts routing completion notifications for one thread.
+func (c *Client) RegisterCompaction(threadID string) error {
+	return c.router.RegisterCompaction(threadID)
+}
+
+// UnregisterCompaction stops routing completion notifications for one thread.
+func (c *Client) UnregisterCompaction(threadID string) {
+	c.router.UnregisterCompaction(threadID)
+}
+
+// NextCompaction waits for a thread-scoped compaction completion notification.
+func (c *Client) NextCompaction(threadID string, ctxs ...context.Context) (json.RawMessage, error) {
+	return c.router.NextCompaction(threadID, ctxs...)
+}
+
 // NextGlobal waits for the next unscoped notification payload.
 func (c *Client) NextGlobal(ctxs ...context.Context) (json.RawMessage, error) {
 	return c.router.NextGlobal(ctxs...)

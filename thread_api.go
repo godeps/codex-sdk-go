@@ -40,6 +40,18 @@ func (t *Thread) CompactContext(ctx context.Context) error {
 	return t.rootClient().CompactThread(ctx, t.ID())
 }
 
+// CompactContextAndWait requests app-server compaction and waits for the
+// thread/compacted completion notification.
+func (t *Thread) CompactContextAndWait(ctx context.Context) (*CompactionResult, error) {
+	if ctx == nil {
+		return nil, errors.New("codex: nil context")
+	}
+	if err := t.ensureMaterialized(); err != nil {
+		return nil, err
+	}
+	return t.rootClient().CompactThreadAndWait(ctx, t.ID())
+}
+
 // ArchiveContext archives the current thread.
 func (t *Thread) ArchiveContext(ctx context.Context) error {
 	if err := t.ensureMaterialized(); err != nil {

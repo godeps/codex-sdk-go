@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-08-05
+
+### Added
+
+- `Client.CompactThreadAndWait` and `Thread.CompactContextAndWait` atomically register for and
+  await the provider's `thread/compacted` notification while preserving acknowledgement state on
+  cancellation or timeout.
+
 ## [0.3.1] - 2026-08-03
 
 ### Added
@@ -45,6 +53,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 - README and contributing guidance now describe the current option-based `NewClient` API and the
   current runtime resolution order.
 
-[Unreleased]: https://github.com/godeps/codex-sdk-go/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/godeps/codex-sdk-go/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/godeps/codex-sdk-go/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/godeps/codex-sdk-go/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/godeps/codex-sdk-go/compare/v0.2.0...v0.3.0

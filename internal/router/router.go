@@ -90,6 +90,7 @@ const (
 	loginRoute routeKind = iota
 	turnRoute
 	goalRoute
+	compactionRoute
 )
 
 // MessageRouter keeps one stdout reader from competing consumers.
@@ -101,12 +102,14 @@ type MessageRouter struct {
 
 	responseWaiters map[string]chan Response
 
-	loginRoutes map[string]*routeState
-	turnRoutes  map[string]*routeState
-	goalRoutes  map[string]*routeState
-	loginClosed map[string]struct{}
-	turnClosed  map[string]struct{}
-	goalClosed  map[string]struct{}
+	loginRoutes   map[string]*routeState
+	turnRoutes    map[string]*routeState
+	goalRoutes    map[string]*routeState
+	compactRoutes map[string]*routeState
+	loginClosed   map[string]struct{}
+	turnClosed    map[string]struct{}
+	goalClosed    map[string]struct{}
+	compactClosed map[string]struct{}
 
 	globalQueue  chan routeItem
 	globalEvents int
@@ -125,9 +128,11 @@ func New(limits Limits) *MessageRouter {
 		loginRoutes:     make(map[string]*routeState),
 		turnRoutes:      make(map[string]*routeState),
 		goalRoutes:      make(map[string]*routeState),
+		compactRoutes:   make(map[string]*routeState),
 		loginClosed:     make(map[string]struct{}),
 		turnClosed:      make(map[string]struct{}),
 		goalClosed:      make(map[string]struct{}),
+		compactClosed:   make(map[string]struct{}),
 		globalQueue:     make(chan routeItem, limits.MaxGlobalEvents),
 	}
 }
@@ -202,6 +207,21 @@ func (r *MessageRouter) NextGoal(threadID string, ctxs ...context.Context) (json
 	return r.nextRoute(threadID, goalRoute, "goal", firstContext(ctxs...))
 }
 
+// RegisterCompaction starts routing completion notifications for one thread.
+func (r *MessageRouter) RegisterCompaction(threadID string) error {
+	return r.registerRoute(threadID, compactionRoute)
+}
+
+// UnregisterCompaction releases routing for one completed or canceled wait.
+func (r *MessageRouter) UnregisterCompaction(threadID string) {
+	r.unregisterRoute(threadID, compactionRoute)
+}
+
+// NextCompaction blocks until the thread's compaction notification arrives.
+func (r *MessageRouter) NextCompaction(threadID string, ctxs ...context.Context) (json.RawMessage, error) {
+	return r.nextRoute(threadID, compactionRoute, "compaction", firstContext(ctxs...))
+}
+
 // NextGlobal blocks until the next unscoped notification arrives.
 func (r *MessageRouter) NextGlobal(ctxs ...context.Context) (json.RawMessage, error) {
 	ctx := firstContext(ctxs...)
@@ -245,6 +265,11 @@ func (r *MessageRouter) RouteNotification(method string, params json.RawMessage)
 		return err
 	}
 	item := routeItem{Raw: envelope, Size: len(envelope)}
+	if method == "thread/compacted" {
+		if threadID := notificationThreadID(params); threadID != "" {
+			return r.routeScoped(threadID, item, compactionRoute, false)
+		}
+	}
 
 	if loginID := notificationLoginID(method, params); loginID != "" {
 		return r.routeScoped(loginID, item, loginRoute, false)
@@ -306,6 +331,7 @@ func (r *MessageRouter) FailAll(err error) {
 	loginQueues := routeQueuesSnapshot(r.loginRoutes)
 	turnQueues := routeQueuesSnapshot(r.turnRoutes)
 	goalQueues := routeQueuesSnapshot(r.goalRoutes)
+	compactQueues := routeQueuesSnapshot(r.compactRoutes)
 	r.responseWaiters = make(map[string]chan Response)
 	r.mu.Unlock()
 
@@ -329,6 +355,14 @@ func (r *MessageRouter) FailAll(err error) {
 		}
 	}
 	for _, queue := range goalQueues {
+		if queue != nil {
+			select {
+			case queue <- routeItem{Err: err}:
+			default:
+			}
+		}
+	}
+	for _, queue := range compactQueues {
 		if queue != nil {
 			select {
 			case queue <- routeItem{Err: err}:
@@ -536,6 +570,8 @@ func (r *MessageRouter) routeMaps(kind routeKind) (map[string]*routeState, map[s
 		return r.turnRoutes, r.turnClosed
 	case goalRoute:
 		return r.goalRoutes, r.goalClosed
+	case compactionRoute:
+		return r.compactRoutes, r.compactClosed
 	default:
 		return nil, nil
 	}

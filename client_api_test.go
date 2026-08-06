@@ -450,6 +450,51 @@ func TestClientThreadLifecycleWrappersAndWait(t *testing.T) {
 	}
 }
 
+func TestThreadCompactContextAndWaitConfirmsCompletion(t *testing.T) {
+	server, _ := writeContextAPIServer(t)
+	client, err := NewClient(context.Background(), CodexOptions{CodexPathOverride: server})
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	thread, err := client.ResumeThread(context.Background(), "thread-compact", ThreadOptions{})
+	if err != nil {
+		t.Fatalf("ResumeThread: %v", err)
+	}
+	result, err := thread.CompactContextAndWait(context.Background())
+	if err != nil {
+		t.Fatalf("CompactContextAndWait: %v", err)
+	}
+	if result == nil || !result.RequestAccepted || !result.CompletionConfirmed ||
+		result.ThreadID != "thread-compact" || result.TurnID != "compact-turn-1" {
+		t.Fatalf("result = %+v", result)
+	}
+}
+
+func TestThreadCompactContextAndWaitPreservesAcceptanceOnTimeout(t *testing.T) {
+	server, _ := writeContextAPIServer(t)
+	client, err := NewClient(context.Background(), CodexOptions{CodexPathOverride: server})
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	thread, err := client.ResumeThread(context.Background(), "thread-no-compact-notification", ThreadOptions{})
+	if err != nil {
+		t.Fatalf("ResumeThread: %v", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+	result, err := thread.CompactContextAndWait(ctx)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("CompactContextAndWait() error = %v, want deadline exceeded", err)
+	}
+	if result == nil || !result.RequestAccepted || result.CompletionConfirmed {
+		t.Fatalf("result = %+v, want accepted but unconfirmed", result)
+	}
+}
+
 func TestTurnHandleSingleConsumerAndRepeatedNext(t *testing.T) {
 	server, _ := writeContextAPIServer(t)
 	client, err := NewClient(context.Background(), CodexOptions{CodexPathOverride: server})
@@ -610,7 +655,12 @@ for line in sys.stdin:
     elif method == "thread/name/set":
         thread_name = params.get("name", "")
         write({"id": req_id, "result": {}})
-    elif method == "thread/compact/start" or method == "thread/archive" or method == "thread/unarchive" or method == "account/logout" or method == "account/login/cancel" or method == "turn/steer" or method == "turn/interrupt":
+    elif method == "thread/compact/start":
+        thread_id = params["threadId"]
+        if thread_id != "thread-no-compact-notification":
+            write({"method": "thread/compacted", "params": {"threadId": thread_id, "turnId": "compact-turn-1"}})
+        write({"id": req_id, "result": {}})
+    elif method == "thread/archive" or method == "thread/unarchive" or method == "account/logout" or method == "account/login/cancel" or method == "turn/steer" or method == "turn/interrupt":
         if method == "account/logout":
             logged_out = True
         write({"id": req_id, "result": {}})

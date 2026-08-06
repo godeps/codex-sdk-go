@@ -157,6 +157,33 @@ func (c *sdkClient) nextTurn(ctx context.Context, turnID string) (json.RawMessag
 	return raw, translateAppServerError(err)
 }
 
+func (c *sdkClient) registerCompaction(ctx context.Context, threadID string) error {
+	if err := c.ensureStarted(ctx); err != nil {
+		return err
+	}
+	return c.client.RegisterCompaction(threadID)
+}
+
+func (c *sdkClient) unregisterCompaction(threadID string) {
+	c.mu.Lock()
+	client := c.client
+	c.mu.Unlock()
+	if client != nil {
+		client.UnregisterCompaction(threadID)
+	}
+}
+
+func (c *sdkClient) nextCompaction(ctx context.Context, threadID string) (json.RawMessage, error) {
+	if ctx == nil {
+		return nil, errors.New("codex: nil context")
+	}
+	if err := c.ensureStarted(ctx); err != nil {
+		return nil, err
+	}
+	raw, err := c.client.NextCompaction(threadID, ctx)
+	return raw, translateAppServerError(err)
+}
+
 func (c *sdkClient) registerLogin(loginID string) error {
 	if err := c.ensureStarted(context.Background()); err != nil {
 		return err
@@ -486,6 +513,55 @@ func (c *Client) CompactThread(ctx context.Context, threadID string) error {
 	return c.transport.request(ctx, "thread/compact/start", map[string]any{
 		"threadId": threadID,
 	}, nil)
+}
+
+// CompactThreadAndWait requests compaction and waits until app-server emits
+// thread/compacted for the same thread. RequestAccepted remains true when the
+// request was acknowledged but waiting ends through cancellation or timeout.
+func (c *Client) CompactThreadAndWait(ctx context.Context, threadID string) (*CompactionResult, error) {
+	threadID = strings.TrimSpace(threadID)
+	result := &CompactionResult{ThreadID: threadID}
+	if ctx == nil {
+		return result, errors.New("codex: nil context")
+	}
+	if c == nil || c.transport == nil {
+		return result, ErrTransportClosed
+	}
+	if threadID == "" {
+		return result, errors.New("codex: thread ID is required for compaction")
+	}
+	err := c.withThreadLock(threadID, func() error {
+		if err := c.transport.registerCompaction(ctx, threadID); err != nil {
+			return err
+		}
+		defer c.transport.unregisterCompaction(threadID)
+
+		if err := c.CompactThread(ctx, threadID); err != nil {
+			return err
+		}
+		result.RequestAccepted = true
+		raw, err := c.transport.nextCompaction(ctx, threadID)
+		if err != nil {
+			return err
+		}
+		var envelope struct {
+			Method string `json:"method"`
+			Params struct {
+				ThreadID string `json:"threadId"`
+				TurnID   string `json:"turnId"`
+			} `json:"params"`
+		}
+		if err := json.Unmarshal(raw, &envelope); err != nil {
+			return fmt.Errorf("codex: decode compaction notification: %w", err)
+		}
+		if envelope.Method != "thread/compacted" || envelope.Params.ThreadID != threadID {
+			return errors.New("codex: mismatched compaction notification")
+		}
+		result.TurnID = envelope.Params.TurnID
+		result.CompletionConfirmed = true
+		return nil
+	})
+	return result, err
 }
 
 func (c *Client) startTurn(ctx context.Context, threadID string, input Input, options TurnOptions) (*TurnHandle, error) {

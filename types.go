@@ -33,6 +33,15 @@ type ThreadEvent struct {
 	Raw      json.RawMessage `json:"-"`
 }
 
+// CompactionResult records acknowledgement and observed completion of one
+// provider-native thread compaction request.
+type CompactionResult struct {
+	ThreadID            string
+	TurnID              string
+	RequestAccepted     bool
+	CompletionConfirmed bool
+}
+
 func (e *ThreadEvent) UnmarshalJSON(data []byte) error {
 	var aux struct {
 		Type     string          `json:"type"`

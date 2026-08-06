@@ -31,6 +31,24 @@ func TestRouterReplaysPendingTurnNotifications(t *testing.T) {
 	}
 }
 
+func TestRouterReplaysCompactionNotificationByThread(t *testing.T) {
+	r := New(DefaultLimits())
+	raw := json.RawMessage(`{"threadId":"thread-1","turnId":"compact-turn-1"}`)
+	if err := r.RouteNotification("thread/compacted", raw); err != nil {
+		t.Fatalf("RouteNotification() error = %v", err)
+	}
+	if err := r.RegisterCompaction("thread-1"); err != nil {
+		t.Fatalf("RegisterCompaction() error = %v", err)
+	}
+	got, err := r.NextCompaction("thread-1")
+	if err != nil {
+		t.Fatalf("NextCompaction() error = %v", err)
+	}
+	if string(got) != `{"method":"thread/compacted","params":{"threadId":"thread-1","turnId":"compact-turn-1"}}` {
+		t.Fatalf("NextCompaction() = %s, want full envelope", got)
+	}
+}
+
 func TestRouterLoginReplayAndUnregisterDropsLateEvents(t *testing.T) {
 	r := New(DefaultLimits())
 	raw := json.RawMessage(`{"loginId":"login-1","status":"ok"}`)

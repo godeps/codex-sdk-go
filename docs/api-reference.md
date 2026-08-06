@@ -24,6 +24,7 @@ Thread and runtime management:
 - `Client.UnarchiveThread(ctx, threadID)`
 - `Client.SetThreadName(ctx, threadID, name)`
 - `Client.CompactThread(ctx, threadID)`
+- `Client.CompactThreadAndWait(ctx, threadID)`
 
 Auth and goals:
 
@@ -46,6 +47,7 @@ Auth and goals:
 - `Thread.ReadContext(ctx, includeTurns)`
 - `Thread.SetNameContext(ctx, name)`
 - `Thread.CompactContext(ctx)`
+- `Thread.CompactContextAndWait(ctx)`
 - `Thread.ArchiveContext(ctx)`
 - `Thread.UnarchiveContext(ctx)`
 - `Thread.ForkContext(ctx, options)`

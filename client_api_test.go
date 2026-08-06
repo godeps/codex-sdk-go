@@ -495,6 +495,28 @@ func TestThreadCompactContextAndWaitPreservesAcceptanceOnTimeout(t *testing.T) {
 	}
 }
 
+func TestThreadCompactContextAndWaitConfirmsFromSnapshotFallback(t *testing.T) {
+	server, _ := writeContextAPIServer(t)
+	client, err := NewClient(context.Background(), CodexOptions{CodexPathOverride: server})
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	thread, err := client.ResumeThread(context.Background(), "thread-compact-snapshot", ThreadOptions{})
+	if err != nil {
+		t.Fatalf("ResumeThread: %v", err)
+	}
+	result, err := thread.CompactContextAndWait(context.Background())
+	if err != nil {
+		t.Fatalf("CompactContextAndWait: %v", err)
+	}
+	if result == nil || !result.RequestAccepted || !result.CompletionConfirmed ||
+		result.ThreadID != "thread-compact-snapshot" || result.TurnID != "snapshot-compact-turn" {
+		t.Fatalf("result = %+v", result)
+	}
+}
+
 func TestTurnHandleSingleConsumerAndRepeatedNext(t *testing.T) {
 	server, _ := writeContextAPIServer(t)
 	client, err := NewClient(context.Background(), CodexOptions{CodexPathOverride: server})
@@ -590,6 +612,7 @@ counts = {}
 thread_name = "thread-goal"
 goal_active = False
 goal_phase = 0
+snapshot_compacted = False
 turn_counter = 0
 logged_out = False
 
@@ -650,6 +673,11 @@ for line in sys.stdin:
                     goal = {"objective": "ship it", "status": "complete"}
                     goal_active = False
             write({"id": req_id, "result": {"thread": {"id": "thread-goal", "name": "goal", "path": "/tmp/thread-goal.json", "cwd": "/tmp/project", "archived": False, "ephemeral": False, "status": {"type": "idle"}, "currentTurnId": current_turn_id, "goal": goal}}})
+        elif thread_id == "thread-compact-snapshot":
+            turns = []
+            if snapshot_compacted:
+                turns = [{"id": "snapshot-compact-turn", "status": "completed", "items": [{"id": "compact-item", "type": "contextCompaction"}]}]
+            write({"id": req_id, "result": {"thread": {"id": thread_id, "status": {"type": "idle"}, "turns": turns}}})
         else:
             write({"id": req_id, "result": {"thread": {"id": thread_id, "name": thread_name, "path": "/tmp/thread.json", "cwd": "/tmp/project", "archived": False, "ephemeral": False, "status": {"type": "idle"}}}})
     elif method == "thread/name/set":
@@ -657,7 +685,9 @@ for line in sys.stdin:
         write({"id": req_id, "result": {}})
     elif method == "thread/compact/start":
         thread_id = params["threadId"]
-        if thread_id != "thread-no-compact-notification":
+        if thread_id == "thread-compact-snapshot":
+            snapshot_compacted = True
+        elif thread_id != "thread-no-compact-notification":
             write({"method": "thread/compacted", "params": {"threadId": thread_id, "turnId": "compact-turn-1"}})
         write({"id": req_id, "result": {}})
     elif method == "thread/archive" or method == "thread/unarchive" or method == "account/logout" or method == "account/login/cancel" or method == "turn/steer" or method == "turn/interrupt":

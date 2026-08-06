@@ -516,8 +516,10 @@ func (c *Client) CompactThread(ctx context.Context, threadID string) error {
 }
 
 // CompactThreadAndWait requests compaction and waits until app-server emits
-// thread/compacted for the same thread. RequestAccepted remains true when the
-// request was acknowledged but waiting ends through cancellation or timeout.
+// thread/compacted or thread/read exposes a new completed contextCompaction
+// turn. The snapshot fallback covers runtimes that persist compaction without
+// emitting the notification. RequestAccepted remains true when the request was
+// acknowledged but waiting ends through cancellation or timeout.
 func (c *Client) CompactThreadAndWait(ctx context.Context, threadID string) (*CompactionResult, error) {
 	threadID = strings.TrimSpace(threadID)
 	result := &CompactionResult{ThreadID: threadID}
@@ -535,33 +537,120 @@ func (c *Client) CompactThreadAndWait(ctx context.Context, threadID string) (*Co
 			return err
 		}
 		defer c.transport.unregisterCompaction(threadID)
+		baseline, snapshotFallback := c.completedCompactionTurns(ctx, threadID)
 
 		if err := c.CompactThread(ctx, threadID); err != nil {
 			return err
 		}
 		result.RequestAccepted = true
-		raw, err := c.transport.nextCompaction(ctx, threadID)
+		turnID, err := c.waitForCompaction(ctx, threadID, baseline, snapshotFallback)
 		if err != nil {
 			return err
 		}
-		var envelope struct {
-			Method string `json:"method"`
-			Params struct {
-				ThreadID string `json:"threadId"`
-				TurnID   string `json:"turnId"`
-			} `json:"params"`
-		}
-		if err := json.Unmarshal(raw, &envelope); err != nil {
-			return fmt.Errorf("codex: decode compaction notification: %w", err)
-		}
-		if envelope.Method != "thread/compacted" || envelope.Params.ThreadID != threadID {
-			return errors.New("codex: mismatched compaction notification")
-		}
-		result.TurnID = envelope.Params.TurnID
+		result.TurnID = turnID
 		result.CompletionConfirmed = true
 		return nil
 	})
 	return result, err
+}
+
+type compactionWaitResult struct {
+	turnID string
+	err    error
+}
+
+func (c *Client) waitForCompaction(ctx context.Context, threadID string, baseline map[string]struct{}, snapshotFallback bool) (string, error) {
+	waitCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	notification := make(chan compactionWaitResult, 1)
+	go func() {
+		raw, err := c.transport.nextCompaction(waitCtx, threadID)
+		if err != nil {
+			notification <- compactionWaitResult{err: err}
+			return
+		}
+		turnID, err := decodeCompactionNotification(raw, threadID)
+		notification <- compactionWaitResult{turnID: turnID, err: err}
+	}()
+
+	var snapshot <-chan compactionWaitResult
+	if snapshotFallback {
+		updates := make(chan compactionWaitResult, 1)
+		snapshot = updates
+		go c.pollCompactionSnapshot(waitCtx, threadID, baseline, updates)
+	}
+	select {
+	case observed := <-notification:
+		return observed.turnID, observed.err
+	case observed := <-snapshot:
+		return observed.turnID, observed.err
+	case <-ctx.Done():
+		return "", ctx.Err()
+	}
+}
+
+func decodeCompactionNotification(raw json.RawMessage, threadID string) (string, error) {
+	var envelope struct {
+		Method string `json:"method"`
+		Params struct {
+			ThreadID string `json:"threadId"`
+			TurnID   string `json:"turnId"`
+		} `json:"params"`
+	}
+	if err := json.Unmarshal(raw, &envelope); err != nil {
+		return "", fmt.Errorf("codex: decode compaction notification: %w", err)
+	}
+	if envelope.Method != "thread/compacted" || envelope.Params.ThreadID != threadID {
+		return "", errors.New("codex: mismatched compaction notification")
+	}
+	return envelope.Params.TurnID, nil
+}
+
+func (c *Client) completedCompactionTurns(ctx context.Context, threadID string) (map[string]struct{}, bool) {
+	thread, err := c.ReadThread(ctx, threadID, true)
+	if err != nil {
+		return nil, false
+	}
+	completed := make(map[string]struct{})
+	for _, turn := range thread.Turns {
+		if completedCompactionTurn(turn) {
+			completed[turn.ID] = struct{}{}
+		}
+	}
+	return completed, true
+}
+
+func (c *Client) pollCompactionSnapshot(ctx context.Context, threadID string, baseline map[string]struct{}, updates chan<- compactionWaitResult) {
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+	for {
+		thread, err := c.ReadThread(ctx, threadID, true)
+		if err == nil {
+			for _, turn := range thread.Turns {
+				if _, existed := baseline[turn.ID]; !existed && completedCompactionTurn(turn) {
+					updates <- compactionWaitResult{turnID: turn.ID}
+					return
+				}
+			}
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+	}
+}
+
+func completedCompactionTurn(turn TurnRecord) bool {
+	if turn.Status != TurnStatusCompleted {
+		return false
+	}
+	for _, item := range turn.Items {
+		if item != nil && (item.ItemType() == "contextCompaction" || item.ItemType() == "context_compaction") {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Client) startTurn(ctx context.Context, threadID string, input Input, options TurnOptions) (*TurnHandle, error) {

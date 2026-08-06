@@ -11,8 +11,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 ### Added
 
 - `Client.CompactThreadAndWait` and `Thread.CompactContextAndWait` atomically register for and
-  await the provider's `thread/compacted` notification while preserving acknowledgement state on
-  cancellation or timeout.
+  await provider completion while preserving acknowledgement state on cancellation or timeout.
+  Completion is confirmed from either `thread/compacted` or a new completed
+  `contextCompaction` turn returned by `thread/read`, covering runtimes that persist compaction
+  without emitting the notification.
 
 ## [0.3.1] - 2026-08-03
 

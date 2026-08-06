@@ -26,6 +26,9 @@ Thread and runtime management:
 - `Client.CompactThread(ctx, threadID)`
 - `Client.CompactThreadAndWait(ctx, threadID)`
 
+`CompactThreadAndWait` confirms completion from the scoped `thread/compacted` notification or,
+for compatible runtimes that omit it, a new completed `contextCompaction` turn in `thread/read`.
+
 Auth and goals:
 
 - `Client.LoginAPIKey(ctx, apiKey)`

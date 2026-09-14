@@ -38,6 +38,11 @@ const (
 	ReasoningMedium  ModelReasoningEffort = "medium"
 	ReasoningHigh    ModelReasoningEffort = "high"
 	ReasoningXHigh   ModelReasoningEffort = "xhigh"
+	// TS SDK parity (@openai/codex-sdk 0.154.0 ModelReasoningEffort):
+	// "max" | "ultra" | "persistent" are accepted by newer codex runtimes.
+	ReasoningMax        ModelReasoningEffort = "max"
+	ReasoningUltra      ModelReasoningEffort = "ultra"
+	ReasoningPersistent ModelReasoningEffort = "persistent"
 )
 
 // WebSearchMode controls web search behavior.
@@ -60,6 +65,11 @@ type CodexOptions struct {
 	// Config provides additional Codex CLI configuration overrides.
 	// The SDK flattens nested objects into repeated --config dotted.path=TOML-value flags.
 	Config map[string]any
+	// ConfigOverrides are raw "key=value" strings passed unchanged to the
+	// Codex CLI via --config, after the structured Config flattening and
+	// before SDK-managed/thread-specific overrides (TS SDK parity:
+	// CodexOptions.configOverrides).
+	ConfigOverrides []string
 	// Env overrides the environment passed to the Codex CLI process.
 	// When provided, the SDK will not inherit variables from the parent process.
 	Env map[string]string

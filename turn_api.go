@@ -267,6 +267,58 @@ func decodeTurnNotification(threadID string, raw json.RawMessage, latestUsage *U
 			Turn:     &state,
 			Raw:      append(json.RawMessage(nil), raw...),
 		}, false, nil
+	case "item/started":
+		// Real app-server frame (codex-cli 0.153.4):
+		// {"method":"item/started","params":{"item":{...},"threadId":...,"turnId":...,"startedAtMs":...}}
+		var payload struct {
+			ThreadID    string          `json:"threadId"`
+			TurnID      string          `json:"turnId"`
+			Item        json.RawMessage `json:"item"`
+			StartedAtMs int64           `json:"startedAtMs"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		var item ThreadItem
+		if len(payload.Item) > 0 {
+			parsed, err := parseThreadItem(payload.Item)
+			if err != nil {
+				return nil, false, err
+			}
+			item = parsed
+		}
+		return &ThreadEvent{
+			Type:     "item.started",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			Item:     item,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}, false, nil
+	case "error":
+		// Real app-server frame (codex-cli 0.153.4):
+		// {"method":"error","params":{"error":{"message":...,"codexErrorInfo":"unauthorized",...},"willRetry":false,"threadId":...,"turnId":...}}
+		var payload struct {
+			ThreadID  string       `json:"threadId"`
+			TurnID    string       `json:"turnId"`
+			Error     *ThreadError `json:"error"`
+			WillRetry bool         `json:"willRetry"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		ev := &ThreadEvent{
+			Type:     "error",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			Error:    payload.Error,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}
+		if payload.Error != nil && payload.Error.Message == "" {
+			ev.Message = payload.Error.CodexErrorInfo
+		}
+		return ev, false, nil
 	case "item/completed":
 		var payload struct {
 			ThreadID string          `json:"threadId"`

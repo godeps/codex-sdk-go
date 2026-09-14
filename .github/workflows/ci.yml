@@ -65,7 +65,7 @@ jobs:
       - name: Install and run static analysis
         shell: bash
         run: |
-          GOBIN="$RUNNER_TEMP/bin" GOWORK=off go install honnef.co/go/tools/cmd/staticcheck@2025.1.1
+          GOBIN="$RUNNER_TEMP/bin" GOWORK=off go install honnef.co/go/tools/cmd/staticcheck@2026.2.1
           "$RUNNER_TEMP/bin/staticcheck" ./...
 
       - name: Install and run govulncheck

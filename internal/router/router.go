@@ -225,9 +225,6 @@ func (r *MessageRouter) NextCompaction(threadID string, ctxs ...context.Context)
 // NextGlobal blocks until the next unscoped notification arrives.
 func (r *MessageRouter) NextGlobal(ctxs ...context.Context) (json.RawMessage, error) {
 	ctx := firstContext(ctxs...)
-	if ctx == nil {
-		ctx = context.Background()
-	}
 	if item, ok := r.tryNextGlobal(); ok {
 		return item.Raw, item.Err
 	}

@@ -78,6 +78,9 @@ func (c *sdkClient) ensureStarted(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		// Raw overrides go after structured config, mirroring the TS SDK
+		// ordering (config → configOverrides → SDK-managed flags).
+		configFlags = append(configFlags, c.options.ConfigOverrides...)
 		resolved, err := c.resolveRuntime(c.options)
 		if err != nil {
 			return err

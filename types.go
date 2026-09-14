@@ -5,16 +5,71 @@ import (
 	"time"
 )
 
-// Usage describes token usage for a turn.
+// Usage describes token usage for a turn. It mirrors the TS SDK's Usage
+// (input/cached_input/cache_write_input/output/reasoning_output) plus the
+// app-server's total_tokens.
+//
+// WIRE CASING: the real codex app-server emits camelCase (inputTokens,
+// cachedInputTokens, ...), while the TS/exec JSONL surface and this SDK's own
+// tests historically used snake_case (input_tokens, ...). UnmarshalJSON accepts
+// BOTH so the field decodes correctly against the real CLI (camelCase) without
+// breaking existing snake_case producers. Verified against real codex-cli
+// 0.153.4 app-server frames (all camelCase).
 type Usage struct {
-	InputTokens       int `json:"input_tokens"`
-	CachedInputTokens int `json:"cached_input_tokens"`
-	OutputTokens      int `json:"output_tokens"`
+	InputTokens           int `json:"input_tokens"`
+	CachedInputTokens     int `json:"cached_input_tokens"`
+	CacheWriteInputTokens int `json:"cache_write_input_tokens"`
+	OutputTokens          int `json:"output_tokens"`
+	ReasoningOutputTokens int `json:"reasoning_output_tokens"`
+	TotalTokens           int `json:"total_tokens"`
+}
+
+// UnmarshalJSON accepts both camelCase (real app-server wire) and snake_case
+// (exec JSONL / legacy) token-usage field names.
+func (u *Usage) UnmarshalJSON(data []byte) error {
+	var aux struct {
+		InputTokens           *int `json:"input_tokens"`
+		CachedInputTokens     *int `json:"cached_input_tokens"`
+		CacheWriteInputTokens *int `json:"cache_write_input_tokens"`
+		OutputTokens          *int `json:"output_tokens"`
+		ReasoningOutputTokens *int `json:"reasoning_output_tokens"`
+		TotalTokens           *int `json:"total_tokens"`
+
+		InputTokensC           *int `json:"inputTokens"`
+		CachedInputTokensC     *int `json:"cachedInputTokens"`
+		CacheWriteInputTokensC *int `json:"cacheWriteInputTokens"`
+		OutputTokensC          *int `json:"outputTokens"`
+		ReasoningOutputTokensC *int `json:"reasoningOutputTokens"`
+		TotalTokensC           *int `json:"totalTokens"`
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	pick := func(snake, camel *int) int {
+		if snake != nil {
+			return *snake
+		}
+		if camel != nil {
+			return *camel
+		}
+		return 0
+	}
+	u.InputTokens = pick(aux.InputTokens, aux.InputTokensC)
+	u.CachedInputTokens = pick(aux.CachedInputTokens, aux.CachedInputTokensC)
+	u.CacheWriteInputTokens = pick(aux.CacheWriteInputTokens, aux.CacheWriteInputTokensC)
+	u.OutputTokens = pick(aux.OutputTokens, aux.OutputTokensC)
+	u.ReasoningOutputTokens = pick(aux.ReasoningOutputTokens, aux.ReasoningOutputTokensC)
+	u.TotalTokens = pick(aux.TotalTokens, aux.TotalTokensC)
+	return nil
 }
 
 // ThreadError indicates a failure in the stream.
 type ThreadError struct {
 	Message string `json:"message"`
+	// CodexErrorInfo carries the machine-readable error classification the
+	// real app-server emits (e.g. "unauthorized"). Observed on real codex-cli
+	// 0.153.4 error frames: {"error":{"message":...,"codexErrorInfo":"unauthorized",...}}.
+	CodexErrorInfo string `json:"codexErrorInfo,omitempty"`
 }
 
 // ThreadEvent represents a top-level JSONL event.
@@ -243,9 +298,23 @@ const (
 	CommandExecutionInProgress CommandExecutionStatus = "in_progress"
 	CommandExecutionCompleted  CommandExecutionStatus = "completed"
 	CommandExecutionFailed     CommandExecutionStatus = "failed"
+	// Real app-server wire casing (codex-cli 0.153.4, protocol schema):
+	// status enums are camelCase ("inProgress"), unlike the exec-JSONL
+	// snake_case ("in_progress"). Both are accepted when decoding.
+	CommandExecutionInProgressCamel CommandExecutionStatus = "inProgress"
 )
 
+// IsInProgress reports progress under either wire casing.
+func (s CommandExecutionStatus) IsInProgress() bool {
+	return s == CommandExecutionInProgress || s == CommandExecutionInProgressCamel
+}
+
 // CommandExecutionItem is a command executed by the agent.
+//
+// WIRE CASING: the real app-server emits camelCase field names and enums
+// (aggregatedOutput/exitCode/inProgress); the exec JSONL surface uses
+// snake_case (aggregated_output/exit_code/in_progress). UnmarshalJSON
+// accepts both so the item decodes correctly against either producer.
 type CommandExecutionItem struct {
 	ID               string                 `json:"id"`
 	Type             string                 `json:"type"`
@@ -253,6 +322,42 @@ type CommandExecutionItem struct {
 	AggregatedOutput string                 `json:"aggregated_output"`
 	ExitCode         *int                   `json:"exit_code,omitempty"`
 	Status           CommandExecutionStatus `json:"status"`
+}
+
+// UnmarshalJSON accepts both camelCase (real app-server) and snake_case
+// (exec JSONL / legacy) field names.
+func (i *CommandExecutionItem) UnmarshalJSON(data []byte) error {
+	var aux struct {
+		ID      string `json:"id"`
+		Type    string `json:"type"`
+		Command string `json:"command"`
+		Status  string `json:"status"`
+
+		AggregatedOutput  *string `json:"aggregated_output"`
+		AggregatedOutputC *string `json:"aggregatedOutput"`
+		ExitCode          *int    `json:"exit_code"`
+		ExitCodeC         *int64  `json:"exitCode"`
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	i.ID = aux.ID
+	i.Type = aux.Type
+	i.Command = aux.Command
+	i.Status = CommandExecutionStatus(aux.Status)
+	if aux.AggregatedOutput != nil {
+		i.AggregatedOutput = *aux.AggregatedOutput
+	} else if aux.AggregatedOutputC != nil {
+		i.AggregatedOutput = *aux.AggregatedOutputC
+	}
+	switch {
+	case aux.ExitCode != nil:
+		i.ExitCode = aux.ExitCode
+	case aux.ExitCodeC != nil:
+		v := int(*aux.ExitCodeC)
+		i.ExitCode = &v
+	}
+	return nil
 }
 
 func (i *CommandExecutionItem) ItemType() string { return i.Type }
@@ -278,6 +383,10 @@ type PatchApplyStatus string
 const (
 	PatchApplyCompleted PatchApplyStatus = "completed"
 	PatchApplyFailed    PatchApplyStatus = "failed"
+	// Real app-server wire also emits "inProgress"/"declined" (protocol
+	// schema PatchApplyStatus); exec JSONL only surfaces terminal states.
+	PatchApplyInProgress PatchApplyStatus = "inProgress"
+	PatchApplyDeclined   PatchApplyStatus = "declined"
 )
 
 // FileChangeItem describes a set of file changes.
@@ -297,12 +406,43 @@ const (
 	McpToolCallInProgress McpToolCallStatus = "in_progress"
 	McpToolCallCompleted  McpToolCallStatus = "completed"
 	McpToolCallFailed     McpToolCallStatus = "failed"
+	// Real app-server wire casing (protocol schema): "inProgress"/"declined".
+	McpToolCallInProgressCamel McpToolCallStatus = "inProgress"
+	McpToolCallDeclined        McpToolCallStatus = "declined"
 )
 
+// IsInProgress reports progress under either wire casing.
+func (s McpToolCallStatus) IsInProgress() bool {
+	return s == McpToolCallInProgress || s == McpToolCallInProgressCamel
+}
+
 // McpToolCallResult holds a successful MCP tool response.
+//
+// WIRE CASING: the real app-server emits "structuredContent" (protocol
+// schema); the exec JSONL surface uses "structured_content". Both accepted.
 type McpToolCallResult struct {
 	Content           []map[string]any `json:"content,omitempty"`
 	StructuredContent any              `json:"structured_content,omitempty"`
+}
+
+// UnmarshalJSON accepts both camelCase (real app-server) and snake_case
+// (exec JSONL / legacy) result field names.
+func (r *McpToolCallResult) UnmarshalJSON(data []byte) error {
+	var aux struct {
+		Content            []map[string]any `json:"content"`
+		StructuredContent  any              `json:"structured_content"`
+		StructuredContentC any              `json:"structuredContent"`
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	r.Content = aux.Content
+	if aux.StructuredContent != nil {
+		r.StructuredContent = aux.StructuredContent
+	} else {
+		r.StructuredContent = aux.StructuredContentC
+	}
+	return nil
 }
 
 // McpToolCallError is an MCP tool error payload.
@@ -357,6 +497,36 @@ type TodoListItem struct {
 
 func (i *TodoListItem) ItemType() string { return i.Type }
 
+// UserMessageContentBlock is one content entry of a user message item.
+// Real app-server frame: {"type":"text","text":"...","text_elements":[]}.
+type UserMessageContentBlock struct {
+	Type         string            `json:"type"`
+	Text         string            `json:"text,omitempty"`
+	TextElements []json.RawMessage `json:"text_elements,omitempty"`
+}
+
+// UserMessageItem is the user's input echoed back by the app-server as a
+// thread item (observed on real codex-cli 0.153.4 item/started and
+// item/completed frames). Not present in the TS SDK's ThreadItem union —
+// app-server surface superset.
+type UserMessageItem struct {
+	ID       string                    `json:"id"`
+	Type     string                    `json:"type"`
+	ClientID *string                   `json:"clientId,omitempty"`
+	Content  []UserMessageContentBlock `json:"content"`
+}
+
+func (i *UserMessageItem) ItemType() string { return i.Type }
+
+// PlanItem carries the agent's plan text (app-server "plan" item).
+type PlanItem struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
+	Text string `json:"text"`
+}
+
+func (i *PlanItem) ItemType() string { return i.Type }
+
 // WebSearchItem or other types parsed by item type string.
 func parseThreadItem(raw json.RawMessage) (ThreadItem, error) {
 	var base struct {
@@ -410,6 +580,18 @@ func parseThreadItem(raw json.RawMessage) (ThreadItem, error) {
 		return &item, nil
 	case "error":
 		var item ErrorItem
+		if err := json.Unmarshal(raw, &item); err != nil {
+			return nil, err
+		}
+		return &item, nil
+	case "userMessage", "user_message":
+		var item UserMessageItem
+		if err := json.Unmarshal(raw, &item); err != nil {
+			return nil, err
+		}
+		return &item, nil
+	case "plan":
+		var item PlanItem
 		if err := json.Unmarshal(raw, &item); err != nil {
 			return nil, err
 		}

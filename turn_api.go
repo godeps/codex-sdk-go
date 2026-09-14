@@ -382,6 +382,167 @@ func decodeTurnNotification(threadID string, raw json.RawMessage, latestUsage *U
 			Turn:     &state,
 			Raw:      append(json.RawMessage(nil), raw...),
 		}, true, nil
+	case "item/agentMessage/delta":
+		// Streaming token-level output. The app-server delta family is the
+		// wire equivalent of the TS SDK's item.updated events (the exec JSONL
+		// surface has no deltas at all), and finer-grained: consumers can
+		// render agent text as it is produced instead of waiting for
+		// item/completed.
+		var payload struct {
+			ThreadID string `json:"threadId"`
+			TurnID   string `json:"turnId"`
+			ItemID   string `json:"itemId"`
+			Delta    string `json:"delta"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		return &ThreadEvent{
+			Type:     "item.agent_message.delta",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			ItemID:   payload.ItemID,
+			Delta:    payload.Delta,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}, false, nil
+	case "item/reasoning/textDelta":
+		var payload struct {
+			ThreadID     string `json:"threadId"`
+			TurnID       string `json:"turnId"`
+			ItemID       string `json:"itemId"`
+			Delta        string `json:"delta"`
+			ContentIndex int    `json:"contentIndex"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		return &ThreadEvent{
+			Type:     "item.reasoning_text.delta",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			ItemID:   payload.ItemID,
+			Delta:    payload.Delta,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}, false, nil
+	case "item/reasoning/summaryTextDelta":
+		var payload struct {
+			ThreadID string `json:"threadId"`
+			TurnID   string `json:"turnId"`
+			ItemID   string `json:"itemId"`
+			Delta    string `json:"delta"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		return &ThreadEvent{
+			Type:     "item.reasoning_summary_text.delta",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			ItemID:   payload.ItemID,
+			Delta:    payload.Delta,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}, false, nil
+	case "item/reasoning/summaryPartAdded":
+		var payload struct {
+			ThreadID     string `json:"threadId"`
+			TurnID       string `json:"turnId"`
+			ItemID       string `json:"itemId"`
+			SummaryIndex int    `json:"summaryIndex"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		return &ThreadEvent{
+			Type:         "item.reasoning_summary_part.added",
+			Method:       method,
+			ThreadID:     orString(payload.ThreadID, threadID),
+			TurnID:       payload.TurnID,
+			ItemID:       payload.ItemID,
+			SummaryIndex: payload.SummaryIndex,
+			Raw:          append(json.RawMessage(nil), raw...),
+		}, false, nil
+	case "item/commandExecution/outputDelta":
+		// Incremental stdout/stderr of a running command — the app-server
+		// equivalent of CommandExecutionItem.aggregated_output, streamed.
+		var payload struct {
+			ThreadID string `json:"threadId"`
+			TurnID   string `json:"turnId"`
+			ItemID   string `json:"itemId"`
+			Delta    string `json:"delta"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		return &ThreadEvent{
+			Type:     "item.command_execution.output_delta",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			ItemID:   payload.ItemID,
+			Delta:    payload.Delta,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}, false, nil
+	case "item/fileChange/outputDelta":
+		var payload struct {
+			ThreadID string `json:"threadId"`
+			TurnID   string `json:"turnId"`
+			ItemID   string `json:"itemId"`
+			Delta    string `json:"delta"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		return &ThreadEvent{
+			Type:     "item.file_change.output_delta",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			ItemID:   payload.ItemID,
+			Delta:    payload.Delta,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}, false, nil
+	case "item/plan/delta":
+		var payload struct {
+			ThreadID string `json:"threadId"`
+			TurnID   string `json:"turnId"`
+			ItemID   string `json:"itemId"`
+			Delta    string `json:"delta"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		return &ThreadEvent{
+			Type:     "item.plan.delta",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			ItemID:   payload.ItemID,
+			Delta:    payload.Delta,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}, false, nil
+	case "item/mcpToolCall/progress":
+		// Progress notifications emitted by an MCP server during a long call.
+		var payload struct {
+			ThreadID string `json:"threadId"`
+			TurnID   string `json:"turnId"`
+			ItemID   string `json:"itemId"`
+			Message  string `json:"message"`
+		}
+		if err := json.Unmarshal(params, &payload); err != nil {
+			return nil, false, err
+		}
+		return &ThreadEvent{
+			Type:     "item.mcp_tool_call.progress",
+			Method:   method,
+			ThreadID: orString(payload.ThreadID, threadID),
+			TurnID:   payload.TurnID,
+			ItemID:   payload.ItemID,
+			Message:  payload.Message,
+			Raw:      append(json.RawMessage(nil), raw...),
+		}, false, nil
 	default:
 		return &ThreadEvent{
 			Type:     method,

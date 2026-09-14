@@ -74,18 +74,28 @@ type ThreadError struct {
 
 // ThreadEvent represents a top-level JSONL event.
 type ThreadEvent struct {
-	Type     string          `json:"type"`
-	Method   string          `json:"method,omitempty"`
-	ThreadID string          `json:"thread_id,omitempty"`
-	TurnID   string          `json:"turn_id,omitempty"`
-	Usage    *Usage          `json:"usage,omitempty"`
-	Error    *ThreadError    `json:"error,omitempty"`
-	Item     ThreadItem      `json:"item,omitempty"`
-	Message  string          `json:"message,omitempty"`
-	Turn     *TurnState      `json:"turn,omitempty"`
-	Goal     *Goal           `json:"goal,omitempty"`
-	Account  *Account        `json:"account,omitempty"`
-	Raw      json.RawMessage `json:"-"`
+	Type     string       `json:"type"`
+	Method   string       `json:"method,omitempty"`
+	ThreadID string       `json:"thread_id,omitempty"`
+	TurnID   string       `json:"turn_id,omitempty"`
+	Usage    *Usage       `json:"usage,omitempty"`
+	Error    *ThreadError `json:"error,omitempty"`
+	Item     ThreadItem   `json:"item,omitempty"`
+	Message  string       `json:"message,omitempty"`
+	Turn     *TurnState   `json:"turn,omitempty"`
+	Goal     *Goal        `json:"goal,omitempty"`
+	Account  *Account     `json:"account,omitempty"`
+	// ItemID identifies the item a streaming delta/progress event belongs to
+	// (item.*.delta / item.mcp_tool_call.progress events).
+	ItemID string `json:"item_id,omitempty"`
+	// Delta carries the incremental text of a streaming delta event
+	// (agent message / reasoning / command output / file change / plan).
+	// The app-server delta family is the wire equivalent of the TS SDK's
+	// item.updated events (finer-grained: token/output level).
+	Delta string `json:"delta,omitempty"`
+	// SummaryIndex is set on item.reasoning_summary_part.added events.
+	SummaryIndex int             `json:"summary_index,omitempty"`
+	Raw          json.RawMessage `json:"-"`
 }
 
 // CompactionResult records acknowledgement and observed completion of one

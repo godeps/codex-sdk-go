@@ -92,6 +92,9 @@ func (c *sdkClient) ensureStarted(ctx context.Context) error {
 		client = appserver.New(appserver.Config{
 			ExecutablePath: resolved.path,
 			Env:            env,
+			ReplaceEnv:     c.options.Env != nil,
+			Approval:       appserver.ApprovalHandler(c.options.ServerRequestHandler),
+			CommandHook:    c.options.CommandHook,
 			ConfigFlags:    configFlags,
 			ClientName:     goSDKOriginator,
 			ClientVersion:  "dev",

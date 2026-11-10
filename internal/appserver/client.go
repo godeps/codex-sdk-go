@@ -117,6 +117,10 @@ type Config struct {
 	LaunchArgs     []string
 	Cwd            string
 	Env            map[string]string
+	// ReplaceEnv prevents parent variables from being inherited.
+	ReplaceEnv bool
+	// CommandHook must not start or wait for the command.
+	CommandHook    func(*exec.Cmd) error
 	ConfigFlags    []string
 	ClientName     string
 	ClientTitle    string
@@ -372,7 +376,7 @@ func (c *Client) startProcess() error {
 	}
 	cmd := exec.CommandContext(context.Background(), args[0], args[1:]...)
 	cmd.Dir = c.cfg.Cwd
-	cmd.Env = buildEnv(c.cfg.Env)
+	cmd.Env = buildProcessEnv(c.cfg.Env, c.cfg.ReplaceEnv)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -389,7 +393,19 @@ func (c *Client) startProcess() error {
 		c.mu.Unlock()
 		return err
 	}
+	if c.cfg.CommandHook != nil {
+		if err := c.cfg.CommandHook(cmd); err != nil {
+			_ = stdin.Close()
+			_ = stdout.Close()
+			_ = stderr.Close()
+			c.mu.Unlock()
+			return fmt.Errorf("appserver: command hook: %w", err)
+		}
+	}
 	if err := cmd.Start(); err != nil {
+		_ = stdin.Close()
+		_ = stdout.Close()
+		_ = stderr.Close()
 		c.mu.Unlock()
 		return err
 	}
@@ -668,11 +684,17 @@ func (c *Client) fail(err error) {
 }
 
 func buildEnv(override map[string]string) []string {
+	return buildProcessEnv(override, false)
+}
+
+func buildProcessEnv(override map[string]string, replace bool) []string {
 	env := make(map[string]string)
-	for _, entry := range os.Environ() {
-		parts := strings.SplitN(entry, "=", 2)
-		if len(parts) == 2 {
-			env[parts[0]] = parts[1]
+	if !replace {
+		for _, entry := range os.Environ() {
+			parts := strings.SplitN(entry, "=", 2)
+			if len(parts) == 2 {
+				env[parts[0]] = parts[1]
+			}
 		}
 	}
 	for key, value := range override {

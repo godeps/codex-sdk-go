@@ -1,6 +1,15 @@
 package codex
 
-import "context"
+import (
+	"context"
+	"encoding/json"
+	"os/exec"
+)
+
+// ServerRequestHandler resolves an app-server initiated request. The handler
+// must return the response shape required by method and honor ctx cancellation.
+// Requests can run concurrently; the transport correlates replies to their IDs.
+type ServerRequestHandler func(ctx context.Context, method string, params json.RawMessage) (json.RawMessage, error)
 
 // ApprovalMode controls the approval policy for tool executions.
 type ApprovalMode string
@@ -73,6 +82,13 @@ type CodexOptions struct {
 	// Env overrides the environment passed to the Codex CLI process.
 	// When provided, the SDK will not inherit variables from the parent process.
 	Env map[string]string
+	// ServerRequestHandler handles approvals and other server requests.
+	// A nil handler retains the built-in deny-by-default behavior.
+	ServerRequestHandler ServerRequestHandler
+	// CommandHook runs once before starting each managed app-server process.
+	// It can configure platform process supervision. Returning an error prevents
+	// the process from starting. The hook must not start or wait for the command.
+	CommandHook func(*exec.Cmd) error
 }
 
 // Option configures the context-first Client constructor.
@@ -225,6 +241,22 @@ func WithEnv(env map[string]string) Option {
 		for key, value := range env {
 			options.Env[key] = value
 		}
+		return nil
+	})
+}
+
+// WithServerRequestHandler installs a handler for app-server initiated requests.
+func WithServerRequestHandler(handler ServerRequestHandler) Option {
+	return optionFunc(func(options *CodexOptions) error {
+		options.ServerRequestHandler = handler
+		return nil
+	})
+}
+
+// WithCommandHook configures a managed command immediately before it starts.
+func WithCommandHook(hook func(*exec.Cmd) error) Option {
+	return optionFunc(func(options *CodexOptions) error {
+		options.CommandHook = hook
 		return nil
 	})
 }

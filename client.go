@@ -323,6 +323,8 @@ func (c *Client) Metadata() *Metadata {
 }
 
 // Close stops the shared app-server process.
+// On POSIX, exit by a SIGINT successfully sent by Close is an expected shutdown.
+// Wait retains the original process exit status for diagnostics.
 func (c *Client) Close() error {
 	if c == nil || c.transport == nil {
 		return nil

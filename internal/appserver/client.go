@@ -154,18 +154,20 @@ type Client struct {
 	limits Limits
 	router *router.MessageRouter
 
-	mu       sync.Mutex
-	proc     *exec.Cmd
-	stdin    io.WriteCloser
-	stdout   io.ReadCloser
-	stderr   io.ReadCloser
-	started  bool
-	closed   bool
-	waitErr  error
-	waitDone chan struct{}
-	initOnce sync.Once
-	initMeta *Metadata
-	initErr  error
+	mu        sync.Mutex
+	proc      *exec.Cmd
+	stdin     io.WriteCloser
+	stdout    io.ReadCloser
+	stderr    io.ReadCloser
+	started   bool
+	closed    bool
+	closeDone chan struct{}
+	closeErr  error // published by closing closeDone; Wait preserves the raw process exit
+	waitErr   error
+	waitDone  chan struct{}
+	initOnce  sync.Once
+	initMeta  *Metadata
+	initErr   error
 
 	writeMu   sync.Mutex
 	requestID uint64
@@ -312,12 +314,13 @@ func (c *Client) Close() error {
 		return nil
 	}
 	if c.closed {
-		waitDone := c.waitDone
+		done := c.closeDone
 		c.mu.Unlock()
-		<-waitDone
-		return c.Wait()
+		<-done
+		return c.closeErr
 	}
 	c.closed = true
+	c.closeDone = make(chan struct{})
 	cmd := c.proc
 	stdin := c.stdin
 	waitDone := c.waitDone
@@ -331,21 +334,33 @@ func (c *Client) Close() error {
 	if c.handlerCancel != nil {
 		c.handlerCancel()
 	}
+	interruptSent := false
 	select {
 	case <-waitDone:
 	case <-time.After(shutdownWait):
 		if cmd != nil && cmd.Process != nil {
-			_ = cmd.Process.Signal(os.Interrupt)
+			interruptSent = cmd.Process.Signal(os.Interrupt) == nil
 		}
 	}
 	select {
 	case <-waitDone:
 	case <-time.After(killWait):
 		if cmd != nil && cmd.Process != nil {
-			_ = cmd.Process.Kill()
+			if cmd.Process.Kill() == nil {
+				// A forced kill is not a graceful interrupt.
+				interruptSent = false
+			}
 		}
 	}
-	return c.Wait()
+	err := c.Wait()
+	// A direct app-server executable may exit by the SIGINT we just sent.
+	// Match the OS wait status, never stderr text or a numeric exit code.
+	if interruptSent && exitedByInterrupt(err) {
+		err = nil
+	}
+	c.closeErr = err
+	close(c.closeDone)
+	return err
 }
 
 // Wait blocks for process exit and returns the terminal process error.

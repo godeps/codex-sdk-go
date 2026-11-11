@@ -237,3 +237,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Host process integration
+
+See [host integration](docs/host-integration.md) for process supervision, environment isolation and protocol integration contracts.

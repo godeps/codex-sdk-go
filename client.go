@@ -92,6 +92,9 @@ func (c *sdkClient) ensureStarted(ctx context.Context) error {
 		client = appserver.New(appserver.Config{
 			ExecutablePath: resolved.path,
 			Env:            env,
+			ReplaceEnv:     c.options.Env != nil,
+			Approval:       appserver.ApprovalHandler(c.options.ServerRequestHandler),
+			CommandHook:    c.options.CommandHook,
 			ConfigFlags:    configFlags,
 			ClientName:     goSDKOriginator,
 			ClientVersion:  "dev",
@@ -320,6 +323,8 @@ func (c *Client) Metadata() *Metadata {
 }
 
 // Close stops the shared app-server process.
+// On POSIX, exit by a SIGINT successfully sent by Close is an expected shutdown.
+// Wait retains the original process exit status for diagnostics.
 func (c *Client) Close() error {
 	if c == nil || c.transport == nil {
 		return nil

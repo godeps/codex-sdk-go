@@ -133,6 +133,9 @@ func threadPayload(options ThreadOptions) map[string]any {
 	}
 
 	config := cloneMap(options.Config)
+	if config == nil {
+		config = make(map[string]any)
+	}
 	if options.ModelReasoningEffort != "" {
 		config["model_reasoning_effort"] = options.ModelReasoningEffort
 	}
